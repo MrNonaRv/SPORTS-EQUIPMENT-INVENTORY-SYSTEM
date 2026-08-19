@@ -48,9 +48,13 @@ export default function PublicDashboard() {
       </header>
 
       <div className="p-6">
-        <div className="flex items-center space-x-6 text-sm text-slate-500 mb-6 border-b border-slate-200 pb-4">
+        <div className="flex flex-wrap items-center gap-4 text-sm text-slate-500 mb-6 border-b border-slate-200 pb-4">
           <span>📍 Location: Mambusao Campus</span>
           <span>🕒 Clock: {dateStr} - {timeStr}</span>
+          <span className="inline-flex items-center text-xs font-medium text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1.5 animate-pulse"></span>
+            Cloud Real-Time Sync Active
+          </span>
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8 relative z-10">

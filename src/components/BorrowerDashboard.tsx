@@ -93,7 +93,13 @@ export default function BorrowerDashboard() {
           {activeTab === 'dashboard' && (
             <div className="max-w-5xl mx-auto">
               <h2 className="text-2xl font-bold text-blue-700 mb-2">Personal Overview Dashboard</h2>
-              <p className="text-slate-500 text-sm mb-8">Quick look into active items and sports tracking items counts</p>
+              <div className="flex flex-wrap items-center justify-between gap-2 mb-8">
+                <p className="text-slate-500 text-sm">Quick look into active items and sports tracking items counts</p>
+                <span className="inline-flex items-center text-xs font-medium text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1.5 animate-pulse"></span>
+                  Cloud Real-Time Sync Active
+                </span>
+              </div>
 
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
                 <StatCard title="TOTAL EQUIPMENT" count={totalUnits} subtext="Campus stock listing" icon={<Box className="w-5 h-5" />} color="border-slate-200" />

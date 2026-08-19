@@ -1,15 +1,26 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { AppState, User, Equipment, BorrowRequest, RequestStatus } from '../types';
+import { db } from '../firebase';
+import { 
+  collection, 
+  doc, 
+  onSnapshot, 
+  setDoc, 
+  updateDoc, 
+  writeBatch,
+  getDocs 
+} from 'firebase/firestore';
 
 interface AppContextType extends AppState {
   setView: (view: AppState['currentView']) => void;
   login: (user: User) => void;
   logout: () => void;
-  registerUser: (user: User) => void;
-  updateUserStatus: (userId: string, status: User['status']) => void;
-  addEquipment: (equipment: Equipment) => void;
-  submitBorrowRequest: (request: BorrowRequest) => void;
-  updateRequestStatus: (requestId: string, status: RequestStatus) => void;
+  registerUser: (user: User) => Promise<void>;
+  updateUserStatus: (userId: string, status: User['status']) => Promise<void>;
+  addEquipment: (equipment: Equipment) => Promise<void>;
+  submitBorrowRequest: (request: BorrowRequest) => Promise<void>;
+  updateRequestStatus: (requestId: string, status: RequestStatus) => Promise<void>;
+  isSyncing: boolean;
 }
 
 const initialUsers: User[] = [
@@ -44,69 +55,248 @@ const initialRequests: BorrowRequest[] = [
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [currentView, setView] = useState<AppState['currentView']>('landing');
-  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [currentView, setCurrentView] = useState<AppState['currentView']>(() => {
+    const saved = localStorage.getItem('csu_current_view') as AppState['currentView'] | null;
+    return saved || 'landing';
+  });
+
+  const [currentUser, setCurrentUser] = useState<User | null>(() => {
+    const saved = localStorage.getItem('csu_current_user');
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch {
+        return null;
+      }
+    }
+    return null;
+  });
+
   const [users, setUsers] = useState<User[]>(initialUsers);
   const [equipment, setEquipment] = useState<Equipment[]>(initialEquipment);
   const [requests, setRequests] = useState<BorrowRequest[]>(initialRequests);
+  const [isSyncing, setIsSyncing] = useState<boolean>(true);
+
+  const setView = (view: AppState['currentView']) => {
+    setCurrentView(view);
+    localStorage.setItem('csu_current_view', view);
+  };
+
+  // Real-time Cloud Synchronization with Firestore
+  useEffect(() => {
+    let seededUsers = false;
+    let seededEquipment = false;
+    let seededRequests = false;
+
+    // 1. Listen to Users Collection
+    const usersColRef = collection(db, 'users');
+    const unsubUsers = onSnapshot(usersColRef, async (snapshot) => {
+      if (snapshot.empty && !seededUsers) {
+        seededUsers = true;
+        try {
+          const batch = writeBatch(db);
+          for (const u of initialUsers) {
+            batch.set(doc(db, 'users', u.id), u);
+          }
+          await batch.commit();
+        } catch (err) {
+          console.error('Error seeding initial users:', err);
+        }
+      } else if (!snapshot.empty) {
+        const loadedUsers: User[] = [];
+        snapshot.forEach((d) => {
+          loadedUsers.push(d.data() as User);
+        });
+        setUsers(loadedUsers);
+
+        // Keep current logged in user profile updated if changed on another device
+        if (currentUser) {
+          const updatedProfile = loadedUsers.find(u => u.id === currentUser.id);
+          if (updatedProfile) {
+            setCurrentUser(updatedProfile);
+            localStorage.setItem('csu_current_user', JSON.stringify(updatedProfile));
+          }
+        }
+      }
+      setIsSyncing(false);
+    }, (err) => {
+      console.warn('Users sync warning (using local state fallback):', err);
+      setIsSyncing(false);
+    });
+
+    // 2. Listen to Equipment Collection
+    const equipmentColRef = collection(db, 'equipment');
+    const unsubEquipment = onSnapshot(equipmentColRef, async (snapshot) => {
+      if (snapshot.empty && !seededEquipment) {
+        seededEquipment = true;
+        try {
+          const batch = writeBatch(db);
+          for (const eq of initialEquipment) {
+            batch.set(doc(db, 'equipment', eq.id), eq);
+          }
+          await batch.commit();
+        } catch (err) {
+          console.error('Error seeding initial equipment:', err);
+        }
+      } else if (!snapshot.empty) {
+        const loadedEquipment: Equipment[] = [];
+        snapshot.forEach((d) => {
+          loadedEquipment.push(d.data() as Equipment);
+        });
+        setEquipment(loadedEquipment);
+      }
+    }, (err) => {
+      console.warn('Equipment sync warning:', err);
+    });
+
+    // 3. Listen to Requests Collection
+    const requestsColRef = collection(db, 'requests');
+    const unsubRequests = onSnapshot(requestsColRef, async (snapshot) => {
+      if (snapshot.empty && !seededRequests) {
+        seededRequests = true;
+        try {
+          const batch = writeBatch(db);
+          for (const r of initialRequests) {
+            batch.set(doc(db, 'requests', r.id), r);
+          }
+          await batch.commit();
+        } catch (err) {
+          console.error('Error seeding initial requests:', err);
+        }
+      } else if (!snapshot.empty) {
+        const loadedRequests: BorrowRequest[] = [];
+        snapshot.forEach((d) => {
+          loadedRequests.push(d.data() as BorrowRequest);
+        });
+        // Sort newest first
+        loadedRequests.sort((a, b) => new Date(b.requestDate).getTime() - new Date(a.requestDate).getTime());
+        setRequests(loadedRequests);
+      }
+    }, (err) => {
+      console.warn('Requests sync warning:', err);
+    });
+
+    return () => {
+      unsubUsers();
+      unsubEquipment();
+      unsubRequests();
+    };
+  }, []);
 
   const login = (user: User) => {
     setCurrentUser(user);
-    setView(user.role === 'admin' ? 'admin_dashboard' : 'borrower_dashboard');
+    localStorage.setItem('csu_current_user', JSON.stringify(user));
+    const targetView = user.role === 'admin' ? 'admin_dashboard' : 'borrower_dashboard';
+    setView(targetView);
   };
 
   const logout = () => {
     setCurrentUser(null);
+    localStorage.removeItem('csu_current_user');
     setView('landing');
   };
 
-  const registerUser = (user: User) => {
-    setUsers([...users, user]);
-    setView('landing');
-  };
-
-  const updateUserStatus = (userId: string, status: User['status']) => {
-    setUsers(users.map(u => u.id === userId ? { ...u, status } : u));
-  };
-
-  const addEquipment = (newEq: Equipment) => {
-    const existingIndex = equipment.findIndex(e => e.name.toLowerCase() === newEq.name.toLowerCase() && e.category === newEq.category);
-    if (existingIndex >= 0) {
-      const updatedEq = [...equipment];
-      updatedEq[existingIndex] = {
-        ...updatedEq[existingIndex],
-        total: updatedEq[existingIndex].total + newEq.total,
-        available: updatedEq[existingIndex].available + newEq.available,
-      };
-      setEquipment(updatedEq);
-    } else {
-      setEquipment([...equipment, newEq]);
+  const registerUser = async (user: User) => {
+    // Update local state immediately for fast feedback
+    setUsers(prev => [...prev.filter(u => u.id !== user.id), user]);
+    
+    // Save to Firestore
+    try {
+      await setDoc(doc(db, 'users', user.id), user);
+    } catch (err) {
+      console.error('Failed to save user to Firestore:', err);
     }
   };
 
-  const submitBorrowRequest = (request: BorrowRequest) => {
-    setRequests([request, ...requests]);
+  const updateUserStatus = async (userId: string, status: User['status']) => {
+    setUsers(prev => prev.map(u => u.id === userId ? { ...u, status } : u));
+    try {
+      await updateDoc(doc(db, 'users', userId), { status });
+    } catch (err) {
+      console.error('Failed to update user status in Firestore:', err);
+    }
   };
 
-  const updateRequestStatus = (requestId: string, status: RequestStatus) => {
-    setRequests(requests.map(r => r.id === requestId ? { ...r, status } : r));
-    
-    // Auto update equipment counts based on request status changes
-    const req = requests.find(r => r.id === requestId);
-    if (req) {
-      if (status === 'approved') {
-        setEquipment(equipment.map(e => 
-          e.id === req.equipmentId 
-            ? { ...e, available: e.available - req.quantity, borrowed: e.borrowed + req.quantity } 
-            : e
-        ));
-      } else if (status === 'returned') {
-        setEquipment(equipment.map(e => 
-          e.id === req.equipmentId 
-            ? { ...e, available: e.available + req.quantity, borrowed: e.borrowed - req.quantity } 
-            : e
-        ));
+  const addEquipment = async (newEq: Equipment) => {
+    const existing = equipment.find(
+      e => e.name.toLowerCase() === newEq.name.toLowerCase() && e.category.toLowerCase() === newEq.category.toLowerCase()
+    );
+
+    if (existing) {
+      const updatedTotal = existing.total + newEq.total;
+      const updatedAvailable = existing.available + newEq.available;
+      const updatedInRepair = existing.inRepair + newEq.inRepair;
+      const updatedDamaged = existing.damaged + newEq.damaged;
+
+      setEquipment(prev => prev.map(e => e.id === existing.id ? {
+        ...e,
+        total: updatedTotal,
+        available: updatedAvailable,
+        inRepair: updatedInRepair,
+        damaged: updatedDamaged,
+      } : e));
+
+      try {
+        await updateDoc(doc(db, 'equipment', existing.id), {
+          total: updatedTotal,
+          available: updatedAvailable,
+          inRepair: updatedInRepair,
+          damaged: updatedDamaged,
+          lastChecked: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })
+        });
+      } catch (err) {
+        console.error('Failed to update equipment in Firestore:', err);
       }
+    } else {
+      setEquipment(prev => [...prev, newEq]);
+      try {
+        await setDoc(doc(db, 'equipment', newEq.id), newEq);
+      } catch (err) {
+        console.error('Failed to add equipment to Firestore:', err);
+      }
+    }
+  };
+
+  const submitBorrowRequest = async (request: BorrowRequest) => {
+    setRequests(prev => [request, ...prev]);
+    try {
+      await setDoc(doc(db, 'requests', request.id), request);
+    } catch (err) {
+      console.error('Failed to submit borrow request to Firestore:', err);
+    }
+  };
+
+  const updateRequestStatus = async (requestId: string, status: RequestStatus) => {
+    const req = requests.find(r => r.id === requestId);
+    setRequests(prev => prev.map(r => r.id === requestId ? { ...r, status } : r));
+
+    try {
+      await updateDoc(doc(db, 'requests', requestId), { status });
+
+      if (req) {
+        const targetEq = equipment.find(e => e.id === req.equipmentId);
+        if (targetEq) {
+          if (status === 'approved') {
+            const newAvail = Math.max(0, targetEq.available - req.quantity);
+            const newBorrowed = targetEq.borrowed + req.quantity;
+            setEquipment(prev => prev.map(e => e.id === targetEq.id ? { ...e, available: newAvail, borrowed: newBorrowed } : e));
+            await updateDoc(doc(db, 'equipment', targetEq.id), {
+              available: newAvail,
+              borrowed: newBorrowed
+            });
+          } else if (status === 'returned') {
+            const newAvail = targetEq.available + req.quantity;
+            const newBorrowed = Math.max(0, targetEq.borrowed - req.quantity);
+            setEquipment(prev => prev.map(e => e.id === targetEq.id ? { ...e, available: newAvail, borrowed: newBorrowed } : e));
+            await updateDoc(doc(db, 'equipment', targetEq.id), {
+              available: newAvail,
+              borrowed: newBorrowed
+            });
+          }
+        }
+      }
+    } catch (err) {
+      console.error('Failed to update request status in Firestore:', err);
     }
   };
 
@@ -116,7 +306,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       currentUser, login, logout,
       users, registerUser, updateUserStatus,
       equipment, addEquipment,
-      requests, submitBorrowRequest, updateRequestStatus
+      requests, submitBorrowRequest, updateRequestStatus,
+      isSyncing
     }}>
       {children}
     </AppContext.Provider>

@@ -1,0 +1,54 @@
+{
+  "entities": {
+    "users": {
+      "title": "User",
+      "description": "System users including admins, faculty, and student borrowers",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "role": { "type": "string", "enum": ["admin", "student", "faculty"] },
+        "department": { "type": "string" },
+        "contact": { "type": "string" },
+        "status": { "type": "string", "enum": ["pending", "approved", "rejected"] },
+        "password": { "type": "string" }
+      },
+      "required": ["id", "name", "role", "status"]
+    },
+    "equipment": {
+      "title": "Equipment",
+      "description": "Sports and athletic inventory items",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "category": { "type": "string" },
+        "total": { "type": "number" },
+        "available": { "type": "number" },
+        "borrowed": { "type": "number" },
+        "inRepair": { "type": "number" },
+        "damaged": { "type": "number" },
+        "location": { "type": "string" },
+        "lastChecked": { "type": "string" }
+      },
+      "required": ["id", "name", "category", "total", "available"]
+    },
+    "requests": {
+      "title": "BorrowRequest",
+      "description": "Equipment borrow and return requests",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "equipmentId": { "type": "string" },
+        "quantity": { "type": "number" },
+        "purpose": { "type": "string" },
+        "pickupDate": { "type": "string" },
+        "returnDate": { "type": "string" },
+        "status": { "type": "string", "enum": ["pending", "approved", "declined", "returned", "return_pending", "overdue"] },
+        "requestDate": { "type": "string" }
+      },
+      "required": ["id", "userId", "equipmentId", "quantity", "status"]
+    }
+  }
+}
