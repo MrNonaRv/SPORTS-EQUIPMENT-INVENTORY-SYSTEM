@@ -16,24 +16,30 @@ export default function BorrowerDashboard() {
 
   // Borrow Form State
   const [cart, setCart] = useState<{equipmentId: string, quantity: number}[]>([]);
-  const [selectedEqId, setSelectedEqId] = useState(equipment.length > 0 ? equipment[0].id : '');
-  const [quantity, setQuantity] = useState(1);
   const [purpose, setPurpose] = useState('');
   const [pickupDate, setPickupDate] = useState('');
   const [returnDate, setReturnDate] = useState('');
   const [submitSuccess, setSubmitSuccess] = useState(false);
 
-  const addToCart = () => {
-    if (!selectedEqId || quantity < 1) return;
-    const existingIndex = cart.findIndex(item => item.equipmentId === selectedEqId);
+  const addToCartDirect = (eqId: string) => {
+    const existingIndex = cart.findIndex(item => item.equipmentId === eqId);
     if (existingIndex >= 0) {
       const newCart = [...cart];
-      newCart[existingIndex].quantity += Number(quantity);
+      newCart[existingIndex].quantity += 1;
       setCart(newCart);
     } else {
-      setCart([...cart, { equipmentId: selectedEqId, quantity: Number(quantity) }]);
+      setCart([...cart, { equipmentId: eqId, quantity: 1 }]);
     }
-    setQuantity(1);
+  };
+
+  const updateCartQuantity = (index: number, newQty: number) => {
+    if (newQty < 1) {
+      removeFromCart(index);
+      return;
+    }
+    const newCart = [...cart];
+    newCart[index].quantity = newQty;
+    setCart(newCart);
   };
 
   const removeFromCart = (index: number) => {
@@ -187,106 +193,149 @@ export default function BorrowerDashboard() {
           )}
 
           {activeTab === 'borrow' && (
-            <div className="max-w-md mx-auto bg-white border border-slate-200 rounded-xl p-8">
-              <h2 className="text-xl font-bold text-blue-700 mb-2">New Sports Equipment Borrow Voucher</h2>
-              <p className="text-slate-500 text-xs mb-6">Submit voucher credentials for administrator approval matching real-time availability.</p>
+            <div className="max-w-6xl mx-auto">
+              <div className="mb-6">
+                <h2 className="text-2xl font-bold text-blue-700 mb-1">Equipment Catalog</h2>
+                <p className="text-slate-500 text-sm">Select items to build your borrow voucher, then submit for administrator approval.</p>
+              </div>
 
               {submitSuccess ? (
-                <div className="flex flex-col items-center justify-center py-12 text-green-400">
-                  <Check className="w-16 h-16 mb-4" />
-                  <h3 className="text-xl font-bold">Request Sent!</h3>
+                <div className="bg-white border border-green-200 rounded-xl p-12 flex flex-col items-center justify-center text-green-600 shadow-sm">
+                  <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
+                    <Check className="w-8 h-8" />
+                  </div>
+                  <h3 className="text-2xl font-bold mb-2">Request Submitted Successfully!</h3>
+                  <p className="text-slate-500 text-sm">Your voucher has been sent to the admin. Check the Notifications tab for updates.</p>
                 </div>
               ) : (
-                <form onSubmit={handleBorrowSubmit} className="space-y-4">
-                  <div className="flex gap-4 items-end">
-                    <div className="flex-1">
-                      <label className="block text-xs text-slate-500 mb-1">Select Desired Sports Equipment</label>
-                      <select 
-                        value={selectedEqId}
-                        onChange={e => setSelectedEqId(e.target.value)}
-                        className="w-full bg-slate-50 border border-slate-200 rounded px-4 py-2 text-slate-900 focus:outline-none focus:border-blue-700"
-                      >
-                        {equipment.map(eq => (
-                          <option key={eq.id} value={eq.id}>{eq.name} ({eq.available} available)</option>
-                        ))}
-                      </select>
+                <div className="flex flex-col lg:flex-row gap-6">
+                  {/* Left Column: Equipment Grid */}
+                  <div className="flex-1">
+                    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+                      {equipment.map(eq => {
+                        const inCartCount = cart.find(c => c.equipmentId === eq.id)?.quantity || 0;
+                        const availableToAdd = eq.available - inCartCount;
+                        return (
+                          <div key={eq.id} className="border border-slate-200 bg-white p-5 rounded-xl hover:border-blue-300 hover:shadow-sm transition flex flex-col">
+                            <div className="flex justify-between items-start mb-2">
+                              <div>
+                                <h3 className="font-bold text-slate-800 text-lg leading-tight">{eq.name}</h3>
+                                <p className="text-xs text-slate-500 font-medium uppercase tracking-wider">{eq.category}</p>
+                              </div>
+                              <span className={`text-xs font-bold px-2 py-1 rounded-full ${eq.available > 0 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-600'}`}>
+                                {eq.available} Left
+                              </span>
+                            </div>
+                            
+                            <div className="mt-auto pt-4 flex items-center justify-between border-t border-slate-100">
+                              <span className="text-xs text-slate-500">
+                                {inCartCount > 0 && <span className="font-semibold text-blue-600">{inCartCount} in cart</span>}
+                              </span>
+                              <button 
+                                type="button"
+                                disabled={availableToAdd <= 0}
+                                onClick={() => addToCartDirect(eq.id)}
+                                className={`px-4 py-1.5 rounded-lg text-sm font-semibold transition ${
+                                  availableToAdd > 0 
+                                    ? 'bg-blue-50 text-blue-700 hover:bg-blue-100' 
+                                    : 'bg-slate-100 text-slate-400 cursor-not-allowed'
+                                }`}
+                              >
+                                {availableToAdd <= 0 && eq.available > 0 ? 'Max Added' : '+ Add'}
+                              </button>
+                            </div>
+                          </div>
+                        );
+                      })}
                     </div>
-                    <div className="w-24">
-                      <label className="block text-xs text-slate-500 mb-1">Quantity</label>
-                      <input 
-                        type="number" 
-                        min="1"
-                        value={quantity}
-                        onChange={e => setQuantity(Number(e.target.value))}
-                        className="w-full bg-slate-50 border border-slate-200 rounded px-4 py-2 text-slate-900 focus:outline-none focus:border-blue-700"
-                      />
-                    </div>
-                    <button 
-                      type="button"
-                      onClick={addToCart}
-                      className="bg-slate-200 hover:bg-slate-300 text-slate-900 font-semibold py-2 px-4 rounded transition"
-                    >
-                      Add
-                    </button>
-                  </div>
-                  
-                  {cart.length > 0 && (
-                    <div className="bg-slate-50 border border-slate-200 rounded p-4 mb-4">
-                      <h4 className="text-sm font-semibold text-slate-900 mb-2">Selected Items:</h4>
-                      <ul className="space-y-2">
-                        {cart.map((item, index) => {
-                          const eq = equipment.find(e => e.id === item.equipmentId);
-                          return (
-                            <li key={index} className="flex justify-between items-center text-sm text-slate-700">
-                              <span>{item.quantity}x {eq?.name}</span>
-                              <button type="button" onClick={() => removeFromCart(index)} className="text-red-500 hover:text-red-700 text-xs">Remove</button>
-                            </li>
-                          );
-                        })}
-                      </ul>
-                    </div>
-                  )}
-
-                  <div>
-                    <label className="block text-xs text-slate-500 mb-1">Intended Purpose / Usage</label>
-                    <input 
-                      required
-                      type="text" 
-                      placeholder="e.g. Class Activity"
-                      value={purpose}
-                      onChange={e => setPurpose(e.target.value)}
-                      className="w-full bg-slate-50 border border-slate-200 rounded px-4 py-2 text-slate-900 focus:outline-none focus:border-blue-700"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs text-slate-500 mb-1">Pickup Date & Time</label>
-                    <input 
-                      required
-                      type="datetime-local" 
-                      value={pickupDate}
-                      onChange={e => setPickupDate(e.target.value)}
-                      className="w-full bg-slate-50 border border-slate-200 rounded px-4 py-2 text-slate-900 focus:outline-none focus:border-blue-700"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs text-slate-500 mb-1">Expected Return Deadline</label>
-                    <input 
-                      required
-                      type="datetime-local" 
-                      value={returnDate}
-                      onChange={e => setReturnDate(e.target.value)}
-                      className="w-full bg-slate-50 border border-slate-200 rounded px-4 py-2 text-slate-900 focus:outline-none focus:border-blue-700"
-                    />
                   </div>
 
-                  <button 
-                    type="submit"
-                    className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded mt-4 flex justify-center items-center space-x-2 transition"
-                  >
-                    <CalendarPlus className="w-5 h-5" />
-                    <span>Send Request</span>
-                  </button>
-                </form>
+                  {/* Right Column: Checkout Form */}
+                  <div className="w-full lg:w-[400px]">
+                    <div className="bg-white border border-slate-200 rounded-xl p-6 sticky top-6 shadow-sm">
+                      <h3 className="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
+                        <Box className="w-5 h-5 text-blue-600" />
+                        Your Voucher Cart
+                      </h3>
+                      
+                      <form onSubmit={handleBorrowSubmit}>
+                        {/* Cart Items List */}
+                        <div className="mb-6">
+                          {cart.length > 0 ? (
+                            <ul className="space-y-3">
+                              {cart.map((item, index) => {
+                                const eq = equipment.find(e => e.id === item.equipmentId);
+                                const maxAvail = eq?.available || 0;
+                                return (
+                                  <li key={index} className="flex justify-between items-center p-3 bg-slate-50 rounded-lg border border-slate-100">
+                                    <div className="flex-1 min-w-0 pr-4">
+                                      <div className="text-sm font-semibold text-slate-800 truncate">{eq?.name}</div>
+                                      <button type="button" onClick={() => removeFromCart(index)} className="text-[10px] text-red-500 hover:text-red-700 uppercase font-bold mt-1">Remove</button>
+                                    </div>
+                                    <div className="flex items-center space-x-2">
+                                      <button type="button" onClick={() => updateCartQuantity(index, item.quantity - 1)} className="w-6 h-6 flex items-center justify-center bg-white border border-slate-200 rounded text-slate-600 hover:bg-slate-100 font-bold">-</button>
+                                      <span className="text-sm font-bold w-4 text-center">{item.quantity}</span>
+                                      <button type="button" disabled={item.quantity >= maxAvail} onClick={() => updateCartQuantity(index, item.quantity + 1)} className="w-6 h-6 flex items-center justify-center bg-white border border-slate-200 rounded text-slate-600 hover:bg-slate-100 disabled:opacity-50 font-bold">+</button>
+                                    </div>
+                                  </li>
+                                );
+                              })}
+                            </ul>
+                          ) : (
+                            <div className="text-center py-8 text-slate-400 border-2 border-dashed border-slate-200 rounded-lg bg-slate-50">
+                              <p className="text-sm font-medium">Cart is empty</p>
+                              <p className="text-xs mt-1">Add equipment from the catalog</p>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Form Details */}
+                        <div className="space-y-4">
+                          <div>
+                            <label className="block text-xs font-semibold text-slate-600 mb-1.5 uppercase tracking-wide">Intended Purpose</label>
+                            <input 
+                              required
+                              type="text" 
+                              placeholder="e.g. Class Activity, Practice"
+                              value={purpose}
+                              onChange={e => setPurpose(e.target.value)}
+                              className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-2.5 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-xs font-semibold text-slate-600 mb-1.5 uppercase tracking-wide">Pickup Time</label>
+                            <input 
+                              required
+                              type="datetime-local" 
+                              value={pickupDate}
+                              onChange={e => setPickupDate(e.target.value)}
+                              className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-2.5 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-xs font-semibold text-slate-600 mb-1.5 uppercase tracking-wide">Return Deadline</label>
+                            <input 
+                              required
+                              type="datetime-local" 
+                              value={returnDate}
+                              onChange={e => setReturnDate(e.target.value)}
+                              className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-2.5 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition"
+                            />
+                          </div>
+
+                          <button 
+                            type="submit"
+                            disabled={cart.length === 0}
+                            className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 disabled:cursor-not-allowed text-white font-bold py-3 px-4 rounded-lg mt-2 flex justify-center items-center space-x-2 transition shadow-sm"
+                          >
+                            <CalendarPlus className="w-5 h-5" />
+                            <span>Submit Request</span>
+                          </button>
+                        </div>
+                      </form>
+                    </div>
+                  </div>
+                </div>
               )}
             </div>
           )}
