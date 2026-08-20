@@ -17,6 +17,7 @@ interface AppContextType extends AppState {
   logout: () => void;
   registerUser: (user: User) => Promise<void>;
   updateUserStatus: (userId: string, status: User['status']) => Promise<void>;
+  updateUserDetails: (userId: string, updates: Partial<User>) => Promise<void>;
   addEquipment: (equipment: Equipment) => Promise<void>;
   submitBorrowRequest: (request: BorrowRequest) => Promise<void>;
   updateRequestStatus: (requestId: string, status: RequestStatus) => Promise<void>;
@@ -208,6 +209,20 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     }
   };
 
+  const updateUserDetails = async (userId: string, updates: Partial<User>) => {
+    setUsers(prev => prev.map(u => u.id === userId ? { ...u, ...updates } : u));
+    if (currentUser?.id === userId) {
+      const updatedUser = { ...currentUser, ...updates };
+      setCurrentUser(updatedUser);
+      localStorage.setItem('csu_current_user', JSON.stringify(updatedUser));
+    }
+    try {
+      await updateDoc(doc(db, 'users', userId), updates);
+    } catch (err) {
+      console.error('Failed to update user details in Firestore:', err);
+    }
+  };
+
   const updateUserStatus = async (userId: string, status: User['status']) => {
     setUsers(prev => prev.map(u => u.id === userId ? { ...u, status } : u));
     try {
@@ -310,7 +325,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     <AppContext.Provider value={{
       currentView, setView,
       currentUser, login, logout,
-      users, registerUser, updateUserStatus,
+      users, registerUser, updateUserStatus, updateUserDetails,
       equipment, addEquipment,
       requests, submitBorrowRequest, updateRequestStatus,
       isSyncing

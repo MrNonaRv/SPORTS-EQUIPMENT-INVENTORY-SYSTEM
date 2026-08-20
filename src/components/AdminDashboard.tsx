@@ -4,9 +4,13 @@ import { LogOut, LayoutDashboard, Users, Bell, UserCog, PackagePlus, FileBarChar
 import { BorrowRequest, Equipment } from '../types';
 
 export default function AdminDashboard() {
-  const { currentUser, logout, users, equipment, requests, updateRequestStatus, updateUserStatus, addEquipment } = useAppContext();
+  const { currentUser, logout, users, equipment, requests, updateRequestStatus, updateUserStatus, addEquipment, updateUserDetails } = useAppContext();
   const [activeTab, setActiveTab] = useState<'dashboard' | 'requests' | 'users' | 'arrivals' | 'reports' | 'active_borrowers'>('dashboard');
   const [activeOverlay, setActiveOverlay] = useState<string | null>(null);
+
+  // Profile Edit State
+  const [isEditingProfile, setIsEditingProfile] = useState(false);
+  const [editProfileName, setEditProfileName] = useState('');
 
   // New Equipment State
   const [eqName, setEqName] = useState('');
@@ -99,7 +103,47 @@ export default function AdminDashboard() {
           <div className="text-sm flex items-center space-x-2">
             <span className="w-2 h-2 rounded-full bg-green-500"></span>
             <span className="text-slate-500">Admin Profile: </span>
-            <span className="text-blue-700 font-medium">{currentUser.name}</span>
+            {isEditingProfile ? (
+              <div className="flex items-center space-x-2">
+                <input 
+                  type="text" 
+                  value={editProfileName} 
+                  onChange={e => setEditProfileName(e.target.value)}
+                  className="px-2 py-0.5 border border-slate-300 rounded text-sm focus:outline-none focus:border-blue-500"
+                  autoFocus
+                />
+                <button 
+                  onClick={() => {
+                    if (editProfileName.trim() !== '') {
+                      updateUserDetails(currentUser.id, { name: editProfileName.trim() });
+                    }
+                    setIsEditingProfile(false);
+                  }}
+                  className="text-xs bg-blue-600 hover:bg-blue-700 text-white px-2 py-1 rounded"
+                >
+                  Save
+                </button>
+                <button 
+                  onClick={() => setIsEditingProfile(false)}
+                  className="text-xs bg-slate-200 hover:bg-slate-300 text-slate-700 px-2 py-1 rounded"
+                >
+                  Cancel
+                </button>
+              </div>
+            ) : (
+              <div className="flex items-center space-x-2">
+                <span className="text-blue-700 font-medium">{currentUser.name}</span>
+                <button 
+                  onClick={() => {
+                    setEditProfileName(currentUser.name);
+                    setIsEditingProfile(true);
+                  }}
+                  className="text-xs text-blue-600 hover:text-blue-800 underline"
+                >
+                  Edit
+                </button>
+              </div>
+            )}
           </div>
         </header>
 
