@@ -15,22 +15,39 @@ export default function BorrowerDashboard() {
   const forRepairUnits = equipment.reduce((acc, eq) => acc + eq.inRepair, 0);
 
   // Borrow Form State
-  const [selectedEqId, setSelectedEqId] = useState(equipment[0]?.id || '');
+  const [cart, setCart] = useState<{equipmentId: string, quantity: number}[]>([]);
+  const [selectedEqId, setSelectedEqId] = useState(equipment.length > 0 ? equipment[0].id : '');
   const [quantity, setQuantity] = useState(1);
   const [purpose, setPurpose] = useState('');
   const [pickupDate, setPickupDate] = useState('');
   const [returnDate, setReturnDate] = useState('');
   const [submitSuccess, setSubmitSuccess] = useState(false);
 
+  const addToCart = () => {
+    if (!selectedEqId || quantity < 1) return;
+    const existingIndex = cart.findIndex(item => item.equipmentId === selectedEqId);
+    if (existingIndex >= 0) {
+      const newCart = [...cart];
+      newCart[existingIndex].quantity += Number(quantity);
+      setCart(newCart);
+    } else {
+      setCart([...cart, { equipmentId: selectedEqId, quantity: Number(quantity) }]);
+    }
+    setQuantity(1);
+  };
+
+  const removeFromCart = (index: number) => {
+    setCart(cart.filter((_, i) => i !== index));
+  };
+
   const handleBorrowSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!currentUser) return;
+    if (!currentUser || cart.length === 0) return;
     
     const newReq: BorrowRequest = {
       id: `req-${Date.now()}`,
       userId: currentUser.id,
-      equipmentId: selectedEqId,
-      quantity: Number(quantity),
+      items: cart,
       purpose,
       pickupDate,
       returnDate,
@@ -41,6 +58,10 @@ export default function BorrowerDashboard() {
     setSubmitSuccess(true);
     setTimeout(() => {
       setSubmitSuccess(false);
+      setCart([]);
+      setPurpose('');
+      setPickupDate('');
+      setReturnDate('');
       setActiveTab('dashboard');
     }, 2000);
   };
@@ -128,16 +149,21 @@ export default function BorrowerDashboard() {
                       </tr>
                     ) : (
                       userRequests.map(req => {
-                        const eq = equipment.find(e => e.id === req.equipmentId);
+                        const items = req.items && req.items.length > 0 ? req.items : [{ equipmentId: req.equipmentId || '', quantity: req.quantity || 0 }];
                         return (
                           <tr key={req.id} className="hover:bg-slate-100">
-                            <td className="px-6 py-4 font-medium">{eq?.name}</td>
+                            <td className="px-6 py-4 font-medium">
+                              {items.map((item, idx) => {
+                                const eq = equipment.find(e => e.id === item.equipmentId);
+                                return <div key={idx} className="mb-1">{item.quantity}x {eq?.name || 'Unknown Item'}</div>
+                              })}
+                            </td>
                             <td className="px-6 py-4 text-slate-600 text-xs">
                               <div>Pickup: {new Date(req.pickupDate).toLocaleString()}</div>
                               <div>Return: {new Date(req.returnDate).toLocaleString()}</div>
                             </td>
                             <td className="px-6 py-4 text-slate-500">{new Date(req.requestDate).toLocaleDateString()}</td>
-                            <td className="px-6 py-4">{req.quantity}</td>
+                            <td className="px-6 py-4">{items.reduce((sum, item) => sum + item.quantity, 0)}</td>
                             <td className="px-6 py-4">{req.purpose}</td>
                             <td className="px-6 py-4 text-center">
                               <StatusBadge status={req.status} />
@@ -146,7 +172,7 @@ export default function BorrowerDashboard() {
                                   onClick={() => updateRequestStatus(req.id, 'return_pending')}
                                   className="mt-2 block w-full text-[10px] bg-blue-500 hover:bg-blue-600 text-white py-1 rounded transition"
                                 >
-                                  Return Item
+                                  Return Items
                                 </button>
                               )}
                             </td>
@@ -172,30 +198,55 @@ export default function BorrowerDashboard() {
                 </div>
               ) : (
                 <form onSubmit={handleBorrowSubmit} className="space-y-4">
-                  <div>
-                    <label className="block text-xs text-slate-500 mb-1">Select Desired Sports Equipment</label>
-                    <select 
-                      required
-                      value={selectedEqId}
-                      onChange={e => setSelectedEqId(e.target.value)}
-                      className="w-full bg-slate-50 border border-slate-200 rounded px-4 py-2 text-slate-900 focus:outline-none focus:border-blue-700"
+                  <div className="flex gap-4 items-end">
+                    <div className="flex-1">
+                      <label className="block text-xs text-slate-500 mb-1">Select Desired Sports Equipment</label>
+                      <select 
+                        value={selectedEqId}
+                        onChange={e => setSelectedEqId(e.target.value)}
+                        className="w-full bg-slate-50 border border-slate-200 rounded px-4 py-2 text-slate-900 focus:outline-none focus:border-blue-700"
+                      >
+                        {equipment.map(eq => (
+                          <option key={eq.id} value={eq.id}>{eq.name} ({eq.available} available)</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div className="w-24">
+                      <label className="block text-xs text-slate-500 mb-1">Quantity</label>
+                      <input 
+                        type="number" 
+                        min="1"
+                        value={quantity}
+                        onChange={e => setQuantity(Number(e.target.value))}
+                        className="w-full bg-slate-50 border border-slate-200 rounded px-4 py-2 text-slate-900 focus:outline-none focus:border-blue-700"
+                      />
+                    </div>
+                    <button 
+                      type="button"
+                      onClick={addToCart}
+                      className="bg-slate-200 hover:bg-slate-300 text-slate-900 font-semibold py-2 px-4 rounded transition"
                     >
-                      {equipment.map(eq => (
-                        <option key={eq.id} value={eq.id}>{eq.name} ({eq.available} available)</option>
-                      ))}
-                    </select>
+                      Add
+                    </button>
                   </div>
-                  <div>
-                    <label className="block text-xs text-slate-500 mb-1">Quantity to Borrow</label>
-                    <input 
-                      required
-                      type="number" 
-                      min="1"
-                      value={quantity}
-                      onChange={e => setQuantity(Number(e.target.value))}
-                      className="w-full bg-slate-50 border border-slate-200 rounded px-4 py-2 text-slate-900 focus:outline-none focus:border-blue-700"
-                    />
-                  </div>
+                  
+                  {cart.length > 0 && (
+                    <div className="bg-slate-50 border border-slate-200 rounded p-4 mb-4">
+                      <h4 className="text-sm font-semibold text-slate-900 mb-2">Selected Items:</h4>
+                      <ul className="space-y-2">
+                        {cart.map((item, index) => {
+                          const eq = equipment.find(e => e.id === item.equipmentId);
+                          return (
+                            <li key={index} className="flex justify-between items-center text-sm text-slate-700">
+                              <span>{item.quantity}x {eq?.name}</span>
+                              <button type="button" onClick={() => removeFromCart(index)} className="text-red-500 hover:text-red-700 text-xs">Remove</button>
+                            </li>
+                          );
+                        })}
+                      </ul>
+                    </div>
+                  )}
+
                   <div>
                     <label className="block text-xs text-slate-500 mb-1">Intended Purpose / Usage</label>
                     <input 
@@ -247,17 +298,22 @@ export default function BorrowerDashboard() {
 
                <div className="space-y-4">
                   {userRequests.map(req => {
-                    const eq = equipment.find(e => e.id === req.equipmentId);
+                    const items = req.items && req.items.length > 0 ? req.items : [{ equipmentId: req.equipmentId || '', quantity: req.quantity || 0 }];
+                    const itemDescriptions = items.map(item => {
+                      const eq = equipment.find(e => e.id === item.equipmentId);
+                      return `${item.quantity}x ${eq?.name || 'Item'}`;
+                    }).join(', ');
+                    
                     return (
-                      <div key={req.id} className="bg-white border-l-4 border-blue-700 p-4 rounded-r-lg">
+                      <div key={req.id} className="bg-white border-l-4 border-blue-700 p-4 rounded-r-lg shadow-sm">
                         <div className="font-semibold text-slate-900 mb-1">
                           {req.status === 'pending' && 'Borrow Request Submitted!'}
-                          {req.status === 'approved' && <span className="text-green-400 flex items-center space-x-2"><Check className="w-4 h-4"/> <span>Borrow Request Approved!</span></span>}
-                          {req.status === 'declined' && <span className="text-red-400">Borrow Request Declined.</span>}
+                          {req.status === 'approved' && <span className="text-green-600 flex items-center space-x-2"><Check className="w-4 h-4"/> <span>Borrow Request Approved!</span></span>}
+                          {req.status === 'declined' && <span className="text-red-500">Borrow Request Declined.</span>}
                           {req.status === 'returned' && 'Return Confirmed by Admin!'}
                         </div>
                         <p className="text-slate-500 text-sm">
-                          Your request for {req.quantity}x {eq?.name} {req.status === 'pending' ? 'has been sent to the admin for review' : `is currently marked as ${req.status}`}. Pickup: {new Date(req.pickupDate).toLocaleString()} | Return by: {new Date(req.returnDate).toLocaleString()}
+                          Your request for <span className="font-medium text-slate-700">{itemDescriptions}</span> {req.status === 'pending' ? 'has been sent to the admin for review' : `is currently marked as ${req.status}`}. Pickup: {new Date(req.pickupDate).toLocaleString()} | Return by: {new Date(req.returnDate).toLocaleString()}
                         </p>
                       </div>
                     )

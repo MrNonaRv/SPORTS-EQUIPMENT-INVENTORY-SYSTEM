@@ -26,11 +26,19 @@ export interface Equipment {
 
 export type RequestStatus = 'pending' | 'approved' | 'declined' | 'returned' | 'return_pending' | 'overdue';
 
+export interface BorrowRequestItem {
+  equipmentId: string;
+  quantity: number;
+}
+
 export interface BorrowRequest {
   id: string;
   userId: string;
-  equipmentId: string;
-  quantity: number;
+  // Legacy support
+  equipmentId?: string;
+  quantity?: number;
+  // New array format
+  items?: BorrowRequestItem[];
   purpose: string;
   pickupDate: string;
   returnDate: string;

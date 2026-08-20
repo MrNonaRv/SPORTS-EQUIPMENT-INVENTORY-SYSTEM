@@ -42,13 +42,23 @@
         "userId": { "type": "string" },
         "equipmentId": { "type": "string" },
         "quantity": { "type": "number" },
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "equipmentId": { "type": "string" },
+              "quantity": { "type": "number" }
+            }
+          }
+        },
         "purpose": { "type": "string" },
         "pickupDate": { "type": "string" },
         "returnDate": { "type": "string" },
         "status": { "type": "string", "enum": ["pending", "approved", "declined", "returned", "return_pending", "overdue"] },
         "requestDate": { "type": "string" }
       },
-      "required": ["id", "userId", "equipmentId", "quantity", "status"]
+      "required": ["id", "userId", "purpose", "status"]
     }
   }
 }

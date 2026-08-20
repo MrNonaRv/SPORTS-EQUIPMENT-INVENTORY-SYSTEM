@@ -274,24 +274,30 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       await updateDoc(doc(db, 'requests', requestId), { status });
 
       if (req) {
-        const targetEq = equipment.find(e => e.id === req.equipmentId);
-        if (targetEq) {
-          if (status === 'approved') {
-            const newAvail = Math.max(0, targetEq.available - req.quantity);
-            const newBorrowed = targetEq.borrowed + req.quantity;
-            setEquipment(prev => prev.map(e => e.id === targetEq.id ? { ...e, available: newAvail, borrowed: newBorrowed } : e));
-            await updateDoc(doc(db, 'equipment', targetEq.id), {
-              available: newAvail,
-              borrowed: newBorrowed
-            });
-          } else if (status === 'returned') {
-            const newAvail = targetEq.available + req.quantity;
-            const newBorrowed = Math.max(0, targetEq.borrowed - req.quantity);
-            setEquipment(prev => prev.map(e => e.id === targetEq.id ? { ...e, available: newAvail, borrowed: newBorrowed } : e));
-            await updateDoc(doc(db, 'equipment', targetEq.id), {
-              available: newAvail,
-              borrowed: newBorrowed
-            });
+        const items = req.items && req.items.length > 0 
+          ? req.items 
+          : [{ equipmentId: req.equipmentId || '', quantity: req.quantity || 0 }];
+          
+        for (const item of items) {
+          const targetEq = equipment.find(e => e.id === item.equipmentId);
+          if (targetEq) {
+            if (status === 'approved') {
+              const newAvail = Math.max(0, targetEq.available - item.quantity);
+              const newBorrowed = targetEq.borrowed + item.quantity;
+              setEquipment(prev => prev.map(e => e.id === targetEq.id ? { ...e, available: newAvail, borrowed: newBorrowed } : e));
+              await updateDoc(doc(db, 'equipment', targetEq.id), {
+                available: newAvail,
+                borrowed: newBorrowed
+              });
+            } else if (status === 'returned') {
+              const newAvail = targetEq.available + item.quantity;
+              const newBorrowed = Math.max(0, targetEq.borrowed - item.quantity);
+              setEquipment(prev => prev.map(e => e.id === targetEq.id ? { ...e, available: newAvail, borrowed: newBorrowed } : e));
+              await updateDoc(doc(db, 'equipment', targetEq.id), {
+                available: newAvail,
+                borrowed: newBorrowed
+              });
+            }
           }
         }
       }

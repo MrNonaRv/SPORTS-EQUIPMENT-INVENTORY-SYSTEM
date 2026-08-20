@@ -5,7 +5,7 @@ import { BorrowRequest, Equipment } from '../types';
 
 export default function AdminDashboard() {
   const { currentUser, logout, users, equipment, requests, updateRequestStatus, updateUserStatus, addEquipment } = useAppContext();
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'requests' | 'users' | 'arrivals' | 'reports'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'requests' | 'users' | 'arrivals' | 'reports' | 'active_borrowers'>('dashboard');
   const [activeOverlay, setActiveOverlay] = useState<string | null>(null);
 
   // New Equipment State
@@ -72,7 +72,8 @@ export default function AdminDashboard() {
         
         <nav className="flex-1 py-4">
           <NavItem icon={<LayoutDashboard />} label="Dashboard" active={activeTab === 'dashboard'} onClick={() => setActiveTab('dashboard')} />
-          <NavItem icon={<Users />} label="Borrow Requests" active={activeTab === 'requests'} onClick={() => setActiveTab('requests')} badge={pendingRequests.length} />
+          <NavItem icon={<Users />} label="Active Borrowers" active={activeTab === 'active_borrowers'} onClick={() => setActiveTab('active_borrowers')} />
+          <NavItem icon={<Bell />} label="Borrow Requests" active={activeTab === 'requests'} onClick={() => setActiveTab('requests')} badge={pendingRequests.length} />
           <NavItem icon={<UserCog />} label="Manage Users" active={activeTab === 'users'} onClick={() => setActiveTab('users')} badge={pendingUsers.length} />
           <NavItem icon={<PackagePlus />} label="New Arrivals" active={activeTab === 'arrivals'} onClick={() => setActiveTab('arrivals')} />
           <NavItem icon={<FileBarChart />} label="Reports Center" active={activeTab === 'reports'} onClick={() => setActiveTab('reports')} />
@@ -195,17 +196,22 @@ export default function AdminDashboard() {
                   <tbody className="divide-y divide-slate-200">
                     {requests.map(req => {
                       const user = users.find(u => u.id === req.userId);
-                      const eq = equipment.find(e => e.id === req.equipmentId);
+                      const items = req.items && req.items.length > 0 ? req.items : [{ equipmentId: req.equipmentId || '', quantity: req.quantity || 0 }];
                       return (
                         <tr key={req.id} className="hover:bg-slate-100">
                           <td className="px-6 py-4 font-medium flex items-center space-x-2">
-                            <span className="w-6 h-6 rounded-full bg-slate-700 flex items-center justify-center text-xs">{user?.name[0]}</span>
+                            <span className="w-6 h-6 rounded-full bg-slate-700 flex items-center justify-center text-xs text-white">{user?.name?.[0]}</span>
                             <span>{user?.name}</span>
                           </td>
                           <td className="px-6 py-4">
                             <span className="bg-blue-500/20 text-blue-400 px-2 py-1 rounded text-xs">{user?.role}</span>
                           </td>
-                          <td className="px-6 py-4">{req.quantity}× {eq?.name}</td>
+                          <td className="px-6 py-4">
+                            {items.map((item, idx) => {
+                              const eq = equipment.find(e => e.id === item.equipmentId);
+                              return <div key={idx} className="mb-1 text-slate-700">{item.quantity}× {eq?.name || 'Item'}</div>
+                            })}
+                          </td>
                           <td className="px-6 py-4 text-slate-600 text-xs">
                             Pickup: {new Date(req.pickupDate).toLocaleString()}
                           </td>
@@ -393,6 +399,77 @@ export default function AdminDashboard() {
                      </div>
                   </div>
                 </div>
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'active_borrowers' && (
+            <div className="max-w-6xl mx-auto">
+              <h2 className="text-2xl font-bold text-blue-700 mb-2">Active Borrowers</h2>
+              <p className="text-slate-500 text-sm mb-6">Explicitly filtered view displaying all current users holding equipment and their items.</p>
+              
+              <div className="bg-white rounded-xl overflow-hidden border border-slate-200">
+                <table className="w-full text-left text-sm">
+                  <thead className="bg-slate-100 text-blue-700 text-xs uppercase tracking-wider">
+                    <tr>
+                      <th className="px-6 py-4 font-semibold">Borrower</th>
+                      <th className="px-6 py-4 font-semibold">Contact / Dept</th>
+                      <th className="px-6 py-4 font-semibold">Currently Held Items</th>
+                      <th className="px-6 py-4 font-semibold">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-200">
+                    {users.filter(u => requests.some(r => r.userId === u.id && (r.status === 'approved' || r.status === 'overdue' || r.status === 'return_pending'))).length === 0 ? (
+                      <tr>
+                        <td colSpan={4} className="px-6 py-8 text-center text-slate-400">No active borrowers holding equipment.</td>
+                      </tr>
+                    ) : (
+                      users.filter(u => requests.some(r => r.userId === u.id && (r.status === 'approved' || r.status === 'overdue' || r.status === 'return_pending'))).map(user => {
+                        const activeUserRequests = requests.filter(r => r.userId === user.id && (r.status === 'approved' || r.status === 'overdue' || r.status === 'return_pending'));
+                        
+                        return (
+                          <tr key={user.id} className="hover:bg-slate-100">
+                            <td className="px-6 py-4 font-medium flex items-center space-x-3">
+                              <div className="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center text-xs text-white">{user.name[0]}</div>
+                              <div>
+                                <div>{user.name}</div>
+                                <div className="text-xs text-slate-500">{user.role}</div>
+                              </div>
+                            </td>
+                            <td className="px-6 py-4 text-slate-600">
+                              <div>{user.department || 'N/A'}</div>
+                              <div className="text-xs">{user.contact || ''}</div>
+                            </td>
+                            <td className="px-6 py-4">
+                              <div className="space-y-3">
+                                {activeUserRequests.map(req => {
+                                  const items = req.items && req.items.length > 0 ? req.items : [{ equipmentId: req.equipmentId || '', quantity: req.quantity || 0 }];
+                                  return (
+                                    <div key={req.id} className="border-l-2 border-blue-400 pl-3">
+                                      {items.map((item, idx) => {
+                                        const eq = equipment.find(e => e.id === item.equipmentId);
+                                        return <div key={idx} className="font-medium text-slate-800">{item.quantity}× {eq?.name || 'Item'}</div>
+                                      })}
+                                      <div className="text-xs text-slate-500">Return by: {new Date(req.returnDate).toLocaleString()}</div>
+                                      <div className="mt-1"><StatusBadge status={req.status} /></div>
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            </td>
+                            <td className="px-6 py-4">
+                              {activeUserRequests.some(r => r.status === 'overdue') ? (
+                                <span className="bg-red-100 text-red-600 px-2 py-1 rounded text-xs font-semibold">Has Overdue</span>
+                              ) : (
+                                <span className="bg-green-100 text-green-600 px-2 py-1 rounded text-xs font-semibold">In Good Standing</span>
+                              )}
+                            </td>
+                          </tr>
+                        );
+                      })
+                    )}
+                  </tbody>
+                </table>
               </div>
             </div>
           )}
