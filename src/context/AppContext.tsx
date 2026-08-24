@@ -35,14 +35,48 @@ const initialUsers: User[] = [
 ];
 
 const initialEquipment: Equipment[] = [
-  { id: 'eq-1', name: 'Basketball', category: 'Basketball', total: 8, available: 5, borrowed: 2, inRepair: 1, damaged: 0, location: 'Storage Rack Segment A-1', lastChecked: 'Jun 2, 07:30' },
-  { id: 'eq-2', name: 'Volleyball', category: 'Volleyball', total: 6, available: 3, borrowed: 2, inRepair: 1, damaged: 0, location: 'Storage Rack Segment A-2', lastChecked: 'Jun 2, 06:45' },
-  { id: 'eq-3', name: 'Soccer Ball', category: 'Football', total: 6, available: 4, borrowed: 1, inRepair: 1, damaged: 0, location: 'Locker Suite B', lastChecked: 'Jun 2, 07:00' },
-  { id: 'eq-4', name: 'Badminton Racket', category: 'Badminton', total: 12, available: 8, borrowed: 3, inRepair: 1, damaged: 0, location: 'Wall Basket C', lastChecked: 'Jun 2, 08:00' },
-  { id: 'eq-5', name: 'Shuttlecock (box)', category: 'Badminton', total: 10, available: 6, borrowed: 0, inRepair: 0, damaged: 4, location: 'Shelf Tier 2', lastChecked: 'Jun 2, 08:15' },
-  { id: 'eq-6', name: 'Table Tennis Bat', category: 'Table Tennis', total: 8, available: 5, borrowed: 2, inRepair: 1, damaged: 0, location: 'Drawer Suite D-3', lastChecked: 'Jun 2, 08:30' },
-  { id: 'eq-7', name: 'Chess Set', category: 'Chess', total: 10, available: 8, borrowed: 2, inRepair: 0, damaged: 0, location: 'Shelf Tier 1', lastChecked: 'Jun 2, 09:00' },
-  { id: 'eq-8', name: 'Boxing Gloves (pair)', category: 'Boxing', total: 12, available: 2, borrowed: 10, inRepair: 0, damaged: 0, location: 'Locker Suite A', lastChecked: 'Jun 2, 09:15' },
+  // Basketball Category Items
+  { id: 'eq-1', name: 'Basketball (Official Size 7)', category: 'Basketball', total: 10, available: 7, borrowed: 2, inRepair: 1, damaged: 0, location: 'Storage Rack Segment A-1', lastChecked: 'Aug 24, 08:00' },
+  { id: 'eq-bb-net', name: 'Basketball Heavy-Duty Net (Pair)', category: 'Basketball', total: 6, available: 5, borrowed: 1, inRepair: 0, damaged: 0, location: 'Storage Rack Segment A-1', lastChecked: 'Aug 24, 08:15' },
+  { id: 'eq-bb-cones', name: 'Training Cones (Set of 6)', category: 'Basketball', total: 8, available: 6, borrowed: 2, inRepair: 0, damaged: 0, location: 'Shelf Tier 1', lastChecked: 'Aug 24, 08:30' },
+  { id: 'eq-bb-whistle', name: 'Fox 40 Referee Whistle & Lanyard', category: 'Basketball', total: 12, available: 10, borrowed: 2, inRepair: 0, damaged: 0, location: 'Drawer Suite D-1', lastChecked: 'Aug 24, 08:45' },
+  { id: 'eq-bb-jerseys', name: 'Practice Scrimmage Vests (Set of 5)', category: 'Basketball', total: 6, available: 4, borrowed: 2, inRepair: 0, damaged: 0, location: 'Locker Suite B', lastChecked: 'Aug 24, 09:00' },
+
+  // Badminton Category Items
+  { id: 'eq-4', name: 'Badminton Racket (Carbon Pro)', category: 'Badminton', total: 16, available: 11, borrowed: 4, inRepair: 1, damaged: 0, location: 'Wall Basket C', lastChecked: 'Aug 24, 08:00' },
+  { id: 'eq-5', name: 'Shuttlecock Tube (12 pcs Nylon)', category: 'Badminton', total: 14, available: 10, borrowed: 0, inRepair: 0, damaged: 4, location: 'Shelf Tier 2', lastChecked: 'Aug 24, 08:15' },
+  { id: 'eq-bad-net', name: 'Tournament Badminton Net', category: 'Badminton', total: 6, available: 4, borrowed: 2, inRepair: 0, damaged: 0, location: 'Wall Basket C', lastChecked: 'Aug 24, 08:30' },
+  { id: 'eq-bad-grip', name: 'Badminton Replacement Grip (Pack of 3)', category: 'Badminton', total: 10, available: 8, borrowed: 2, inRepair: 0, damaged: 0, location: 'Drawer Suite D-2', lastChecked: 'Aug 24, 09:00' },
+
+  // Volleyball Category Items
+  { id: 'eq-2', name: 'Volleyball (Official Leather)', category: 'Volleyball', total: 8, available: 5, borrowed: 2, inRepair: 1, damaged: 0, location: 'Storage Rack Segment A-2', lastChecked: 'Aug 24, 06:45' },
+  { id: 'eq-vb-net', name: 'Competition Volleyball Net', category: 'Volleyball', total: 5, available: 4, borrowed: 1, inRepair: 0, damaged: 0, location: 'Storage Rack Segment A-2', lastChecked: 'Aug 24, 07:00' },
+  { id: 'eq-vb-kneepads', name: 'Sports Knee Pads (Pair)', category: 'Volleyball', total: 10, available: 7, borrowed: 3, inRepair: 0, damaged: 0, location: 'Shelf Tier 3', lastChecked: 'Aug 24, 07:15' },
+  { id: 'eq-vb-pump', name: 'Ball Air Hand Pump & Pressure Gauge', category: 'Volleyball', total: 6, available: 5, borrowed: 1, inRepair: 0, damaged: 0, location: 'Drawer Suite D-1', lastChecked: 'Aug 24, 07:30' },
+
+  // Football / Soccer Category Items
+  { id: 'eq-3', name: 'Soccer / Football (Match Size 5)', category: 'Football', total: 8, available: 5, borrowed: 2, inRepair: 1, damaged: 0, location: 'Locker Suite B', lastChecked: 'Aug 24, 07:00' },
+  { id: 'eq-soc-net', name: 'Soccer Goal Net (Pair)', category: 'Football', total: 4, available: 3, borrowed: 1, inRepair: 0, damaged: 0, location: 'Locker Suite B', lastChecked: 'Aug 24, 07:15' },
+  { id: 'eq-soc-ladder', name: 'Speed & Agility Footwork Ladder', category: 'Football', total: 6, available: 5, borrowed: 1, inRepair: 0, damaged: 0, location: 'Shelf Tier 2', lastChecked: 'Aug 24, 07:30' },
+  { id: 'eq-soc-shin', name: 'Protective Shin Guards (Pair)', category: 'Football', total: 10, available: 8, borrowed: 2, inRepair: 0, damaged: 0, location: 'Locker Suite B', lastChecked: 'Aug 24, 07:45' },
+
+  // Table Tennis Category Items
+  { id: 'eq-6', name: 'Table Tennis Paddle / Bat', category: 'Table Tennis', total: 12, available: 8, borrowed: 3, inRepair: 1, damaged: 0, location: 'Drawer Suite D-3', lastChecked: 'Aug 24, 08:30' },
+  { id: 'eq-tt-balls', name: '3-Star Table Tennis Balls (Pack of 6)', category: 'Table Tennis', total: 15, available: 12, borrowed: 3, inRepair: 0, damaged: 0, location: 'Drawer Suite D-3', lastChecked: 'Aug 24, 08:45' },
+  { id: 'eq-tt-net', name: 'Retractable Table Tennis Post & Net', category: 'Table Tennis', total: 6, available: 5, borrowed: 1, inRepair: 0, damaged: 0, location: 'Drawer Suite D-3', lastChecked: 'Aug 24, 09:00' },
+
+  // Sepak Takraw Category Items
+  { id: 'eq-st-ball', name: 'Sepak Takraw Synthetic Ball', category: 'Sepak Takraw', total: 8, available: 6, borrowed: 2, inRepair: 0, damaged: 0, location: 'Storage Rack Segment C', lastChecked: 'Aug 24, 08:00' },
+  { id: 'eq-st-net', name: 'Sepak Takraw Regulation Net', category: 'Sepak Takraw', total: 4, available: 3, borrowed: 1, inRepair: 0, damaged: 0, location: 'Storage Rack Segment C', lastChecked: 'Aug 24, 08:15' },
+
+  // Chess Category Items
+  { id: 'eq-7', name: 'Tournament Chess Set & Roll-up Board', category: 'Chess', total: 10, available: 8, borrowed: 2, inRepair: 0, damaged: 0, location: 'Shelf Tier 1', lastChecked: 'Aug 24, 09:00' },
+  { id: 'eq-chess-clock', name: 'Digital Chess Clock & Timer', category: 'Chess', total: 6, available: 5, borrowed: 1, inRepair: 0, damaged: 0, location: 'Shelf Tier 1', lastChecked: 'Aug 24, 09:15' },
+
+  // Boxing & Combat Category Items
+  { id: 'eq-8', name: 'Boxing Gloves (Pair - 12oz)', category: 'Boxing', total: 12, available: 5, borrowed: 6, inRepair: 1, damaged: 0, location: 'Locker Suite A', lastChecked: 'Aug 24, 09:15' },
+  { id: 'eq-box-mitts', name: 'Curved Focus Punching Mitts (Pair)', category: 'Boxing', total: 6, available: 4, borrowed: 2, inRepair: 0, damaged: 0, location: 'Locker Suite A', lastChecked: 'Aug 24, 09:30' },
+  { id: 'eq-box-rope', name: 'Weighted Speed Jump Rope', category: 'Boxing', total: 10, available: 8, borrowed: 2, inRepair: 0, damaged: 0, location: 'Shelf Tier 2', lastChecked: 'Aug 24, 09:45' },
 ];
 
 const initialRequests: BorrowRequest[] = [
@@ -144,6 +178,23 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         snapshot.forEach((d) => {
           loadedEquipment.push(d.data() as Equipment);
         });
+
+        // Ensure newly expanded categorized equipment items are synced to Firestore
+        const existingIds = new Set(loadedEquipment.map(e => e.id));
+        const missingInitial = initialEquipment.filter(e => !existingIds.has(e.id));
+        if (missingInitial.length > 0 && !seededEquipment) {
+          seededEquipment = true;
+          try {
+            const batch = writeBatch(db);
+            for (const eq of missingInitial) {
+              batch.set(doc(db, 'equipment', eq.id), eq);
+            }
+            batch.commit().catch(e => console.warn('Non-blocking batch commit error:', e));
+          } catch (err) {
+            console.warn('Supplementing initial equipment warning:', err);
+          }
+        }
+
         setEquipment(loadedEquipment);
       }
     }, (err) => {

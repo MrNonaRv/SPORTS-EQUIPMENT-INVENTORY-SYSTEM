@@ -1,7 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useAppContext } from '../context/AppContext';
-import { LogOut, LayoutDashboard, Users, Bell, UserCog, PackagePlus, FileBarChart, Check, X, RefreshCw, Box, Wrench, XCircle, Trophy } from 'lucide-react';
+import { LogOut, LayoutDashboard, Users, Bell, UserCog, PackagePlus, FileBarChart, Check, X, RefreshCw, Box, Wrench, XCircle, Trophy, Layers, Search, UserCheck } from 'lucide-react';
 import { BorrowRequest, Equipment } from '../types';
+import { getCategoryMeta } from '../data/categoryData';
+import { CategoryIcon } from './CategoryIcon';
 
 export default function AdminDashboard() {
   const { currentUser, logout, users, equipment, requests, updateRequestStatus, updateUserStatus, addEquipment, updateUserDetails } = useAppContext();
@@ -12,9 +14,14 @@ export default function AdminDashboard() {
   const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [editProfileName, setEditProfileName] = useState('');
 
+  // Inventory Filter State
+  const [adminCatFilter, setAdminCatFilter] = useState<string>('All');
+  const [adminSearch, setAdminSearch] = useState<string>('');
+
   // New Equipment State
   const [eqName, setEqName] = useState('');
   const [eqCat, setEqCat] = useState('Basketball');
+  const [customCat, setCustomCat] = useState('');
   const [eqQty, setEqQty] = useState(1);
   const [eqCondition, setEqCondition] = useState('Good / Available');
   const [eqSupplier, setEqSupplier] = useState('');
@@ -32,21 +39,41 @@ export default function AdminDashboard() {
   const pendingUsers = users.filter(u => u.status === 'pending');
   const approvedUsers = users.filter(u => u.status === 'approved' && u.role !== 'admin');
 
+  // Categories list
+  const allCategories = useMemo(() => {
+    return Array.from(new Set(equipment.map(e => e.category))).filter((cat): cat is string => Boolean(cat));
+  }, [equipment]);
+
+  const filteredAdminEquipment = useMemo(() => {
+    return equipment.filter(eq => {
+      const matchCat = adminCatFilter === 'All' || eq.category.toLowerCase() === adminCatFilter.toLowerCase();
+      const matchQuery = adminSearch.trim() === '' || 
+        eq.name.toLowerCase().includes(adminSearch.toLowerCase()) || 
+        eq.category.toLowerCase().includes(adminSearch.toLowerCase()) ||
+        (eq.location && eq.location.toLowerCase().includes(adminSearch.toLowerCase()));
+      return matchCat && matchQuery;
+    });
+  }, [equipment, adminCatFilter, adminSearch]);
+
   const handleAddEquipment = (e: React.FormEvent) => {
     e.preventDefault();
+    const finalCategory = eqCat === 'Custom' ? (customCat.trim() || 'General') : eqCat;
     const newEq: Equipment = {
       id: `eq-${Date.now()}`,
       name: eqName,
-      category: eqCat,
+      category: finalCategory,
       total: eqQty,
       available: eqCondition === 'Good / Available' ? eqQty : 0,
       borrowed: 0,
       inRepair: eqCondition === 'For Repair' ? eqQty : 0,
       damaged: eqCondition === 'Damaged' ? eqQty : 0,
+      location: 'Main Sports Storage',
+      lastChecked: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
     };
     addEquipment(newEq);
     setAddSuccess(true);
     setEqName('');
+    setCustomCat('');
     setTimeout(() => setAddSuccess(false), 3000);
   };
 
@@ -175,14 +202,62 @@ export default function AdminDashboard() {
                 </div>
               )}
 
-              <h2 className="text-xl font-bold text-blue-700 mb-4">Public Equipment Status Availability</h2>
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
+                <h2 className="text-xl font-bold text-blue-700">Public Equipment Status Availability</h2>
+                
+                {/* Search Bar */}
+                <div className="relative w-full md:w-64">
+                  <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                  <input
+                    type="text"
+                    placeholder="Search inventory..."
+                    value={adminSearch}
+                    onChange={e => setAdminSearch(e.target.value)}
+                    className="w-full pl-9 pr-4 py-1.5 bg-white border border-slate-200 rounded-lg text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:border-blue-500 transition"
+                  />
+                </div>
+              </div>
+
+              {/* Dynamic Category Filter Pills */}
+              <div className="flex items-center gap-2 overflow-x-auto pb-3 mb-4 scrollbar-thin">
+                <button
+                  onClick={() => setAdminCatFilter('All')}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap transition flex items-center space-x-1.5 ${
+                    adminCatFilter === 'All'
+                      ? 'bg-blue-600 text-white shadow-xs'
+                      : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-50'
+                  }`}
+                >
+                  <CategoryIcon category="all" className="w-3.5 h-3.5" />
+                  <span>All ({equipment.length})</span>
+                </button>
+                {allCategories.map(cat => {
+                  const meta = getCategoryMeta(cat);
+                  const isSel = adminCatFilter.toLowerCase() === cat.toLowerCase();
+                  const count = equipment.filter(e => e.category.toLowerCase() === cat.toLowerCase()).length;
+                  return (
+                    <button
+                      key={cat}
+                      onClick={() => setAdminCatFilter(cat)}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap transition flex items-center space-x-1.5 ${
+                        isSel
+                          ? `${meta.accentBg} ${meta.color} border ${meta.borderColor} font-bold ring-1 ring-blue-400/30 shadow-xs`
+                          : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-50'
+                      }`}
+                    >
+                      <CategoryIcon category={cat} className={`w-3.5 h-3.5 ${isSel ? meta.color : 'text-slate-500'}`} />
+                      <span>{cat} ({count})</span>
+                    </button>
+                  );
+                })}
+              </div>
               
-              <div className="bg-white rounded-xl overflow-hidden border border-slate-200">
+              <div className="bg-white rounded-xl overflow-hidden border border-slate-200 shadow-xs">
                 <table className="w-full text-left text-sm">
                   <thead className="bg-slate-100 text-blue-700 text-xs uppercase tracking-wider">
                     <tr>
                       <th className="px-6 py-4 font-semibold">Equipment Name</th>
-                      <th className="px-6 py-4 font-semibold">Sport</th>
+                      <th className="px-6 py-4 font-semibold">Sport Category</th>
                       <th className="px-6 py-4 font-semibold text-center">Total Units</th>
                       <th className="px-6 py-4 font-semibold text-center">Available</th>
                       <th className="px-6 py-4 font-semibold text-center">Borrowed</th>
@@ -193,27 +268,44 @@ export default function AdminDashboard() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-200">
-                    {equipment.map((eq, i) => (
-                      <tr key={eq.id} className="hover:bg-slate-100 transition">
-                        <td className="px-6 py-4 font-medium flex items-center space-x-2">
-                          <span>{eq.name}</span>
+                    {filteredAdminEquipment.length === 0 ? (
+                      <tr>
+                        <td colSpan={9} className="px-6 py-12 text-center text-slate-400 text-xs font-medium">
+                          No equipment matching your category or search filter.
                         </td>
-                        <td className="px-6 py-4 text-slate-600">{eq.category}</td>
-                        <td className="px-6 py-4 text-center">{eq.total}</td>
-                        <td className="px-6 py-4 text-center text-green-400 font-semibold">{eq.available} Units</td>
-                        <td className="px-6 py-4 text-center text-blue-400">{eq.borrowed}</td>
-                        <td className="px-6 py-4 text-center text-orange-400">{eq.inRepair}</td>
-                        <td className="px-6 py-4 text-center text-red-400">{eq.damaged}</td>
-                        <td className="px-6 py-4 text-center">
-                          {eq.available > 0 ? (
-                            <span className="text-xs text-green-400 bg-green-400/10 px-2 py-1 rounded">Available</span>
-                          ) : (
-                            <span className="text-xs text-orange-400 bg-orange-400/10 px-2 py-1 rounded">Unavailable</span>
-                          )}
-                        </td>
-                        <td className="px-6 py-4 text-center text-slate-500">{eq.lastChecked || 'N/A'}</td>
                       </tr>
-                    ))}
+                    ) : (
+                      filteredAdminEquipment.map((eq) => {
+                        const meta = getCategoryMeta(eq.category);
+                        return (
+                          <tr key={eq.id} className="hover:bg-slate-50 transition">
+                            <td className="px-6 py-4 font-medium">
+                              <span className="text-slate-900 font-bold">{eq.name}</span>
+                              <div className="text-[11px] text-slate-400 font-normal">{eq.location || 'Storage'}</div>
+                            </td>
+                            <td className="px-6 py-4">
+                              <span className={`inline-flex items-center space-x-1 text-[11px] font-bold px-2.5 py-0.5 rounded-full ${meta.badgeBg} ${meta.badgeText}`}>
+                                <CategoryIcon category={eq.category} className="w-3 h-3" />
+                                <span>{eq.category}</span>
+                              </span>
+                            </td>
+                            <td className="px-6 py-4 text-center font-bold text-slate-800">{eq.total}</td>
+                            <td className="px-6 py-4 text-center text-emerald-600 font-bold">{eq.available} Units</td>
+                            <td className="px-6 py-4 text-center text-blue-600 font-semibold">{eq.borrowed}</td>
+                            <td className="px-6 py-4 text-center text-amber-600 font-semibold">{eq.inRepair}</td>
+                            <td className="px-6 py-4 text-center text-red-600 font-semibold">{eq.damaged}</td>
+                            <td className="px-6 py-4 text-center">
+                              {eq.available > 0 ? (
+                                <span className="text-xs font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-full">Available</span>
+                              ) : (
+                                <span className="text-xs font-bold text-amber-700 bg-amber-50 border border-amber-200 px-2.5 py-1 rounded-full">Unavailable</span>
+                              )}
+                            </td>
+                            <td className="px-6 py-4 text-center text-slate-500 text-xs">{eq.lastChecked || 'N/A'}</td>
+                          </tr>
+                        );
+                      })
+                    )}
                   </tbody>
                 </table>
               </div>
@@ -385,17 +477,39 @@ export default function AdminDashboard() {
                       <input required type="text" value={eqName} onChange={e => setEqName(e.target.value)} className="w-full bg-slate-50 border border-slate-200 rounded px-4 py-2 text-slate-900 focus:outline-none focus:border-blue-700" />
                     </div>
                     <div>
-                      <label className="block text-xs text-slate-500 mb-1">Sport Category</label>
-                      <select value={eqCat} onChange={e => setEqCat(e.target.value)} className="w-full bg-slate-50 border border-slate-200 rounded px-4 py-2 text-slate-900 focus:outline-none focus:border-blue-700">
+                      <label className="block text-xs font-bold text-slate-600 uppercase tracking-wide mb-1">Sport Category</label>
+                      <select 
+                        value={eqCat} 
+                        onChange={e => setEqCat(e.target.value)} 
+                        className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-2 text-sm text-slate-900 focus:outline-none focus:border-blue-700"
+                      >
                         <option value="Basketball">Basketball</option>
                         <option value="Volleyball">Volleyball</option>
                         <option value="Football">Football</option>
                         <option value="Badminton">Badminton</option>
                         <option value="Table Tennis">Table Tennis</option>
+                        <option value="Sepak Takraw">Sepak Takraw</option>
                         <option value="Chess">Chess</option>
                         <option value="Boxing">Boxing</option>
-                        <option value="Other">Other</option>
+                        <option value="Athletics">Athletics / Track & Field</option>
+                        <option value="Baseball">Baseball / Softball</option>
+                        <option value="Other">Other Equipment</option>
+                        <option value="Custom">+ Create New Sport Category...</option>
                       </select>
+
+                      {eqCat === 'Custom' && (
+                        <div className="mt-2">
+                          <label className="block text-[11px] font-bold text-blue-600 mb-1">Enter Custom Sport Name</label>
+                          <input
+                            required
+                            type="text"
+                            placeholder="e.g. Lawn Tennis, Swimming, Archery"
+                            value={customCat}
+                            onChange={e => setCustomCat(e.target.value)}
+                            className="w-full bg-blue-50/50 border border-blue-300 rounded-lg px-3 py-2 text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                          />
+                        </div>
+                      )}
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                       <div>
