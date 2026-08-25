@@ -192,6 +192,77 @@ export const SPORT_CATEGORIES: Record<string, CategoryInfo> = {
         { itemNamePattern: 'Jump Rope', quantity: 1 }
       ]
     }
+  },
+  'Taekwondo': {
+    id: 'taekwondo',
+    name: 'Taekwondo',
+    sport: 'Martial Arts',
+    iconName: 'ShieldAlert',
+    color: 'text-teal-700',
+    accentBg: 'bg-teal-50',
+    borderColor: 'border-teal-200',
+    badgeBg: 'bg-teal-100',
+    badgeText: 'text-teal-800',
+    description: 'Protective gear, body armors, kicking pads, and rubber matting.',
+    defaultItemsDescription: 'Protective Gear, Body Armors, Mats',
+    recommendedBundle: {
+      title: 'Taekwondo Sparring Set',
+      description: '1 Head Gear, 1 Body Armor, 1 Arm Guard, 1 Leg Guard',
+      items: [
+        { itemNamePattern: 'Head Gear', quantity: 1 },
+        { itemNamePattern: 'Body Armor', quantity: 1 },
+        { itemNamePattern: 'Arm Guard', quantity: 1 },
+        { itemNamePattern: 'Leg Guard', quantity: 1 }
+      ]
+    }
+  },
+  'Arnis': {
+    id: 'arnis',
+    name: 'Arnis',
+    sport: 'Martial Arts',
+    iconName: 'Swords',
+    color: 'text-orange-700',
+    accentBg: 'bg-orange-50',
+    borderColor: 'border-orange-200',
+    badgeBg: 'bg-orange-100',
+    badgeText: 'text-orange-800',
+    description: 'Arnis sticks, padded body gear, and specialized head gear.',
+    defaultItemsDescription: 'Sticks, Body Gear, Head Gear',
+    recommendedBundle: {
+      title: 'Arnis Combat Set',
+      description: '2 Arnis Sticks, 1 Head Gear, 1 Body Gear',
+      items: [
+        { itemNamePattern: 'Arnis Stick', quantity: 2 },
+        { itemNamePattern: 'Head Gear', quantity: 1 },
+        { itemNamePattern: 'Body Gear', quantity: 1 }
+      ]
+    }
+  },
+  'Athletics': {
+    id: 'athletics',
+    name: 'Athletics',
+    sport: 'Track & Field',
+    iconName: 'Footprints',
+    color: 'text-cyan-700',
+    accentBg: 'bg-cyan-50',
+    borderColor: 'border-cyan-200',
+    badgeBg: 'bg-cyan-100',
+    badgeText: 'text-cyan-800',
+    description: 'Track spikes, batons, measuring tapes, and track field equipment.',
+    defaultItemsDescription: 'Spike Shoes, Field Accessories',
+  },
+  'Office Supplies': {
+    id: 'office-supplies',
+    name: 'Office Supplies',
+    sport: 'Administrative',
+    iconName: 'Paperclip',
+    color: 'text-slate-600',
+    accentBg: 'bg-slate-50',
+    borderColor: 'border-slate-200',
+    badgeBg: 'bg-slate-200',
+    badgeText: 'text-slate-800',
+    description: 'Bond papers, masking tapes, staplers, and administrative supplies.',
+    defaultItemsDescription: 'Tape, Paper, Staplers',
   }
 };
 

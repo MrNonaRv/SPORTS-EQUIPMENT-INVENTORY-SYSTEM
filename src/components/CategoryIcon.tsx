@@ -10,7 +10,10 @@ import {
   Dumbbell, 
   Layers, 
   Box,
-  Boxes
+  ShieldAlert,
+  Swords,
+  Footprints,
+  Paperclip
 } from 'lucide-react';
 
 interface CategoryIconProps {
@@ -45,6 +48,18 @@ export const CategoryIcon: React.FC<CategoryIconProps> = ({ iconName, category, 
   }
   if (name.includes('box') || name.includes('combat') || name === 'dumbbell') {
     return <Dumbbell className={className} />;
+  }
+  if (name.includes('taekwondo') || name === 'shieldalert') {
+    return <ShieldAlert className={className} />;
+  }
+  if (name.includes('arnis') || name === 'swords') {
+    return <Swords className={className} />;
+  }
+  if (name.includes('athletic') || name === 'footprints') {
+    return <Footprints className={className} />;
+  }
+  if (name.includes('office') || name === 'paperclip') {
+    return <Paperclip className={className} />;
   }
   if (name === 'all' || name === 'layers') {
     return <Layers className={className} />;
