@@ -297,8 +297,14 @@ export default function AdminDashboard() {
                             <td className="px-6 py-4 text-center">
                               {eq.available > 0 ? (
                                 <span className="text-xs font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-full">Available</span>
+                              ) : eq.damaged > 0 ? (
+                                <span className="text-xs font-bold text-red-700 bg-red-50 border border-red-200 px-2.5 py-1 rounded-full">Damaged</span>
+                              ) : eq.inRepair > 0 ? (
+                                <span className="text-xs font-bold text-amber-700 bg-amber-50 border border-amber-200 px-2.5 py-1 rounded-full">In Repair</span>
+                              ) : eq.borrowed > 0 ? (
+                                <span className="text-xs font-bold text-blue-700 bg-blue-50 border border-blue-200 px-2.5 py-1 rounded-full">Borrowed</span>
                               ) : (
-                                <span className="text-xs font-bold text-amber-700 bg-amber-50 border border-amber-200 px-2.5 py-1 rounded-full">Unavailable</span>
+                                <span className="text-xs font-bold text-slate-700 bg-slate-50 border border-slate-200 px-2.5 py-1 rounded-full">Out of Stock</span>
                               )}
                             </td>
                             <td className="px-6 py-4 text-center text-slate-500 text-xs">{eq.lastChecked || 'N/A'}</td>
@@ -749,10 +755,21 @@ function ActiveLogsOverlay({ type, onClose, equipment, requests, users }: any) {
 
   if (type === 'total') {
     title = 'Active Logs: Total Units';
-    data = equipment.map((e: any) => ({ col1: e.name, col2: e.category, col3: `${e.total} Units`, col4: 'Registered Tracking', isAvailable: true }));
+    data = equipment.map((e: any) => {
+      let status = 'Available';
+      if (e.available === 0) {
+        if (e.damaged > 0) status = 'Damaged';
+        else if (e.inRepair > 0) status = 'In Repair';
+        else if (e.borrowed > 0) status = 'Borrowed Out';
+        else status = 'Out of Stock';
+      } else if (e.damaged > 0 || e.inRepair > 0) {
+        status = 'Partial Available';
+      }
+      return { col1: e.name, col2: e.category, col3: `${e.total} Units`, col4: status, isAvailable: e.available > 0 };
+    });
   } else if (type === 'available') {
     title = 'Active Logs: Available';
-    data = equipment.map((e: any) => ({ col1: e.name, col2: e.category, col3: `${e.available} Units`, col4: 'Available', isAvailable: e.available > 0 }));
+    data = equipment.filter((e: any) => e.available > 0).map((e: any) => ({ col1: e.name, col2: e.category, col3: `${e.available} Units`, col4: 'Available', isAvailable: true }));
   } else if (type === 'borrowed') {
     title = 'Active Logs: Borrowed';
     columns = ['BORROWER NAME', 'EQUIPMENT LOGGED OUT', 'REQUESTED TERM FRAME', 'STATUS STATE'];

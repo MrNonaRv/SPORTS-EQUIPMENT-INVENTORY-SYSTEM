@@ -616,9 +616,23 @@ export default function BorrowerDashboard() {
                                   <span className={`text-xs font-bold px-2.5 py-0.5 rounded-full ${
                                     eq.available > 0 
                                       ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' 
-                                      : 'bg-red-50 text-red-600 border border-red-200'
+                                      : eq.damaged > 0
+                                        ? 'bg-red-50 text-red-700 border border-red-200'
+                                        : eq.inRepair > 0
+                                          ? 'bg-amber-50 text-amber-700 border border-amber-200'
+                                          : eq.borrowed > 0
+                                            ? 'bg-blue-50 text-blue-700 border border-blue-200'
+                                            : 'bg-slate-50 text-slate-700 border border-slate-200'
                                   }`}>
-                                    {eq.available > 0 ? `${eq.available} Available` : 'Out of Stock'}
+                                    {eq.available > 0 
+                                      ? `${eq.available} Available` 
+                                      : eq.damaged > 0 
+                                        ? 'Damaged' 
+                                        : eq.inRepair > 0 
+                                          ? 'In Repair' 
+                                          : eq.borrowed > 0 
+                                            ? 'Borrowed Out' 
+                                            : 'Out of Stock'}
                                   </span>
                                 </div>
 
@@ -657,7 +671,7 @@ export default function BorrowerDashboard() {
                                     </div>
                                   ) : (
                                     <span className="text-xs text-slate-400 font-medium">
-                                      {eq.available > 0 ? 'Ready to borrow' : 'Unavailable'}
+                                      {eq.available > 0 ? 'Ready to borrow' : eq.damaged > 0 ? 'Currently damaged' : eq.inRepair > 0 ? 'Under maintenance' : eq.borrowed > 0 ? 'Currently borrowed' : 'Unavailable'}
                                     </span>
                                   )}
                                 </div>
