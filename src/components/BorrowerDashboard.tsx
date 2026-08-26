@@ -333,7 +333,7 @@ export default function BorrowerDashboard() {
 
               {/* Stat Cards */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-                <StatCard title="TOTAL EQUIPMENT" count={totalUnits} subtext="Campus stock listing" icon={<Box className="w-5 h-5 text-slate-500" />} color="border-blue-600" />
+                <StatCard title="TOTAL UNITS" count={totalUnits} subtext="Campus stock listing" icon={<Box className="w-5 h-5 text-slate-500" />} color="border-blue-600" />
                 <StatCard title="AVAILABLE NOW" count={availableUnits} subtext="Ready to apply for" icon={<Check className="w-5 h-5 text-green-500" />} color="border-green-500" />
                 <StatCard title="MY ACTIVE BORROWS" count={activeBorrows} subtext="Items currently held" icon={<RefreshCw className="w-5 h-5 text-blue-500" />} color="border-blue-400" />
                 <StatCard title="IN MAINTENANCE" count={forRepairUnits} subtext="Temporarily stored away" icon={<Wrench className="w-5 h-5 text-amber-500" />} color="border-amber-400" />

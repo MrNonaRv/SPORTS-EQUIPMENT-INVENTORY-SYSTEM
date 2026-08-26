@@ -77,11 +77,11 @@ export default function AdminDashboard() {
     setTimeout(() => setAddSuccess(false), 3000);
   };
 
-  const totalUnits = equipment.reduce((acc, eq) => acc + eq.total, 0);
-  const availableUnits = equipment.reduce((acc, eq) => acc + eq.available, 0);
-  const borrowedUnits = equipment.reduce((acc, eq) => acc + eq.borrowed, 0);
-  const forRepairUnits = equipment.reduce((acc, eq) => acc + eq.inRepair, 0);
-  const damagedUnits = equipment.reduce((acc, eq) => acc + eq.damaged, 0);
+  const totalUnits = filteredAdminEquipment.reduce((acc, eq) => acc + eq.total, 0);
+  const availableUnits = filteredAdminEquipment.reduce((acc, eq) => acc + eq.available, 0);
+  const borrowedUnits = filteredAdminEquipment.reduce((acc, eq) => acc + eq.borrowed, 0);
+  const forRepairUnits = filteredAdminEquipment.reduce((acc, eq) => acc + eq.inRepair, 0);
+  const damagedUnits = filteredAdminEquipment.reduce((acc, eq) => acc + eq.damaged, 0);
   const sportsTracksCount = new Set(equipment.map(e => e.category)).size;
 
   const dateStr = now.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
@@ -188,7 +188,7 @@ export default function AdminDashboard() {
               </div>
 
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8 relative z-10">
-                <StatCard onClick={() => setActiveOverlay('total')} title="TOTAL EQUIPMENT" count={totalUnits} subtext="Across all sports" icon={<Box className="w-6 h-6 text-slate-300" />} color="border-slate-200" />
+                <StatCard onClick={() => setActiveOverlay('total')} title="TOTAL UNITS" count={totalUnits} subtext="Across all sports" icon={<Box className="w-6 h-6 text-slate-300" />} color="border-slate-200" />
                 <StatCard onClick={() => setActiveOverlay('available')} title="AVAILABLE ITEMS" count={availableUnits} subtext="Ready to borrow" icon={<Check className="w-6 h-6 text-green-500/50" />} color="border-green-500/30" />
                 <StatCard onClick={() => setActiveOverlay('borrowed')} title="BORROWED" count={borrowedUnits} subtext="Currently out" icon={<RefreshCw className="w-6 h-6 text-blue-500/50" />} color="border-blue-500/30" />
                 <StatCard onClick={() => setActiveOverlay('repair')} title="FOR REPAIR" count={forRepairUnits} subtext="Under maintenance" icon={<Wrench className="w-6 h-6 text-orange-500/50" />} color="border-orange-500/30" />
@@ -748,7 +748,7 @@ function ActiveLogsOverlay({ type, onClose, equipment, requests, users }: any) {
   let columns = ['EQUIPMENT', 'SPORTS CATEGORY', 'COUNT', 'ACTIVE STATE'];
 
   if (type === 'total') {
-    title = 'Active Logs: Total Equipment';
+    title = 'Active Logs: Total Units';
     data = equipment.map((e: any) => ({ col1: e.name, col2: e.category, col3: `${e.total} Units`, col4: 'Registered Tracking', isAvailable: true }));
   } else if (type === 'available') {
     title = 'Active Logs: Available';
