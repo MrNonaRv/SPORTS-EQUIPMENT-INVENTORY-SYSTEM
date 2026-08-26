@@ -141,7 +141,6 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   // Real-time Cloud Synchronization with Firestore
   useEffect(() => {
     let seededUsers = false;
-    let seededEquipment = false;
     let seededRequests = false;
 
     // 1. Listen to Users Collection
@@ -183,39 +182,11 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     // 2. Listen to Equipment Collection
     const equipmentColRef = collection(db, 'equipment');
     const unsubEquipment = onSnapshot(equipmentColRef, async (snapshot) => {
-      if (snapshot.empty && !seededEquipment) {
-        seededEquipment = true;
-        try {
-          const batch = writeBatch(db);
-          for (const eq of initialEquipment) {
-            batch.set(doc(db, 'equipment', eq.id), eq);
-          }
-          await batch.commit();
-        } catch (err) {
-          console.error('Error seeding initial equipment:', err);
-        }
-      } else if (!snapshot.empty) {
+      if (!snapshot.empty) {
         const loadedEquipment: Equipment[] = [];
         snapshot.forEach((d) => {
           loadedEquipment.push(d.data() as Equipment);
         });
-
-        // Ensure newly expanded categorized equipment items are synced to Firestore
-        const existingIds = new Set(loadedEquipment.map(e => e.id));
-        const missingInitial = initialEquipment.filter(e => !existingIds.has(e.id));
-        if (missingInitial.length > 0 && !seededEquipment) {
-          seededEquipment = true;
-          try {
-            const batch = writeBatch(db);
-            for (const eq of missingInitial) {
-              batch.set(doc(db, 'equipment', eq.id), eq);
-            }
-            batch.commit().catch(e => console.warn('Non-blocking batch commit error:', e));
-          } catch (err) {
-            console.warn('Supplementing initial equipment warning:', err);
-          }
-        }
-
         setEquipment(loadedEquipment);
       }
     }, (err) => {
