@@ -666,21 +666,6 @@ export default function AdminDashboard() {
                  <div className="absolute top-8 right-8 flex space-x-4">
                     <button className="bg-amber-600 text-white px-4 py-2 rounded font-semibold text-sm hover:bg-amber-700 transition">Print Report</button>
                     <button className="bg-amber-600 text-white px-4 py-2 rounded font-semibold text-sm hover:bg-amber-700 transition">Export as PDF</button>
-                    <button 
-                      onClick={async () => {
-                        if(window.confirm('Are you sure you want to clear ALL borrow requests and user accounts? This cannot be undone.')) {
-                          const success = await clearData();
-                          if (success) {
-                            alert('Data cleared successfully!');
-                          } else {
-                            alert('Failed to clear data. Please try again.');
-                          }
-                        }
-                      }}
-                      className="bg-amber-600 text-white px-4 py-2 rounded font-semibold text-sm hover:bg-amber-700 transition"
-                    >
-                      Clear All Data
-                    </button>
                  </div>
                  
                  <div className="mb-8">
