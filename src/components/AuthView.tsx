@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Key, User as UserIcon, ClipboardList } from 'lucide-react';
+import { Key, User as UserIcon, ClipboardList, ArrowLeft } from 'lucide-react';
 import { useAppContext } from '../context/AppContext';
 import { User } from '../types';
 
@@ -71,134 +71,143 @@ const AuthView: React.FC<AuthViewProps> = ({ type }) => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-100 text-slate-900 flex items-center justify-center font-sans p-6">
-      <div className="w-full max-w-md bg-slate-50 border border-slate-200 rounded-2xl p-8 relative">
-        <button 
-          onClick={() => setView('landing')}
-          className="absolute top-4 left-4 text-slate-500 hover:text-slate-900 flex items-center text-sm"
-        >
-          &larr; Back
-        </button>
+    <div className="min-h-screen bg-slate-100 text-slate-900 flex flex-col font-sans relative">
+      {/* Sporty Header Accent */}
+      <div className="h-4 bg-emerald-900 w-full absolute top-0 left-0"></div>
 
-        <div className="flex justify-center mb-6 mt-4">
-          {type === 'signup' ? (
-            <ClipboardList className="w-12 h-12 text-slate-900" />
-          ) : (
-            <Key className="w-12 h-12 text-blue-700" />
-          )}
-        </div>
-
-        <h2 className="text-2xl font-bold text-blue-700 mb-2 text-center">
-          {type === 'login_admin' && 'Admin Sign In Cluster'}
-          {type === 'login_borrower' && 'Borrower Sign In Portal'}
-          {type === 'signup' && 'Create Account'}
-        </h2>
-
-        <p className="text-slate-500 text-sm text-center mb-8">
-          {type === 'login_admin' && 'Enter your specialized administrator authentication credentials'}
-          {type === 'login_borrower' && 'Enter your authorized Student or Faculty registration ID key'}
-          {type === 'signup' && 'Your account needs admin approval before you can borrow.'}
-        </p>
-
-        <form onSubmit={type === 'signup' ? handleSignup : handleLogin} className="space-y-4">
-          {type === 'signup' && (
-            <div>
-              <label className="block text-xs text-slate-500 mb-1">Full Name</label>
-              <input 
-                required
-                type="text" 
-                value={fullName}
-                onChange={e => setFullName(e.target.value)}
-                className="w-full bg-slate-50 border border-slate-200 rounded-md px-4 py-2 text-slate-900 focus:outline-none focus:border-blue-700"
-              />
+      <div className="flex-1 flex items-center justify-center p-6">
+        <div className="w-full max-w-md bg-white rounded-2xl shadow-xl overflow-hidden">
+          {/* Top colored banner for the card */}
+          <div className="bg-emerald-900 p-6 flex flex-col items-center justify-center relative">
+            <button 
+              onClick={() => setView('landing')}
+              className="absolute top-4 left-4 text-emerald-300 hover:text-white flex items-center text-sm transition-colors"
+            >
+              <ArrowLeft className="w-4 h-4 mr-1" /> Back
+            </button>
+            <div className="bg-white p-3 rounded-full mb-3 shadow-md mt-6">
+              {type === 'signup' ? (
+                <ClipboardList className="w-8 h-8 text-emerald-900" />
+              ) : type === 'login_admin' ? (
+                <Key className="w-8 h-8 text-emerald-900" />
+              ) : (
+                <UserIcon className="w-8 h-8 text-emerald-900" />
+              )}
             </div>
-          )}
-
-          <div>
-            <label className="block text-xs text-slate-500 mb-1">
-              {type === 'login_admin' ? 'Username' : 'ID Number'}
-            </label>
-            <input 
-              required
-              type="text" 
-              value={idNumber}
-              onChange={e => setIdNumber(e.target.value)}
-              className="w-full bg-slate-50 border border-slate-200 rounded-md px-4 py-2 text-slate-900 focus:outline-none focus:border-blue-700"
-            />
+            <h2 className="text-2xl font-bold text-white text-center">
+              {type === 'login_admin' && 'Admin Login'}
+              {type === 'login_borrower' && 'Borrower Portal'}
+              {type === 'signup' && 'Create Account'}
+            </h2>
+            <p className="text-emerald-200 text-sm text-center mt-2 max-w-[280px]">
+              {type === 'login_admin' && 'Enter your administrator credentials'}
+              {type === 'login_borrower' && 'Enter your student or faculty ID'}
+              {type === 'signup' && 'Register to borrow athletic equipment'}
+            </p>
           </div>
 
-          {type === 'login_admin' && (
-            <div>
-              <label className="block text-xs text-slate-500 mb-1">Password</label>
-              <input 
-                required
-                type="password" 
-                value={password}
-                onChange={e => setPassword(e.target.value)}
-                className="w-full bg-slate-50 border border-slate-200 rounded-md px-4 py-2 text-slate-900 focus:outline-none focus:border-blue-700"
-              />
-            </div>
-          )}
+          <div className="p-8">
+            <form onSubmit={type === 'signup' ? handleSignup : handleLogin} className="space-y-5">
+              {type === 'signup' && (
+                <div>
+                  <label className="block text-sm font-semibold text-slate-700 mb-1">Full Name</label>
+                  <input 
+                    required
+                    type="text" 
+                    value={fullName}
+                    onChange={e => setFullName(e.target.value)}
+                    className="w-full bg-slate-50 border border-slate-300 rounded-lg px-4 py-3 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-900 focus:border-emerald-900 transition-all"
+                  />
+                </div>
+              )}
 
-          {type === 'signup' && (
-            <>
               <div>
-                <label className="block text-xs text-slate-500 mb-1">Account Type</label>
-                <select 
-                  value={accountType}
-                  onChange={e => setAccountType(e.target.value as 'student' | 'faculty')}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-md px-4 py-2 text-slate-900 focus:outline-none focus:border-blue-700"
-                >
-                  <option value="student">Student</option>
-                  <option value="faculty">Faculty</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-xs text-slate-500 mb-1">Course / Department</label>
+                <label className="block text-sm font-semibold text-slate-700 mb-1">
+                  {type === 'login_admin' ? 'Username' : 'ID Number'}
+                </label>
                 <input 
                   required
                   type="text" 
-                  value={department}
-                  onChange={e => setDepartment(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-md px-4 py-2 text-slate-900 focus:outline-none focus:border-blue-700"
+                  value={idNumber}
+                  onChange={e => setIdNumber(e.target.value)}
+                  className="w-full bg-slate-50 border border-slate-300 rounded-lg px-4 py-3 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-900 focus:border-emerald-900 transition-all"
                 />
               </div>
-              <div>
-                <label className="block text-xs text-slate-500 mb-1">Contact Number</label>
-                <input 
-                  required
-                  type="text" 
-                  value={contact}
-                  onChange={e => setContact(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-md px-4 py-2 text-slate-900 focus:outline-none focus:border-blue-700"
-                />
-              </div>
-            </>
-          )}
 
-          {error && <div className="text-red-400 text-sm bg-red-400/10 p-3 rounded">{error}</div>}
-          {success && <div className="text-green-400 text-sm bg-green-400/10 p-3 rounded">{success}</div>}
+              {type === 'login_admin' && (
+                <div>
+                  <label className="block text-sm font-semibold text-slate-700 mb-1">Password</label>
+                  <input 
+                    required
+                    type="password" 
+                    value={password}
+                    onChange={e => setPassword(e.target.value)}
+                    className="w-full bg-slate-50 border border-slate-300 rounded-lg px-4 py-3 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-900 focus:border-emerald-900 transition-all"
+                  />
+                </div>
+              )}
 
-          {type === 'login_borrower' && idNumber && !error && (
-            <div className="text-green-400 text-xs bg-green-400/10 p-2 rounded">
-              Ready to access your dashboard.
+              {type === 'signup' && (
+                <>
+                  <div>
+                    <label className="block text-sm font-semibold text-slate-700 mb-1">Account Type</label>
+                    <select 
+                      value={accountType}
+                      onChange={e => setAccountType(e.target.value as 'student' | 'faculty')}
+                      className="w-full bg-slate-50 border border-slate-300 rounded-lg px-4 py-3 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-900 focus:border-emerald-900 transition-all"
+                    >
+                      <option value="student">Student</option>
+                      <option value="faculty">Faculty</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-slate-700 mb-1">Course / Department</label>
+                    <input 
+                      required
+                      type="text" 
+                      value={department}
+                      onChange={e => setDepartment(e.target.value)}
+                      className="w-full bg-slate-50 border border-slate-300 rounded-lg px-4 py-3 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-900 focus:border-emerald-900 transition-all"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-slate-700 mb-1">Contact Number</label>
+                    <input 
+                      required
+                      type="text" 
+                      value={contact}
+                      onChange={e => setContact(e.target.value)}
+                      className="w-full bg-slate-50 border border-slate-300 rounded-lg px-4 py-3 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-900 focus:border-emerald-900 transition-all"
+                    />
+                  </div>
+                </>
+              )}
+
+              {error && <div className="text-red-700 text-sm font-medium bg-red-50 border border-red-200 p-3 rounded-lg">{error}</div>}
+              {success && <div className="text-emerald-700 text-sm font-medium bg-emerald-50 border border-emerald-200 p-3 rounded-lg">{success}</div>}
+
+              {type === 'login_borrower' && idNumber && !error && (
+                <div className="text-emerald-700 text-sm font-medium bg-emerald-50 border border-emerald-200 p-3 rounded-lg">
+                  Ready to access your dashboard.
+                </div>
+              )}
+
+              <button 
+                type="submit"
+                className="w-full bg-amber-600 hover:bg-amber-700 text-white font-bold py-3.5 rounded-lg transition-colors shadow-md mt-4 text-lg"
+              >
+                {type === 'signup' ? 'Submit for Approval' : 'Sign In'}
+              </button>
+            </form>
+
+            <div className="mt-8 text-center text-sm text-slate-600">
+              {type !== 'signup' ? (
+                <p>Don't have an account? <span onClick={() => setView('signup')} className="text-emerald-700 font-bold cursor-pointer hover:underline">Sign Up</span></p>
+              ) : (
+                <p>Already have an account? <span onClick={() => setView('login_borrower')} className="text-emerald-700 font-bold cursor-pointer hover:underline">Sign In</span></p>
+              )}
             </div>
-          )}
-
-          <button 
-            type="submit"
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-md transition mt-4"
-          >
-            {type === 'signup' ? 'Submit for Approval' : 'Sign In'}
-          </button>
-        </form>
-
-        <div className="mt-6 text-center text-xs text-slate-400">
-          {type !== 'signup' ? (
-            <p>Don't have an account? <span onClick={() => setView('signup')} className="text-blue-700 cursor-pointer hover:underline">Sign Up</span> | <span onClick={() => setView('landing')} className="cursor-pointer hover:underline">Cancel</span></p>
-          ) : (
-            <p>Already have an account? <span onClick={() => setView('login_borrower')} className="text-blue-700 cursor-pointer hover:underline">Sign In</span></p>
-          )}
+          </div>
         </div>
       </div>
     </div>
@@ -206,3 +215,4 @@ const AuthView: React.FC<AuthViewProps> = ({ type }) => {
 };
 
 export default AuthView;
+

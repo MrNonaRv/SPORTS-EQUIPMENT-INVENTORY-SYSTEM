@@ -240,15 +240,15 @@ export default function BorrowerDashboard() {
   const activeCategoryMeta = selectedCategory !== 'All' ? getCategoryMeta(selectedCategory) : null;
 
   return (
-    <div className="min-h-screen bg-slate-100 text-slate-900 flex font-sans">
+    <div className="min-h-screen bg-slate-50 text-slate-900 flex font-sans">
       {/* Sidebar Navigation */}
-      <div className="w-64 bg-slate-50 border-r border-slate-200 flex flex-col shrink-0">
+      <div className="w-64 bg-white border-r border-slate-200 flex flex-col shrink-0">
         <div className="p-6 border-b border-slate-200">
-          <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold text-xl mb-3 shadow-sm">
+          <div className="w-12 h-12 bg-emerald-900 rounded-full flex items-center justify-center text-white font-bold text-xl mb-3 shadow-sm">
             {currentUser.name.split(' ').map(n => n[0]).join('').substring(0,2)}
           </div>
           <h3 className="font-bold text-slate-900 leading-snug">{currentUser.name}</h3>
-          <p className="text-xs text-blue-700 font-semibold uppercase tracking-wider mt-0.5">{currentUser.role} BORROWER</p>
+          <p className="text-xs text-emerald-900 font-semibold uppercase tracking-wider mt-0.5">{currentUser.role} BORROWER</p>
           <p className="text-[11px] text-slate-400 mt-1">{currentUser.department || 'Student Portal'}</p>
         </div>
         
@@ -291,7 +291,7 @@ export default function BorrowerDashboard() {
         {/* Header Bar */}
         <header className="flex justify-between items-center px-8 py-3.5 border-b border-slate-200 bg-white shadow-xs shrink-0">
           <div className="flex items-center space-x-3 text-sm text-slate-600">
-            <span className="font-semibold text-blue-700">CSU MSAC Sports Management</span>
+            <span className="font-semibold text-emerald-900">CSU MSAC Sports Management</span>
             <span className="text-slate-300">/</span>
             <span>Student Borrowing Station</span>
           </div>
@@ -303,7 +303,7 @@ export default function BorrowerDashboard() {
             {totalCartUnits > 0 && (
               <button 
                 onClick={() => setActiveTab('borrow')}
-                className="flex items-center space-x-1.5 bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200 px-3 py-1.5 rounded-full text-xs font-bold transition"
+                className="flex items-center space-x-1.5 bg-emerald-50 text-emerald-900 hover:bg-blue-100 border border-emerald-200 px-3 py-1.5 rounded-full text-xs font-bold transition"
               >
                 <ShoppingBag className="w-3.5 h-3.5" />
                 <span>Voucher Cart ({totalCartUnits})</span>
@@ -324,7 +324,7 @@ export default function BorrowerDashboard() {
                 </div>
                 <button
                   onClick={() => setActiveTab('borrow')}
-                  className="flex items-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-lg font-semibold text-sm shadow-sm transition"
+                  className="flex items-center space-x-2 bg-amber-600 hover:bg-amber-700 text-white px-5 py-2.5 rounded-lg font-semibold text-sm shadow-sm transition"
                 >
                   <CalendarPlus className="w-4 h-4" />
                   <span>Start New Borrow Request</span>
@@ -333,9 +333,9 @@ export default function BorrowerDashboard() {
 
               {/* Stat Cards */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-                <StatCard title="TOTAL UNITS" count={totalUnits} subtext="Campus stock listing" icon={<Box className="w-5 h-5 text-slate-500" />} color="border-blue-600" />
+                <StatCard title="TOTAL UNITS" count={totalUnits} subtext="Campus stock listing" icon={<Box className="w-5 h-5 text-slate-500" />} color="border-amber-600" />
                 <StatCard title="AVAILABLE NOW" count={availableUnits} subtext="Ready to apply for" icon={<Check className="w-5 h-5 text-green-500" />} color="border-green-500" />
-                <StatCard title="MY ACTIVE BORROWS" count={activeBorrows} subtext="Items currently held" icon={<RefreshCw className="w-5 h-5 text-blue-500" />} color="border-blue-400" />
+                <StatCard title="MY ACTIVE BORROWS" count={activeBorrows} subtext="Items currently held" icon={<RefreshCw className="w-5 h-5 text-amber-500" />} color="border-amber-400" />
                 <StatCard title="IN MAINTENANCE" count={forRepairUnits} subtext="Temporarily stored away" icon={<Wrench className="w-5 h-5 text-amber-500" />} color="border-amber-400" />
               </div>
 
@@ -402,7 +402,7 @@ export default function BorrowerDashboard() {
                                 {req.status === 'approved' && (
                                   <button 
                                     onClick={() => updateRequestStatus(req.id, 'return_pending')}
-                                    className="mt-2 block w-full text-[11px] font-bold bg-blue-600 hover:bg-blue-700 text-white py-1.5 px-2 rounded-md transition shadow-2xs"
+                                    className="mt-2 block w-full text-[11px] font-bold bg-amber-600 hover:bg-amber-700 text-white py-1.5 px-2 rounded-md transition shadow-2xs"
                                   >
                                     Initiate Return
                                   </button>
@@ -469,7 +469,7 @@ export default function BorrowerDashboard() {
               <div className="mb-6">
                 <div className="flex items-center justify-between mb-2.5">
                   <span className="text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
-                    <Layers className="w-3.5 h-3.5 text-blue-600" />
+                    <Layers className="w-3.5 h-3.5 text-amber-600" />
                     Select Sport / Activity Category
                   </span>
                   <span className="text-xs text-slate-400 font-medium">
@@ -483,14 +483,14 @@ export default function BorrowerDashboard() {
                     onClick={() => setSelectedCategory('All')}
                     className={`flex items-center space-x-2 px-4 py-2.5 rounded-xl border text-sm font-semibold whitespace-nowrap transition shrink-0 ${
                       selectedCategory === 'All'
-                        ? 'bg-blue-600 text-white border-blue-600 shadow-sm'
-                        : 'bg-white text-slate-700 border-slate-200 hover:border-blue-300 hover:bg-slate-50'
+                        ? 'bg-amber-600 text-white border-amber-600 shadow-sm'
+                        : 'bg-white text-slate-700 border-slate-200 hover:border-emerald-300 hover:bg-slate-50'
                     }`}
                   >
                     <CategoryIcon category="all" className="w-4 h-4" />
                     <span>All Sports</span>
                     <span className={`text-xs px-2 py-0.5 rounded-full font-bold ${
-                      selectedCategory === 'All' ? 'bg-blue-700 text-blue-100' : 'bg-slate-100 text-slate-600'
+                      selectedCategory === 'All' ? 'bg-amber-700 text-blue-100' : 'bg-slate-100 text-slate-600'
                     }`}>
                       {equipment.length}
                     </span>
@@ -583,7 +583,7 @@ export default function BorrowerDashboard() {
                         </p>
                         <button 
                           onClick={() => { setSelectedCategory('All'); setSearchQuery(''); }}
-                          className="mt-4 px-4 py-2 bg-blue-50 text-blue-600 rounded-lg text-xs font-semibold hover:bg-blue-100 transition"
+                          className="mt-4 px-4 py-2 bg-emerald-50 text-amber-600 rounded-lg text-xs font-semibold hover:bg-blue-100 transition"
                         >
                           View All Categories
                         </button>
@@ -601,7 +601,7 @@ export default function BorrowerDashboard() {
                               key={eq.id} 
                               className={`bg-white border rounded-xl p-5 flex flex-col justify-between transition hover:shadow-sm ${
                                 inCartCount > 0 
-                                  ? 'border-blue-400 ring-1 ring-blue-400/30' 
+                                  ? 'border-amber-400 ring-1 ring-blue-400/30' 
                                   : 'border-slate-200 hover:border-slate-300'
                               }`}
                             >
@@ -621,7 +621,7 @@ export default function BorrowerDashboard() {
                                         : eq.inRepair > 0
                                           ? 'bg-amber-50 text-amber-700 border border-amber-200'
                                           : eq.borrowed > 0
-                                            ? 'bg-blue-50 text-blue-700 border border-blue-200'
+                                            ? 'bg-emerald-50 text-emerald-900 border border-emerald-200'
                                             : 'bg-slate-50 text-slate-700 border border-slate-200'
                                   }`}>
                                     {eq.available > 0 
@@ -665,7 +665,7 @@ export default function BorrowerDashboard() {
                               <div className="pt-3 border-t border-slate-100 flex items-center justify-between gap-2">
                                 <div>
                                   {inCartCount > 0 ? (
-                                    <div className="flex items-center space-x-1 text-xs font-bold text-blue-600">
+                                    <div className="flex items-center space-x-1 text-xs font-bold text-amber-600">
                                       <Check className="w-3.5 h-3.5" />
                                       <span>{inCartCount} in voucher</span>
                                     </div>
@@ -713,8 +713,8 @@ export default function BorrowerDashboard() {
                                         : availableToAdd <= 0
                                           ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
                                           : inCartCount > 0
-                                            ? 'bg-blue-50 text-blue-700 hover:bg-blue-100'
-                                            : 'bg-blue-600 text-white hover:bg-blue-700 shadow-2xs'
+                                            ? 'bg-emerald-50 text-emerald-900 hover:bg-blue-100'
+                                            : 'bg-amber-600 text-white hover:bg-amber-700 shadow-2xs'
                                     }`}
                                   >
                                     <Plus className="w-3.5 h-3.5" />
@@ -735,7 +735,7 @@ export default function BorrowerDashboard() {
                       {/* Cart Header */}
                       <div className="flex justify-between items-center pb-3.5 border-b border-slate-200 mb-4">
                         <div className="flex items-center space-x-2">
-                          <ShoppingBag className="w-5 h-5 text-blue-600" />
+                          <ShoppingBag className="w-5 h-5 text-amber-600" />
                           <h3 className="font-bold text-slate-900 text-base">Consolidated Voucher</h3>
                         </div>
                         {cart.length > 0 && (
@@ -857,7 +857,7 @@ export default function BorrowerDashboard() {
                                   onClick={() => setPurpose(tag)}
                                   className={`text-[10px] px-2 py-0.5 rounded-md font-semibold transition ${
                                     purpose === tag 
-                                      ? 'bg-blue-600 text-white' 
+                                      ? 'bg-amber-600 text-white' 
                                       : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                                   }`}
                                 >
@@ -878,28 +878,28 @@ export default function BorrowerDashboard() {
                               <button
                                 type="button"
                                 onClick={() => setQuickDates('2hours')}
-                                className="px-2 py-1 bg-slate-100 hover:bg-blue-50 hover:text-blue-700 border border-slate-200 rounded text-[10px] font-bold text-slate-600 transition"
+                                className="px-2 py-1 bg-slate-100 hover:bg-emerald-50 hover:text-emerald-900 border border-slate-200 rounded text-[10px] font-bold text-slate-600 transition"
                               >
                                 +2 Hours
                               </button>
                               <button
                                 type="button"
                                 onClick={() => setQuickDates('4hours')}
-                                className="px-2 py-1 bg-slate-100 hover:bg-blue-50 hover:text-blue-700 border border-slate-200 rounded text-[10px] font-bold text-slate-600 transition"
+                                className="px-2 py-1 bg-slate-100 hover:bg-emerald-50 hover:text-emerald-900 border border-slate-200 rounded text-[10px] font-bold text-slate-600 transition"
                               >
                                 +4 Hours
                               </button>
                               <button
                                 type="button"
                                 onClick={() => setQuickDates('endOfDay')}
-                                className="px-2 py-1 bg-slate-100 hover:bg-blue-50 hover:text-blue-700 border border-slate-200 rounded text-[10px] font-bold text-slate-600 transition"
+                                className="px-2 py-1 bg-slate-100 hover:bg-emerald-50 hover:text-emerald-900 border border-slate-200 rounded text-[10px] font-bold text-slate-600 transition"
                               >
                                 End of Day
                               </button>
                               <button
                                 type="button"
                                 onClick={() => setQuickDates('tomorrow')}
-                                className="px-2 py-1 bg-slate-100 hover:bg-blue-50 hover:text-blue-700 border border-slate-200 rounded text-[10px] font-bold text-slate-600 transition"
+                                className="px-2 py-1 bg-slate-100 hover:bg-emerald-50 hover:text-emerald-900 border border-slate-200 rounded text-[10px] font-bold text-slate-600 transition"
                               >
                                 Tomorrow
                               </button>
@@ -909,7 +909,7 @@ export default function BorrowerDashboard() {
                           {/* Pickup Date & Time */}
                           <div>
                             <label className="block text-xs font-bold text-slate-600 uppercase tracking-wide mb-1 flex items-center gap-1">
-                              <Calendar className="w-3 h-3 text-blue-600" />
+                              <Calendar className="w-3 h-3 text-amber-600" />
                               <span>Pickup Date & Time</span>
                             </label>
                             <input
@@ -940,7 +940,7 @@ export default function BorrowerDashboard() {
                           <button
                             type="submit"
                             disabled={cart.length === 0}
-                            className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed text-white font-bold py-3 px-4 rounded-xl mt-2 flex justify-center items-center space-x-2 transition shadow-sm"
+                            className="w-full bg-amber-600 hover:bg-amber-700 disabled:bg-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed text-white font-bold py-3 px-4 rounded-xl mt-2 flex justify-center items-center space-x-2 transition shadow-sm"
                           >
                             <CalendarPlus className="w-4 h-4" />
                             <span>Submit Consolidated Request ({totalCartUnits} items)</span>
@@ -992,7 +992,7 @@ export default function BorrowerDashboard() {
                           {req.status === 'pending' && <span className="text-amber-600">Borrow Voucher Submitted for Review</span>}
                           {req.status === 'approved' && <span className="text-emerald-600 flex items-center space-x-1.5"><Check className="w-4 h-4" /><span>Borrow Request Approved & Ready for Pickup!</span></span>}
                           {req.status === 'declined' && <span className="text-red-600">Borrow Request Declined</span>}
-                          {req.status === 'return_pending' && <span className="text-blue-600">Return Process Initiated</span>}
+                          {req.status === 'return_pending' && <span className="text-amber-600">Return Process Initiated</span>}
                           {req.status === 'returned' && <span className="text-slate-600">Return Confirmed & Logged by Admin</span>}
                         </div>
                         <span className="text-[11px] text-slate-400 font-normal">
@@ -1027,7 +1027,7 @@ function NavItem({ icon, label, active, onClick, badge }: any) {
       onClick={onClick}
       className={`flex items-center justify-between px-6 py-3 cursor-pointer border-l-4 transition text-sm font-semibold ${
         active 
-          ? 'border-blue-600 bg-blue-50/70 text-blue-700' 
+          ? 'border-amber-600 bg-emerald-50/70 text-emerald-900' 
           : 'border-transparent text-slate-600 hover:bg-slate-50 hover:text-slate-900'
       }`}
     >
@@ -1036,7 +1036,7 @@ function NavItem({ icon, label, active, onClick, badge }: any) {
         <span>{label}</span>
       </div>
       {badge !== undefined && (
-        <span className="bg-blue-600 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+        <span className="bg-amber-600 text-white text-xs font-bold px-2 py-0.5 rounded-full">
           {badge}
         </span>
       )}
@@ -1058,11 +1058,11 @@ function StatCard({ title, count, subtext, icon, color }: any) {
 }
 
 function StatusBadge({ status }: { status: string }) {
-  if (status === 'pending') return <span className="text-amber-700 bg-amber-50 border border-amber-200 px-2.5 py-1 rounded-full text-xs font-bold">Pending Review</span>;
-  if (status === 'approved') return <span className="text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-full text-xs font-bold">Approved</span>;
-  if (status === 'overdue') return <span className="text-red-700 bg-red-50 border border-red-200 px-2.5 py-1 rounded-full text-xs font-bold">Overdue Return</span>;
-  if (status === 'declined') return <span className="text-red-700 bg-red-50 border border-red-200 px-2.5 py-1 rounded-full text-xs font-bold">Declined</span>;
-  if (status === 'returned') return <span className="text-slate-700 bg-slate-100 border border-slate-200 px-2.5 py-1 rounded-full text-xs font-bold">Returned</span>;
-  if (status === 'return_pending') return <span className="text-blue-700 bg-blue-50 border border-blue-200 px-2.5 py-1 rounded-full text-xs font-bold">Return Pending</span>;
+  if (status === 'pending') return <span className="bg-amber-50 text-amber-700 border border-amber-200 px-3 py-1.5 rounded-full shadow-sm text-xs font-bold">Pending</span>;
+  if (status === 'approved') return <span className="bg-emerald-50 text-emerald-700 border border-emerald-200 px-3 py-1.5 rounded-full shadow-sm text-xs font-bold">Approved</span>;
+  if (status === 'overdue') return <span className="bg-red-50 text-red-700 border border-red-200 px-3 py-1.5 rounded-full shadow-sm text-xs font-bold">Overdue Returns</span>;
+  if (status === 'declined') return <span className="bg-red-50 text-red-700 border border-red-200 px-3 py-1.5 rounded-full shadow-sm text-xs font-bold">Declined</span>;
+  if (status === 'returned') return <span className="bg-blue-50 text-blue-700 border border-blue-200 px-3 py-1.5 rounded-full shadow-sm text-xs font-bold">Returned</span>;
+  if (status === 'return_pending') return <span className="bg-blue-50 text-blue-700 border border-blue-200 px-3 py-1.5 rounded-full shadow-sm text-xs font-bold">Return Requested</span>;
   return null;
 }

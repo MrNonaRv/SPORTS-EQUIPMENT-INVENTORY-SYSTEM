@@ -1,74 +1,111 @@
 import React from 'react';
-import { Settings, Lock, FileText, User } from 'lucide-react';
+import { Settings, Lock, FileText, User, ArrowRight } from 'lucide-react';
 import { useAppContext } from '../context/AppContext';
 
 const LandingView: React.FC = () => {
   const { setView } = useAppContext();
 
   return (
-    <div className="min-h-screen bg-slate-100 text-slate-900 flex flex-col font-sans">
-      <header className="flex justify-between items-center p-6 border-b border-slate-200 bg-slate-50">
-        <div className="flex items-center space-x-2 text-blue-700 font-semibold tracking-wide">
-          <Settings className="w-5 h-5 text-slate-900" />
+    <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col font-sans">
+      {/* Header */}
+      <header className="flex justify-between items-center p-6 bg-emerald-900 text-white relative z-10 shadow-md">
+        <div className="flex items-center space-x-3 font-semibold tracking-wide text-lg">
+          <div className="bg-amber-600 p-2 rounded-lg">
+            <Settings className="w-6 h-6 text-white" />
+          </div>
           <span>CSU - MSAC Sports Inventory</span>
         </div>
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center space-x-6">
           <button 
             onClick={() => setView('public_dashboard')}
-            className="flex items-center space-x-2 px-4 py-2 border border-blue-700/50 text-blue-700 rounded hover:bg-blue-600/10 transition"
+            className="flex items-center space-x-2 px-5 py-2.5 bg-amber-600 text-white font-bold rounded-lg hover:bg-amber-500 transition shadow-md"
           >
-            <Settings className="w-4 h-4" />
-            <span>View Dashboard</span>
+            <span>Live Dashboard</span>
+            <ArrowRight className="w-4 h-4" />
           </button>
-          <Settings className="w-5 h-5 text-slate-600 hover:text-slate-900 cursor-pointer" />
         </div>
       </header>
 
-      <main className="flex-1 flex flex-col items-center justify-center p-6">
-        <div className="text-center mb-12">
-          <h1 className="text-4xl md:text-5xl font-bold text-blue-700 mb-4 tracking-tight">
-            SPORTS & EQUIPMENT<br />INVENTORY SYSTEM
+      {/* Hero Section */}
+      <div className="bg-emerald-900 pt-16 pb-32 px-6 relative z-0">
+        <div className="max-w-4xl mx-auto text-center">
+          <h1 className="text-4xl md:text-6xl font-extrabold text-white mb-6 tracking-tight leading-tight">
+            Sports & Equipment <br/>
+            <span className="text-amber-500">Inventory System</span>
           </h1>
-          <p className="text-slate-500 text-lg">Capiz State University - Mambusao Satellite College</p>
+          <p className="text-emerald-100 text-lg md:text-xl max-w-2xl mx-auto leading-relaxed">
+            Capiz State University - Mambusao Satellite College. <br className="hidden md:block" />
+            A streamlined portal for administrators, faculty, and students to manage and borrow athletic equipment.
+          </p>
         </div>
+      </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-4xl">
+      {/* Main Content - Cards */}
+      <main className="flex-1 px-6 pb-16 -mt-20 relative z-10">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 w-full max-w-5xl mx-auto">
+          {/* Admin Card */}
           <div 
             onClick={() => setView('login_admin')}
-            className="bg-slate-50 border border-slate-200 rounded-xl p-8 flex flex-col items-center justify-center cursor-pointer hover:bg-slate-200 transition group"
+            className="bg-white border-b-4 border-amber-600 rounded-2xl p-8 flex flex-col items-center justify-center cursor-pointer hover:-translate-y-2 hover:shadow-2xl transition-all duration-300 group shadow-lg"
           >
-            <div className="bg-blue-100 p-4 rounded-full mb-4 group-hover:scale-110 transition-transform">
-              <Lock className="w-8 h-8 text-blue-700" />
+            <div className="bg-emerald-50 p-5 rounded-full mb-6 group-hover:scale-110 group-hover:bg-emerald-100 transition-all">
+              <Lock className="w-10 h-10 text-emerald-900" />
             </div>
-            <h2 className="text-blue-700 font-semibold text-lg mb-2">Admin</h2>
-            <p className="text-slate-500 text-sm text-center">Manage inventory, users & approvals</p>
+            <h2 className="text-emerald-900 font-bold text-2xl mb-3">Administrator</h2>
+            <p className="text-slate-600 text-center text-base leading-relaxed">
+              System management, inventory oversight, and request approvals.
+            </p>
+            <div className="mt-6 text-amber-600 font-semibold flex items-center space-x-2 group-hover:text-amber-700">
+              <span>Admin Login</span>
+              <ArrowRight className="w-4 h-4" />
+            </div>
           </div>
 
+          {/* Sign Up Card */}
           <div 
             onClick={() => setView('signup')}
-            className="bg-slate-50 border border-blue-700/30 rounded-xl p-8 flex flex-col items-center justify-center cursor-pointer hover:bg-slate-200 transition group"
+            className="bg-white border-b-4 border-amber-600 rounded-2xl p-8 flex flex-col items-center justify-center cursor-pointer hover:-translate-y-2 hover:shadow-2xl transition-all duration-300 group shadow-lg"
           >
-            <div className="bg-blue-100 p-4 rounded-full mb-4 group-hover:scale-110 transition-transform">
-              <FileText className="w-8 h-8 text-slate-900" />
+            <div className="bg-emerald-50 p-5 rounded-full mb-6 group-hover:scale-110 group-hover:bg-emerald-100 transition-all">
+              <FileText className="w-10 h-10 text-emerald-900" />
             </div>
-            <h2 className="text-blue-700 font-semibold text-lg mb-2">Sign Up</h2>
-            <p className="text-slate-500 text-sm text-center">New borrower? Create your account</p>
+            <h2 className="text-emerald-900 font-bold text-2xl mb-3">Create Account</h2>
+            <p className="text-slate-600 text-center text-base leading-relaxed">
+              New faculty or student borrower? Register for access here.
+            </p>
+            <div className="mt-6 text-amber-600 font-semibold flex items-center space-x-2 group-hover:text-amber-700">
+              <span>Register Now</span>
+              <ArrowRight className="w-4 h-4" />
+            </div>
           </div>
 
+          {/* Sign In Card */}
           <div 
             onClick={() => setView('login_borrower')}
-            className="bg-slate-50 border border-slate-200 rounded-xl p-8 flex flex-col items-center justify-center cursor-pointer hover:bg-slate-200 transition group"
+            className="bg-white border-b-4 border-amber-600 rounded-2xl p-8 flex flex-col items-center justify-center cursor-pointer hover:-translate-y-2 hover:shadow-2xl transition-all duration-300 group shadow-lg"
           >
-            <div className="bg-blue-100 p-4 rounded-full mb-4 group-hover:scale-110 transition-transform">
-              <User className="w-8 h-8 text-[#00B4D8]" />
+            <div className="bg-emerald-50 p-5 rounded-full mb-6 group-hover:scale-110 group-hover:bg-emerald-100 transition-all">
+              <User className="w-10 h-10 text-emerald-900" />
             </div>
-            <h2 className="text-blue-700 font-semibold text-lg mb-2">Sign In</h2>
-            <p className="text-slate-500 text-sm text-center">Students & Faculty borrowers</p>
+            <h2 className="text-emerald-900 font-bold text-2xl mb-3">Borrower Login</h2>
+            <p className="text-slate-600 text-center text-base leading-relaxed">
+              Returning students & faculty. View catalog and request items.
+            </p>
+            <div className="mt-6 text-amber-600 font-semibold flex items-center space-x-2 group-hover:text-amber-700">
+              <span>Sign In</span>
+              <ArrowRight className="w-4 h-4" />
+            </div>
           </div>
         </div>
       </main>
+      
+      {/* Footer */}
+      <footer className="py-8 text-center text-slate-500 text-sm">
+        <p>&copy; {new Date().getFullYear()} Capiz State University - MSAC. All Rights Reserved.</p>
+      </footer>
     </div>
   );
 };
 
 export default LandingView;
+

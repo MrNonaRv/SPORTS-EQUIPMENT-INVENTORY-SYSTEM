@@ -22,7 +22,7 @@ export default function AdminDashboard() {
   const [eqName, setEqName] = useState('');
   const [eqCat, setEqCat] = useState('Basketball');
   const [customCat, setCustomCat] = useState('');
-  const [eqQty, setEqQty] = useState(1);
+  const [eqQty, setEqQty] = useState(0);
   const [eqCondition, setEqCondition] = useState('Good / Available');
   const [eqSupplier, setEqSupplier] = useState('');
   const [eqNotes, setEqNotes] = useState('');
@@ -74,6 +74,9 @@ export default function AdminDashboard() {
     setAddSuccess(true);
     setEqName('');
     setCustomCat('');
+    setEqQty(0);
+    setEqSupplier('');
+    setEqNotes('');
     setTimeout(() => setAddSuccess(false), 3000);
   };
 
@@ -90,15 +93,15 @@ export default function AdminDashboard() {
   if (!currentUser) return null;
 
   return (
-    <div className="min-h-screen bg-slate-100 text-slate-900 flex font-sans">
+    <div className="min-h-screen bg-slate-50 text-slate-900 flex font-sans">
       {/* Sidebar */}
-      <div className="w-64 bg-slate-50 border-r border-slate-200 flex flex-col">
+      <div className="w-64 bg-white border-r border-slate-200 flex flex-col">
         <div className="p-6 border-b border-slate-200">
-          <div className="w-12 h-12 bg-[#800000] rounded-full flex items-center justify-center text-white font-bold text-xl mb-3">
+          <div className="w-12 h-12 bg-emerald-900 rounded-full flex items-center justify-center text-white font-bold text-xl mb-3">
             {currentUser.name.split(' ').map(n => n[0]).join('').substring(0,2)}
           </div>
           <h3 className="font-bold">{currentUser.name}</h3>
-          <p className="text-xs text-[#800000] uppercase tracking-wider">ADMINISTRATOR</p>
+          <p className="text-xs text-emerald-900 uppercase tracking-wider">ADMINISTRATOR</p>
         </div>
         
         <nav className="flex-1 py-4">
@@ -113,7 +116,7 @@ export default function AdminDashboard() {
         <div className="p-4 border-t border-slate-200">
           <button 
             onClick={logout}
-            className="w-full flex items-center justify-center space-x-2 px-4 py-2 bg-red-500/10 text-red-400 hover:bg-red-500/20 rounded transition"
+            className="w-full flex items-center justify-center space-x-2 px-4 py-2.5 bg-red-50 text-red-700 hover:bg-red-100 font-bold border border-red-200 rounded-lg transition"
           >
             <LogOut className="w-4 h-4" />
             <span>Sign Out</span>
@@ -123,20 +126,23 @@ export default function AdminDashboard() {
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col h-screen overflow-hidden">
-        <header className="flex justify-between items-center px-8 py-4 border-b border-slate-200 bg-slate-50">
-          <div className="text-sm text-slate-500">
-            CSU Sports Inventory - Admin Control Center
+        <header className="flex justify-between items-center px-8 py-4 border-b border-slate-200 bg-white shadow-sm relative z-20">
+          <div className="flex items-center space-x-3 text-emerald-900 font-bold text-lg tracking-wide">
+            <div className="bg-amber-600 p-1.5 rounded-lg">
+              <Trophy className="w-5 h-5 text-white" />
+            </div>
+            <span>CSU Sports Inventory - Admin Control Center</span>
           </div>
           <div className="text-sm flex items-center space-x-2">
-            <span className="w-2 h-2 rounded-full bg-green-500"></span>
-            <span className="text-slate-500">Admin Profile: </span>
+            <span className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]"></span>
+            <span className="text-slate-500 font-medium">Admin Profile: </span>
             {isEditingProfile ? (
               <div className="flex items-center space-x-2">
                 <input 
                   type="text" 
                   value={editProfileName} 
                   onChange={e => setEditProfileName(e.target.value)}
-                  className="px-2 py-0.5 border border-slate-300 rounded text-sm focus:outline-none focus:border-blue-500"
+                  className="px-2 py-0.5 border border-slate-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-emerald-900 focus:border-emerald-900"
                   autoFocus
                 />
                 <button 
@@ -146,26 +152,26 @@ export default function AdminDashboard() {
                     }
                     setIsEditingProfile(false);
                   }}
-                  className="text-xs bg-[#800000] hover:bg-[#600000] text-white px-2 py-1 rounded"
+                  className="text-xs bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-lg shadow-sm-lg shadow-sm"
                 >
                   Save
                 </button>
                 <button 
                   onClick={() => setIsEditingProfile(false)}
-                  className="text-xs bg-slate-200 hover:bg-slate-300 text-slate-700 px-2 py-1 rounded"
+                  className="text-xs bg-slate-200 hover:bg-slate-300 text-slate-700 px-4 py-2 rounded-lg shadow-sm-lg shadow-sm"
                 >
                   Cancel
                 </button>
               </div>
             ) : (
               <div className="flex items-center space-x-2">
-                <span className="text-[#800000] font-medium">{currentUser.name}</span>
+                <span className="text-emerald-900 font-medium">{currentUser.name}</span>
                 <button 
                   onClick={() => {
                     setEditProfileName(currentUser.name);
                     setIsEditingProfile(true);
                   }}
-                  className="text-xs text-[#800000] hover:text-[#600000] underline"
+                  className="text-xs text-emerald-900 hover:text-emerald-800 underline"
                 >
                   Edit
                 </button>
@@ -188,12 +194,12 @@ export default function AdminDashboard() {
               </div>
 
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8 relative z-10">
-                <StatCard onClick={() => setActiveOverlay('total')} title="TOTAL UNITS" count={totalUnits} subtext="Across all sports" icon={<Box className="w-6 h-6 text-slate-300" />} color="border-slate-200" />
-                <StatCard onClick={() => setActiveOverlay('available')} title="AVAILABLE ITEMS" count={availableUnits} subtext="Ready to borrow" icon={<Check className="w-6 h-6 text-green-500/50" />} color="border-green-500/30" />
-                <StatCard onClick={() => setActiveOverlay('borrowed')} title="BORROWED" count={borrowedUnits} subtext="Currently out" icon={<RefreshCw className="w-6 h-6 text-[#800000]/50" />} color="border-[#800000]/30" />
-                <StatCard onClick={() => setActiveOverlay('repair')} title="FOR REPAIR" count={forRepairUnits} subtext="Under maintenance" icon={<Wrench className="w-6 h-6 text-orange-500/50" />} color="border-orange-500/30" />
-                <StatCard onClick={() => setActiveOverlay('damaged')} title="DAMAGED UNITS" count={damagedUnits} subtext="Unserviceable" icon={<XCircle className="w-6 h-6 text-red-500/50" />} color="border-red-500/30" />
-                <StatCard onClick={() => setActiveOverlay('sports')} title="SPORTS TRACKS" count={sportsTracksCount} subtext="Active sports" icon={<Trophy className="w-6 h-6 text-[#800000]/50" />} color="border-[#800000]/30" />
+                <StatCard onClick={() => setActiveOverlay('total')} title="TOTAL UNITS" count={totalUnits} subtext="Across all sports" icon={<Box className="w-6 h-6 text-slate-400" />} color="border-slate-300" />
+                <StatCard onClick={() => setActiveOverlay('available')} title="AVAILABLE ITEMS" count={availableUnits} subtext="Ready to borrow" icon={<Check className="w-6 h-6 text-emerald-500" />} color="border-emerald-500" />
+                <StatCard onClick={() => setActiveOverlay('borrowed')} title="BORROWED" count={borrowedUnits} subtext="Currently out" icon={<RefreshCw className="w-6 h-6 text-blue-500" />} color="border-blue-500" />
+                <StatCard onClick={() => setActiveOverlay('repair')} title="FOR REPAIR" count={forRepairUnits} subtext="Under maintenance" icon={<Wrench className="w-6 h-6 text-amber-500" />} color="border-amber-500" />
+                <StatCard onClick={() => setActiveOverlay('damaged')} title="DAMAGED UNITS" count={damagedUnits} subtext="Unserviceable" icon={<XCircle className="w-6 h-6 text-red-500" />} color="border-red-500" />
+                <StatCard onClick={() => setActiveOverlay('sports')} title="SPORTS TRACKS" count={sportsTracksCount} subtext="Active sports" icon={<Trophy className="w-6 h-6 text-indigo-500" />} color="border-indigo-500" />
               </div>
 
               {activeOverlay && (
@@ -202,50 +208,52 @@ export default function AdminDashboard() {
                 </div>
               )}
 
-              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
-                <h2 className="text-xl font-bold text-[#800000]">Public Equipment Status Availability</h2>
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4 mt-8">
+                <div>
+                  <h2 className="text-2xl font-bold text-emerald-900">Equipment Catalog & Inventory</h2>
+                  <p className="text-sm text-slate-500 mt-1">Manage and track all sports equipment in real-time</p>
+                </div>
                 
                 {/* Search Bar */}
-                <div className="relative w-full md:w-64">
-                  <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                <div className="relative w-full md:w-72">
+                  <Search className="w-5 h-5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
                   <input
                     type="text"
                     placeholder="Search inventory..."
                     value={adminSearch}
                     onChange={e => setAdminSearch(e.target.value)}
-                    className="w-full pl-9 pr-4 py-1.5 bg-white border border-slate-200 rounded-lg text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#800000] transition"
+                    className="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-300 rounded-lg text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-900 focus:border-emerald-900 transition shadow-sm"
                   />
                 </div>
               </div>
 
               {/* Dynamic Category Filter Pills */}
-              <div className="flex items-center gap-2 overflow-x-auto pb-3 mb-4 scrollbar-thin">
+              <div className="flex items-center gap-3 overflow-x-auto pb-4 mb-4 scrollbar-thin">
                 <button
                   onClick={() => setAdminCatFilter('All')}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap transition flex items-center space-x-1.5 ${
+                  className={`px-4 py-2 rounded-xl text-sm font-bold whitespace-nowrap transition flex items-center space-x-2 ${
                     adminCatFilter === 'All'
-                      ? 'bg-[#800000] text-white shadow-xs'
-                      : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-50'
+                      ? 'bg-emerald-900 text-white shadow-md'
+                      : 'bg-white text-slate-700 border border-slate-300 hover:bg-slate-50 hover:border-slate-400'
                   }`}
                 >
-                  <CategoryIcon category="all" className="w-3.5 h-3.5" />
+                  <CategoryIcon category="all" className="w-4 h-4" />
                   <span>All ({equipment.length})</span>
                 </button>
                 {allCategories.map(cat => {
-                  const meta = getCategoryMeta(cat);
                   const isSel = adminCatFilter.toLowerCase() === cat.toLowerCase();
                   const count = equipment.filter(e => e.category.toLowerCase() === cat.toLowerCase()).length;
                   return (
                     <button
                       key={cat}
                       onClick={() => setAdminCatFilter(cat)}
-                      className={`px-3 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap transition flex items-center space-x-1.5 ${
+                      className={`px-4 py-2 rounded-xl text-sm font-bold whitespace-nowrap transition flex items-center space-x-2 ${
                         isSel
-                          ? `${meta.accentBg} ${meta.color} border ${meta.borderColor} font-bold ring-1 ring-blue-400/30 shadow-xs`
-                          : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-50'
+                          ? `bg-emerald-900 text-white shadow-md border-transparent`
+                          : 'bg-white text-slate-700 border border-slate-300 hover:bg-slate-50 hover:border-slate-400'
                       }`}
                     >
-                      <CategoryIcon category={cat} className={`w-3.5 h-3.5 ${isSel ? meta.color : 'text-slate-500'}`} />
+                      <CategoryIcon category={cat} className={`w-4 h-4 ${isSel ? 'text-amber-400' : 'text-slate-500'}`} />
                       <span>{cat} ({count})</span>
                     </button>
                   );
@@ -254,7 +262,7 @@ export default function AdminDashboard() {
               
               <div className="bg-white rounded-xl overflow-hidden border border-slate-200 shadow-xs">
                 <table className="w-full text-left text-sm">
-                  <thead className="bg-slate-100 text-blue-700 text-xs uppercase tracking-wider">
+                  <thead className="bg-slate-100 text-slate-700 text-xs uppercase border-b border-slate-200 tracking-wider">
                     <tr>
                       <th className="px-6 py-4 font-semibold">Equipment Name</th>
                       <th className="px-6 py-4 font-semibold">Sport Category</th>
@@ -292,7 +300,7 @@ export default function AdminDashboard() {
                             </td>
                             <td className="px-6 py-4 text-center font-bold text-slate-800">{eq.total}</td>
                             <td className="px-6 py-4 text-center text-emerald-600 font-bold">{eq.available} Units</td>
-                            <td className="px-6 py-4 text-center text-[#800000] font-semibold">{eq.borrowed}</td>
+                            <td className="px-6 py-4 text-center text-emerald-900 font-semibold">{eq.borrowed}</td>
                             <td className="px-6 py-4 text-center text-amber-600 font-semibold">{eq.inRepair}</td>
                             <td className="px-6 py-4 text-center text-red-600 font-semibold">{eq.damaged}</td>
                             <td className="px-6 py-4 text-center">
@@ -303,7 +311,7 @@ export default function AdminDashboard() {
                               ) : eq.inRepair > 0 ? (
                                 <span className="text-xs font-bold text-amber-700 bg-amber-50 border border-amber-200 px-2.5 py-1 rounded-full">In Repair</span>
                               ) : eq.borrowed > 0 ? (
-                                <span className="text-xs font-bold text-[#800000] bg-[#800000]/10 border border-[#800000]/20 px-2.5 py-1 rounded-full">Borrowed</span>
+                                <span className="text-xs font-bold text-emerald-900 bg-amber-100 border border-amber-300 px-2.5 py-1 rounded-full">Borrowed</span>
                               ) : (
                                 <span className="text-xs font-bold text-slate-700 bg-slate-50 border border-slate-200 px-2.5 py-1 rounded-full">Out of Stock</span>
                               )}
@@ -333,12 +341,12 @@ export default function AdminDashboard() {
 
           {activeTab === 'requests' && (
             <div className="max-w-6xl mx-auto">
-              <h2 className="text-2xl font-bold text-blue-700 mb-2">Borrow Requests & Log Records</h2>
+              <h2 className="text-2xl font-bold text-emerald-900 mb-2">Borrow Requests & Log Records</h2>
               <p className="text-slate-500 text-sm mb-8">Accept or decline pending equipment borrow requests and view log records</p>
 
               <div className="bg-white border border-slate-200 rounded-xl overflow-hidden mb-8">
                 <table className="w-full text-left text-sm">
-                  <thead className="bg-slate-50 text-blue-700 text-xs uppercase">
+                  <thead className="bg-slate-100 text-slate-700 text-xs uppercase tracking-wider border-b border-slate-200">
                     <tr>
                       <th className="px-6 py-3">Borrower Full Name</th>
                       <th className="px-6 py-3">Account Type</th>
@@ -355,11 +363,11 @@ export default function AdminDashboard() {
                       return (
                         <tr key={req.id} className="hover:bg-slate-100">
                           <td className="px-6 py-4 font-medium flex items-center space-x-2">
-                            <span className="w-6 h-6 rounded-full bg-slate-700 flex items-center justify-center text-xs text-white">{user?.name?.[0]}</span>
+                            <span className="w-8 h-8 rounded-full bg-emerald-900 flex items-center justify-center text-sm font-bold text-white ring-2 ring-white shadow-sm">{user?.name?.[0]}</span>
                             <span>{user?.name}</span>
                           </td>
                           <td className="px-6 py-4">
-                            <span className="bg-blue-500/20 text-blue-400 px-2 py-1 rounded text-xs">{user?.role}</span>
+                            <span className="bg-emerald-100 text-emerald-800 border border-emerald-200 px-3 py-1.5 rounded-full font-bold text-xs shadow-sm">{user?.role}</span>
                           </td>
                           <td className="px-6 py-4">
                             {items.map((item, idx) => {
@@ -376,12 +384,12 @@ export default function AdminDashboard() {
                           <td className="px-6 py-4 text-center">
                             {req.status === 'pending' && (
                               <div className="flex flex-col space-y-2">
-                                <button onClick={() => updateRequestStatus(req.id, 'approved')} className="text-xs border border-green-500/50 text-green-400 hover:bg-green-500/10 px-2 py-1 rounded transition">Accept</button>
-                                <button onClick={() => updateRequestStatus(req.id, 'declined')} className="text-xs border border-red-500/50 text-red-400 hover:bg-red-500/10 px-2 py-1 rounded transition">Decline</button>
+                                <button onClick={() => updateRequestStatus(req.id, 'approved')} className="text-xs border border-emerald-400 text-emerald-800 bg-emerald-100 hover:bg-emerald-200 font-bold px-3 py-1.5 rounded-lg shadow-sm transition">Accept</button>
+                                <button onClick={() => updateRequestStatus(req.id, 'declined')} className="text-xs border border-red-400 text-red-800 bg-red-100 hover:bg-red-200 font-bold px-3 py-1.5 rounded-lg shadow-sm transition">Decline</button>
                               </div>
                             )}
                             {(req.status === 'approved' || req.status === 'overdue' || req.status === 'return_pending') && (
-                              <button onClick={() => updateRequestStatus(req.id, 'returned')} className="text-xs bg-green-500/20 text-green-400 border border-green-500 hover:bg-green-500/30 px-3 py-1.5 rounded flex items-center space-x-1 mx-auto transition">
+                              <button onClick={() => updateRequestStatus(req.id, 'returned')} className="text-xs bg-emerald-700 text-white border border-emerald-800 hover:bg-emerald-800 font-bold px-4 py-2 rounded-lg shadow-sm flex items-center space-x-1 mx-auto transition">
                                 <Check className="w-3 h-3" />
                                 <span>Confirm Return</span>
                               </button>
@@ -398,7 +406,7 @@ export default function AdminDashboard() {
 
           {activeTab === 'users' && (
             <div className="max-w-6xl mx-auto">
-              <h2 className="text-2xl font-bold text-blue-700 mb-2">Manage System Accounts</h2>
+              <h2 className="text-2xl font-bold text-emerald-900 mb-2">Manage System Accounts</h2>
               <p className="text-slate-500 text-sm mb-6">Review active approved website users or open pending registrations log logs.</p>
 
               {pendingUsers.length > 0 && (
@@ -408,7 +416,7 @@ export default function AdminDashboard() {
                     <span>Users Pending Registration Review</span>
                   </div>
                   <table className="w-full text-left text-sm">
-                    <thead className="bg-slate-50 text-blue-700 text-xs uppercase">
+                    <thead className="bg-slate-100 text-slate-700 text-xs uppercase tracking-wider border-b border-slate-200">
                       <tr>
                         <th className="px-6 py-3">Full Name</th>
                         <th className="px-6 py-3">ID Number</th>
@@ -421,7 +429,7 @@ export default function AdminDashboard() {
                       {pendingUsers.map(u => (
                         <tr key={u.id}>
                           <td className="px-6 py-4 font-medium flex items-center space-x-2">
-                             <span className="w-2 h-2 rounded-full bg-blue-600"></span>
+                             <span className="w-2.5 h-2.5 rounded-full bg-amber-500 shadow-sm"></span>
                              <span>{u.name}</span>
                           </td>
                           <td className="px-6 py-4">{u.id}</td>
@@ -429,8 +437,8 @@ export default function AdminDashboard() {
                           <td className="px-6 py-4">{u.department}</td>
                           <td className="px-6 py-4 text-center">
                             <div className="flex items-center justify-center space-x-2">
-                              <button onClick={() => updateUserStatus(u.id, 'approved')} className="text-xs border border-green-500/50 text-green-400 hover:bg-green-500/10 px-3 py-1 rounded transition">Accept Account</button>
-                              <button onClick={() => updateUserStatus(u.id, 'rejected')} className="text-xs border border-red-500/50 text-red-400 hover:bg-red-500/10 px-3 py-1 rounded transition">Decline</button>
+                              <button onClick={() => updateUserStatus(u.id, 'approved')} className="text-xs border border-emerald-400 text-emerald-800 bg-emerald-100 hover:bg-emerald-200 font-bold px-4 py-2 rounded-lg shadow-sm transition">Accept Account</button>
+                              <button onClick={() => updateUserStatus(u.id, 'rejected')} className="text-xs border border-red-400 text-red-800 bg-red-100 hover:bg-red-200 font-bold px-4 py-2 rounded-lg shadow-sm transition">Decline</button>
                             </div>
                           </td>
                         </tr>
@@ -441,11 +449,11 @@ export default function AdminDashboard() {
               )}
 
               <div className="bg-white border border-slate-200 rounded-xl overflow-hidden">
-                <div className="px-6 py-4 font-bold text-blue-700 border-b border-slate-200">
+                <div className="px-6 py-4 font-bold text-emerald-900 border-b border-slate-200">
                   Already Approved Users
                 </div>
                 <table className="w-full text-left text-sm">
-                  <thead className="bg-slate-50 text-blue-700 text-xs uppercase">
+                  <thead className="bg-slate-100 text-slate-700 text-xs uppercase tracking-wider border-b border-slate-200">
                     <tr>
                       <th className="px-6 py-3">Full Name</th>
                       <th className="px-6 py-3">ID Number</th>
@@ -458,14 +466,14 @@ export default function AdminDashboard() {
                     {approvedUsers.map(u => (
                       <tr key={u.id} className="hover:bg-slate-100">
                         <td className="px-6 py-4 font-medium flex items-center space-x-2">
-                            <span className="w-2 h-2 rounded-full bg-green-500"></span>
+                            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-sm"></span>
                             <span>{u.name}</span>
                         </td>
                         <td className="px-6 py-4">{u.id}</td>
                         <td className="px-6 py-4 capitalize">{u.role}</td>
                         <td className="px-6 py-4">{u.department}</td>
                         <td className="px-6 py-4">
-                          <span className="text-green-400 bg-green-400/10 px-2 py-1 rounded text-xs font-medium">Approved Member</span>
+                          <span className="text-green-400 bg-green-400/10 px-4 py-2 rounded-lg shadow-sm-lg shadow-sm text-xs font-medium">Approved Member</span>
                         </td>
                       </tr>
                     ))}
@@ -477,12 +485,12 @@ export default function AdminDashboard() {
 
           {activeTab === 'arrivals' && (
             <div className="max-w-4xl">
-              <h2 className="text-2xl font-bold text-blue-700 mb-2">New Equipment Arrivals</h2>
+              <h2 className="text-2xl font-bold text-emerald-900 mb-2">New Equipment Arrivals</h2>
               <p className="text-slate-500 text-sm mb-6">Encode newly arrived sports equipment to automatically update the inventory records.</p>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div className="bg-white border border-slate-200 rounded-xl p-6">
-                  <h3 className="text-lg font-bold text-blue-700 mb-4 flex items-center space-x-2"><PackagePlus className="w-5 h-5"/> <span>Encode New Arrival</span></h3>
+                  <h3 className="text-lg font-bold text-emerald-900 mb-4 flex items-center space-x-2"><PackagePlus className="w-5 h-5"/> <span>Encode New Arrival</span></h3>
                   
                   {addSuccess && (
                     <div className="bg-green-500/20 text-green-400 p-3 rounded mb-4 text-sm flex items-center space-x-2">
@@ -493,14 +501,14 @@ export default function AdminDashboard() {
                   <form onSubmit={handleAddEquipment} className="space-y-4">
                     <div>
                       <label className="block text-xs text-slate-500 mb-1">Equipment Name</label>
-                      <input required type="text" value={eqName} onChange={e => setEqName(e.target.value)} className="w-full bg-slate-50 border border-slate-200 rounded px-4 py-2 text-slate-900 focus:outline-none focus:border-blue-700" />
+                      <input required type="text" value={eqName} onChange={e => setEqName(e.target.value)} className="w-full bg-slate-50 border border-slate-200 rounded px-4 py-2 text-slate-900 focus:outline-none focus:border-amber-600" />
                     </div>
                     <div>
                       <label className="block text-xs font-bold text-slate-600 uppercase tracking-wide mb-1">Sport Category</label>
                       <select 
                         value={eqCat} 
                         onChange={e => setEqCat(e.target.value)} 
-                        className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-2 text-sm text-slate-900 focus:outline-none focus:border-blue-700"
+                        className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-2 text-sm text-slate-900 focus:outline-none focus:border-amber-600"
                       >
                         <option value="Basketball">Basketball</option>
                         <option value="Volleyball">Volleyball</option>
@@ -518,14 +526,14 @@ export default function AdminDashboard() {
 
                       {eqCat === 'Custom' && (
                         <div className="mt-2">
-                          <label className="block text-[11px] font-bold text-blue-600 mb-1">Enter Custom Sport Name</label>
+                          <label className="block text-[11px] font-bold text-amber-600 mb-1">Enter Custom Sport Name</label>
                           <input
                             required
                             type="text"
                             placeholder="e.g. Lawn Tennis, Swimming, Archery"
                             value={customCat}
                             onChange={e => setCustomCat(e.target.value)}
-                            className="w-full bg-blue-50/50 border border-blue-300 rounded-lg px-3 py-2 text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                            className="w-full bg-emerald-50/50 border border-emerald-300 rounded-lg px-3 py-2 text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
                           />
                         </div>
                       )}
@@ -533,11 +541,11 @@ export default function AdminDashboard() {
                     <div className="grid grid-cols-2 gap-4">
                       <div>
                         <label className="block text-xs text-slate-500 mb-1">Quantity Received</label>
-                        <input required type="number" min="1" value={eqQty} onChange={e => setEqQty(Number(e.target.value))} className="w-full bg-slate-50 border border-slate-200 rounded px-4 py-2 text-slate-900 focus:outline-none focus:border-blue-700" />
+                        <input required type="number" min="1" value={eqQty} onChange={e => setEqQty(Number(e.target.value))} className="w-full bg-slate-50 border border-slate-200 rounded px-4 py-2 text-slate-900 focus:outline-none focus:border-amber-600" />
                       </div>
                       <div>
                         <label className="block text-xs text-slate-500 mb-1">Condition on Arrival</label>
-                        <select value={eqCondition} onChange={e => setEqCondition(e.target.value)} className="w-full bg-slate-50 border border-slate-200 rounded px-4 py-2 text-slate-900 focus:outline-none focus:border-blue-700">
+                        <select value={eqCondition} onChange={e => setEqCondition(e.target.value)} className="w-full bg-slate-50 border border-slate-200 rounded px-4 py-2 text-slate-900 focus:outline-none focus:border-amber-600">
                           <option value="Good / Available">Good / Available</option>
                           <option value="For Repair">For Repair</option>
                           <option value="Damaged">Damaged</option>
@@ -546,11 +554,11 @@ export default function AdminDashboard() {
                     </div>
                     <div>
                       <label className="block text-xs text-slate-500 mb-1">Delivery Source / Supplier</label>
-                      <input type="text" value={eqSupplier} onChange={e => setEqSupplier(e.target.value)} className="w-full bg-slate-50 border border-slate-200 rounded px-4 py-2 text-slate-900 focus:outline-none focus:border-blue-700" />
+                      <input type="text" value={eqSupplier} onChange={e => setEqSupplier(e.target.value)} className="w-full bg-slate-50 border border-slate-200 rounded px-4 py-2 text-slate-900 focus:outline-none focus:border-amber-600" />
                     </div>
                     <div>
                       <label className="block text-xs text-slate-500 mb-1">Remarks / Notes (Optional)</label>
-                      <textarea value={eqNotes} onChange={e => setEqNotes(e.target.value)} className="w-full bg-slate-50 border border-slate-200 rounded px-4 py-2 text-slate-900 focus:outline-none focus:border-blue-700 h-24" />
+                      <textarea value={eqNotes} onChange={e => setEqNotes(e.target.value)} className="w-full bg-slate-50 border border-slate-200 rounded px-4 py-2 text-slate-900 focus:outline-none focus:border-amber-600 h-24" />
                     </div>
                     <button type="submit" className="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 rounded mt-4 flex justify-center items-center space-x-2 transition">
                       <PackagePlus className="w-5 h-5" />
@@ -569,17 +577,8 @@ export default function AdminDashboard() {
                 <div>
                   <h3 className="text-lg font-bold text-slate-600 mb-4 flex items-center space-x-2"><FileBarChart className="w-5 h-5"/> <span>Arrival Log Records</span></h3>
                   <div className="space-y-4">
-                     <div className="bg-white border border-slate-200 p-4 rounded-lg">
-                        <div className="flex justify-between mb-2">
-                          <span className="font-bold text-blue-700">3x Basketball</span>
-                          <span className="text-green-400 text-xs bg-green-400/10 px-2 py-0.5 rounded flex items-center space-x-1"><Check className="w-3 h-3"/> <span>Good</span></span>
-                        </div>
-                        <div className="text-xs text-slate-500 grid grid-cols-2 gap-2">
-                          <div>Sport: Basketball</div>
-                          <div>Source: DepEd Allocation</div>
-                          <div>By: Prof. Maria Santos</div>
-                          <div>Date: June 1, 2026</div>
-                        </div>
+                     <div className="bg-slate-50 border border-slate-200 border-dashed p-8 rounded-lg text-center text-slate-500">
+                        No recent equipment arrivals logged.
                      </div>
                   </div>
                 </div>
@@ -589,12 +588,12 @@ export default function AdminDashboard() {
 
           {activeTab === 'active_borrowers' && (
             <div className="max-w-6xl mx-auto">
-              <h2 className="text-2xl font-bold text-blue-700 mb-2">Active Borrowers</h2>
+              <h2 className="text-2xl font-bold text-emerald-900 mb-2">Active Borrowers</h2>
               <p className="text-slate-500 text-sm mb-6">Explicitly filtered view displaying all current users holding equipment and their items.</p>
               
               <div className="bg-white rounded-xl overflow-hidden border border-slate-200">
                 <table className="w-full text-left text-sm">
-                  <thead className="bg-slate-100 text-blue-700 text-xs uppercase tracking-wider">
+                  <thead className="bg-slate-100 text-slate-700 text-xs uppercase border-b border-slate-200 tracking-wider">
                     <tr>
                       <th className="px-6 py-4 font-semibold">Borrower</th>
                       <th className="px-6 py-4 font-semibold">Contact / Dept</th>
@@ -614,7 +613,7 @@ export default function AdminDashboard() {
                         return (
                           <tr key={user.id} className="hover:bg-slate-100">
                             <td className="px-6 py-4 font-medium flex items-center space-x-3">
-                              <div className="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center text-xs text-white">{user.name[0]}</div>
+                              <div className="w-10 h-10 rounded-full bg-emerald-900 flex items-center justify-center text-sm font-bold text-white ring-2 ring-white shadow-sm">{user.name[0]}</div>
                               <div>
                                 <div>{user.name}</div>
                                 <div className="text-xs text-slate-500">{user.role}</div>
@@ -629,7 +628,7 @@ export default function AdminDashboard() {
                                 {activeUserRequests.map(req => {
                                   const items = req.items && req.items.length > 0 ? req.items : [{ equipmentId: req.equipmentId || '', quantity: req.quantity || 0 }];
                                   return (
-                                    <div key={req.id} className="border-l-2 border-blue-400 pl-3">
+                                    <div key={req.id} className="border-l-2 border-amber-400 pl-3">
                                       {items.map((item, idx) => {
                                         const eq = equipment.find(e => e.id === item.equipmentId);
                                         return <div key={idx} className="font-medium text-slate-800">{item.quantity}× {eq?.name || 'Item'}</div>
@@ -643,9 +642,9 @@ export default function AdminDashboard() {
                             </td>
                             <td className="px-6 py-4">
                               {activeUserRequests.some(r => r.status === 'overdue') ? (
-                                <span className="bg-red-100 text-red-600 px-2 py-1 rounded text-xs font-semibold">Has Overdue</span>
+                                <span className="bg-red-100 text-red-600 px-4 py-2 rounded-lg shadow-sm-lg shadow-sm text-xs font-semibold">Has Overdue</span>
                               ) : (
-                                <span className="bg-green-100 text-green-600 px-2 py-1 rounded text-xs font-semibold">In Good Standing</span>
+                                <span className="bg-green-100 text-green-600 px-4 py-2 rounded-lg shadow-sm-lg shadow-sm text-xs font-semibold">In Good Standing</span>
                               )}
                             </td>
                           </tr>
@@ -660,13 +659,13 @@ export default function AdminDashboard() {
 
           {activeTab === 'reports' && (
             <div className="max-w-6xl mx-auto">
-              <h2 className="text-3xl font-bold text-blue-700 mb-2">REPORTS CENTER</h2>
+              <h2 className="text-3xl font-bold text-emerald-900 mb-2">REPORTS CENTER</h2>
               <p className="text-slate-500 text-sm mb-6 max-w-md">Access and generate key reports to monitor equipment availability, inventory health, and repair activity.</p>
               
               <div className="bg-white border border-slate-200 rounded-xl p-8 relative">
                  <div className="absolute top-8 right-8 flex space-x-4">
-                    <button className="bg-[#800000] text-white px-4 py-2 rounded font-semibold text-sm hover:bg-[#600000] transition">Print Report</button>
-                    <button className="bg-[#800000] text-white px-4 py-2 rounded font-semibold text-sm hover:bg-[#600000] transition">Export as PDF</button>
+                    <button className="bg-amber-600 text-white px-4 py-2 rounded font-semibold text-sm hover:bg-amber-700 transition">Print Report</button>
+                    <button className="bg-amber-600 text-white px-4 py-2 rounded font-semibold text-sm hover:bg-amber-700 transition">Export as PDF</button>
                     <button 
                       onClick={async () => {
                         if(window.confirm('Are you sure you want to clear ALL borrow requests and user accounts? This cannot be undone.')) {
@@ -678,7 +677,7 @@ export default function AdminDashboard() {
                           }
                         }
                       }}
-                      className="bg-red-600 text-white px-4 py-2 rounded font-semibold text-sm hover:bg-red-700 transition"
+                      className="bg-amber-600 text-white px-4 py-2 rounded font-semibold text-sm hover:bg-amber-700 transition"
                     >
                       Clear All Data
                     </button>
@@ -691,7 +690,7 @@ export default function AdminDashboard() {
                  </div>
 
                  <table className="w-full text-left text-sm">
-                  <thead className="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider">
+                  <thead className="bg-slate-100 text-slate-700 text-xs uppercase tracking-wider border-b border-slate-200">
                     <tr>
                       <th className="px-4 py-3 font-semibold">Equipment</th>
                       <th className="px-4 py-3 font-semibold">Sports Category</th>
@@ -738,26 +737,26 @@ function NavItem({ icon, label, active, onClick, badge }: any) {
   return (
     <div 
       onClick={onClick}
-      className={`flex items-center justify-between px-6 py-3 cursor-pointer border-l-4 transition ${active ? 'border-blue-700 bg-slate-50 text-blue-700' : 'border-transparent text-slate-500 hover:bg-slate-100 hover:text-slate-900'}`}
+      className={`flex items-center justify-between px-6 py-3 cursor-pointer border-l-4 transition ${active ? 'border-amber-600 bg-slate-50 text-emerald-900' : 'border-transparent text-slate-500 hover:bg-slate-100 hover:text-slate-900'}`}
     >
       <div className="flex items-center space-x-3">
         {icon}
         <span className="font-medium">{label}</span>
       </div>
       {badge > 0 && (
-        <span className="bg-blue-600 text-white text-xs font-bold px-2 py-0.5 rounded-full">{badge}</span>
+        <span className="bg-amber-600 text-white text-xs font-bold px-2 py-0.5 rounded-full">{badge}</span>
       )}
     </div>
   );
 }
 
 function StatusBadge({ status }: { status: string }) {
-  if (status === 'pending') return <span className="text-orange-400 bg-orange-400/10 px-2 py-1 rounded text-xs font-medium">Pending</span>;
-  if (status === 'approved') return <span className="text-green-400 bg-green-400/10 px-2 py-1 rounded text-xs font-medium">Approved</span>;
-  if (status === 'overdue') return <span className="text-red-400 bg-red-400/10 px-2 py-1 rounded text-xs font-medium">Overdue Returns</span>;
-  if (status === 'declined') return <span className="text-red-400 bg-red-400/10 px-2 py-1 rounded text-xs font-medium">Declined</span>;
-  if (status === 'returned') return <span className="text-blue-400 bg-blue-400/10 px-2 py-1 rounded text-xs font-medium">Returned</span>;
-  if (status === 'return_pending') return <span className="text-blue-400 bg-blue-400/10 px-2 py-1 rounded text-xs font-medium">Return Requested</span>;
+  if (status === 'pending') return <span className="bg-amber-50 text-amber-700 border border-amber-200 px-3 py-1.5 rounded-full shadow-sm text-xs font-bold">Pending</span>;
+  if (status === 'approved') return <span className="bg-emerald-50 text-emerald-700 border border-emerald-200 px-3 py-1.5 rounded-full shadow-sm text-xs font-bold">Approved</span>;
+  if (status === 'overdue') return <span className="bg-red-50 text-red-700 border border-red-200 px-3 py-1.5 rounded-full shadow-sm text-xs font-bold">Overdue Returns</span>;
+  if (status === 'declined') return <span className="bg-red-50 text-red-700 border border-red-200 px-3 py-1.5 rounded-full shadow-sm text-xs font-bold">Declined</span>;
+  if (status === 'returned') return <span className="bg-blue-50 text-blue-700 border border-blue-200 px-3 py-1.5 rounded-full shadow-sm text-xs font-bold">Returned</span>;
+  if (status === 'return_pending') return <span className="bg-blue-50 text-blue-700 border border-blue-200 px-3 py-1.5 rounded-full shadow-sm text-xs font-bold">Return Requested</span>;
   return null;
 }
 
@@ -765,18 +764,18 @@ function StatCard({ title, count, subtext, icon, color, onClick }: any) {
   return (
     <div 
       onClick={onClick}
-      className={`bg-white border-t-2 ${color} p-4 rounded-lg flex flex-col ${onClick ? 'cursor-pointer hover:bg-slate-100 transition' : ''}`}
+      className={`bg-white border-t-4 ${color} p-5 rounded-xl shadow-sm flex flex-col ${onClick ? 'cursor-pointer hover:shadow-md hover:-translate-y-1 transition-all duration-200' : ''}`}
     >
-      <div className="flex justify-between items-start mb-2">
-        <span className="text-xs text-slate-500 font-semibold tracking-wider uppercase">{title}</span>
+      <div className="flex justify-between items-start mb-3">
+        <span className="text-xs text-slate-500 font-bold tracking-widest uppercase">{title}</span>
         {icon}
       </div>
-      <div className="text-3xl font-bold text-slate-900 mb-1">{count}</div>
-      <div className="text-xs text-slate-400 mb-3">{subtext}</div>
+      <div className="text-4xl font-extrabold text-slate-900 mb-1">{count}</div>
+      <div className="text-sm text-slate-500 font-medium mb-4">{subtext}</div>
       {onClick && (
-        <div className="mt-auto flex items-center space-x-1 text-[10px] text-slate-400">
-          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-          <span>Click to view items</span>
+        <div className="mt-auto flex items-center space-x-1.5 text-xs font-bold text-emerald-700">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+          <span>View Details</span>
         </div>
       )}
     </div>
@@ -840,7 +839,7 @@ function ActiveLogsOverlay({ type, onClose, equipment, requests, users }: any) {
     <div className="flex flex-col max-h-[400px]">
       <div className="flex justify-between items-center mb-4">
         <div>
-          <h3 className="text-xl font-bold text-blue-700 flex items-center space-x-2">
+          <h3 className="text-xl font-bold text-emerald-900 flex items-center space-x-2">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
             <span>{title}</span>
           </h3>
@@ -853,7 +852,7 @@ function ActiveLogsOverlay({ type, onClose, equipment, requests, users }: any) {
 
       <div className="overflow-y-auto flex-1 border border-slate-200 rounded">
         <table className="w-full text-left text-sm">
-          <thead className="bg-slate-50 text-blue-700 text-xs uppercase tracking-wider sticky top-0">
+          <thead className="bg-slate-50 text-slate-700 text-xs uppercase border-b border-slate-200 tracking-wider sticky top-0">
             <tr>
               {columns.map(c => <th key={c} className="px-6 py-3 font-semibold">{c}</th>)}
             </tr>
@@ -866,7 +865,7 @@ function ActiveLogsOverlay({ type, onClose, equipment, requests, users }: any) {
                 <td className="px-6 py-3">{row.col3}</td>
                 {columns.length > 3 && (
                   <td className="px-6 py-3">
-                    <span className={`text-xs px-2 py-1 rounded ${row.isAvailable ? 'text-blue-400' : 'text-red-400'}`}>{row.col4}</span>
+                    <span className={`text-xs px-3 py-1.5 rounded-full font-bold border shadow-sm ${row.isAvailable ? 'bg-emerald-100 text-emerald-800 border-emerald-200' : 'bg-red-100 text-red-800 border-red-200'}`}>{row.col4}</span>
                   </td>
                 )}
               </tr>
@@ -879,7 +878,7 @@ function ActiveLogsOverlay({ type, onClose, equipment, requests, users }: any) {
       </div>
 
       <div className="mt-4 flex justify-center">
-        <button onClick={onClose} className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-2 rounded text-sm transition">
+        <button onClick={onClose} className="bg-amber-600 hover:bg-amber-700 text-white font-bold px-6 py-2 rounded text-sm transition">
           Dismiss Log Overlay
         </button>
       </div>

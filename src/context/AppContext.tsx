@@ -28,17 +28,10 @@ interface AppContextType extends AppState {
 }
 
 const initialUsers: User[] = [
-  { id: 'admin', name: 'Maria Santos', role: 'admin', status: 'approved', password: 'admin' },
-  { id: '2024-00123', name: 'Juan Dela Cruz', role: 'student', department: 'BS Information Technology', contact: '0911223344', status: 'approved' },
-  { id: 'FAC-00234', name: 'Prof. Lim', role: 'faculty', department: 'Education', status: 'approved' },
-  { id: '2024-00612', name: 'Carlos Mendoza', role: 'student', department: 'BS Info Tech', contact: '09223344556', status: 'pending' },
-  { id: '2024-00791', name: 'Liza Tan', role: 'faculty', department: 'BSED Education', contact: '09456789123', status: 'pending' },
-  { id: '2024-00111', name: 'Rodel Santos', role: 'student', department: 'BSBA Criminology', contact: '09176543210', status: 'approved' },
-  { id: '2023-00941', name: 'James Alarcon', role: 'student', department: 'BS Business Admin', contact: '09776655443', status: 'rejected' },
+  { id: 'admin', name: 'Maria Santos', role: 'admin', status: 'approved', password: 'admin' }
 ];
 
 const initialEquipment: Equipment[] = [
-  // --- NEWLY IMPORTED INVENTORY FROM DOCUMENT ---
   // Badminton
   { id: 'eq-doc-bad-1', name: 'Shuttlecock Feathers (RSL Silver, Tube)', category: 'Badminton', total: 3, available: 3, borrowed: 0, inRepair: 0, damaged: 0, location: 'Storage', lastChecked: 'Aug 24' },
   { id: 'eq-doc-bad-2', name: 'Plastic Shuttle (Yonex Mavis 10)', category: 'Badminton', total: 0, available: 0, borrowed: 0, inRepair: 0, damaged: 0, location: 'Storage', lastChecked: 'Aug 24' },
@@ -103,13 +96,7 @@ const initialEquipment: Equipment[] = [
   { id: 'eq-doc-arn-3', name: 'Arnis Stick', category: 'Arnis', total: 5, available: 5, borrowed: 0, inRepair: 0, damaged: 0, location: 'Storage', lastChecked: 'Aug 24' }
 ];
 
-const initialRequests: BorrowRequest[] = [
-  { id: 'req-1', userId: 'FAC-00234', equipmentId: 'eq-4', quantity: 2, purpose: 'PE Class', pickupDate: '2026-06-01T08:00', returnDate: '2026-06-01T10:00', status: 'overdue', requestDate: '2026-05-30T10:00' },
-  { id: 'req-2', userId: '2024-00111', equipmentId: 'eq-7', quantity: 1, purpose: 'Class Activity', pickupDate: '2026-06-02T13:00', returnDate: '2026-06-02T17:00', status: 'approved', requestDate: '2026-06-01T09:00' },
-  { id: 'req-3', userId: '2024-00123', equipmentId: 'eq-1', quantity: 1, purpose: 'Class', pickupDate: '2026-06-03T10:13', returnDate: '2026-06-03T13:12', status: 'pending', requestDate: '2026-06-03T10:12' },
-  { id: 'req-4', userId: 'FAC-00234', equipmentId: 'eq-2', quantity: 1, purpose: 'P.E. Dept', pickupDate: '2026-06-03T09:00', returnDate: '2026-06-03T11:00', status: 'pending', requestDate: '2026-06-03T08:00' },
-  { id: 'req-5', userId: '2024-00123', equipmentId: 'eq-1', quantity: 1, purpose: 'Class', pickupDate: '2026-06-03T11:27', returnDate: '2026-06-05T11:24', status: 'return_pending', requestDate: '2026-06-03T11:24' }
-];
+const initialRequests: BorrowRequest[] = [];
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
@@ -403,6 +390,9 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       await userBatch.commit();
       setUsers(initialUsers.filter(u => u.id === 'admin'));
       console.log('Users cleared.');
+
+      
+
       localStorage.removeItem('csu_seeded_users');
       localStorage.removeItem('csu_seeded_requests');
       return true;
