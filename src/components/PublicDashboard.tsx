@@ -42,8 +42,8 @@ export default function PublicDashboard() {
   const timeStr = now.toLocaleTimeString('en-US');
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 font-sans flex flex-col relative">
-      <header className="flex justify-between items-center px-6 py-4 border-b border-slate-200 bg-white shadow-2xs">
+    <div className="min-h-screen bg-slate-100 text-slate-900 font-sans flex flex-col relative">
+      <header className="flex justify-between items-center px-6 py-4 border-b border-slate-200 bg-slate-50 shadow-2xs">
         <div className="flex items-center space-x-3 text-blue-700 font-semibold">
           <Trophy className="w-5 h-5 text-blue-700" />
           <span>CSU Sports Inventory - Public Live Dashboard</span>

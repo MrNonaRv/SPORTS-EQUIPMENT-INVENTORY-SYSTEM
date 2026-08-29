@@ -6,8 +6,8 @@ const LandingView: React.FC = () => {
   const { setView } = useAppContext();
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col font-sans">
-      <header className="flex justify-between items-center p-6 border-b border-slate-200">
+    <div className="min-h-screen bg-slate-100 text-slate-900 flex flex-col font-sans">
+      <header className="flex justify-between items-center p-6 border-b border-slate-200 bg-slate-50">
         <div className="flex items-center space-x-2 text-blue-700 font-semibold tracking-wide">
           <Settings className="w-5 h-5 text-slate-900" />
           <span>CSU - MSAC Sports Inventory</span>

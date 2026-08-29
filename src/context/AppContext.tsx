@@ -8,7 +8,8 @@ import {
   setDoc, 
   updateDoc, 
   writeBatch,
-  getDocs 
+  getDocs,
+  deleteDoc
 } from 'firebase/firestore';
 
 interface AppContextType extends AppState {
@@ -19,8 +20,10 @@ interface AppContextType extends AppState {
   updateUserStatus: (userId: string, status: User['status']) => Promise<void>;
   updateUserDetails: (userId: string, updates: Partial<User>) => Promise<void>;
   addEquipment: (equipment: Equipment) => Promise<void>;
+  deleteEquipment: (equipmentId: string) => Promise<void>;
   submitBorrowRequest: (request: BorrowRequest) => Promise<void>;
   updateRequestStatus: (requestId: string, status: RequestStatus) => Promise<void>;
+  clearData: () => Promise<void>;
   isSyncing: boolean;
 }
 
@@ -315,6 +318,15 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     }
   };
 
+  const deleteEquipment = async (equipmentId: string) => {
+    setEquipment(prev => prev.filter(e => e.id !== equipmentId));
+    try {
+      await deleteDoc(doc(db, 'equipment', equipmentId));
+    } catch (err) {
+      console.error('Failed to delete equipment from Firestore:', err);
+    }
+  };
+
   const submitBorrowRequest = async (request: BorrowRequest) => {
     setRequests(prev => [request, ...prev]);
     try {
@@ -364,13 +376,39 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     }
   };
 
+  const clearData = async () => {
+    try {
+      // 1. Clear Requests
+      const reqSnapshot = await getDocs(collection(db, 'requests'));
+      const reqBatch = writeBatch(db);
+      reqSnapshot.forEach((d) => reqBatch.delete(d.ref));
+      await reqBatch.commit();
+      setRequests([]);
+
+      // 2. Clear Users (except admin)
+      const userSnapshot = await getDocs(collection(db, 'users'));
+      const userBatch = writeBatch(db);
+      userSnapshot.forEach((d) => {
+        if (d.id !== 'admin') {
+          userBatch.delete(d.ref);
+        }
+      });
+      await userBatch.commit();
+      setUsers(initialUsers.filter(u => u.id === 'admin'));
+      return true;
+    } catch (err) {
+      console.error('Failed to clear data:', err);
+      return false;
+    }
+  };
+
   return (
     <AppContext.Provider value={{
       currentView, setView,
       currentUser, login, logout,
       users, registerUser, updateUserStatus, updateUserDetails,
-      equipment, addEquipment,
-      requests, submitBorrowRequest, updateRequestStatus,
+      equipment, addEquipment, deleteEquipment,
+      requests, submitBorrowRequest, updateRequestStatus, clearData,
       isSyncing
     }}>
       {children}

@@ -71,8 +71,8 @@ const AuthView: React.FC<AuthViewProps> = ({ type }) => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 flex items-center justify-center font-sans p-6">
-      <div className="w-full max-w-md bg-white border border-slate-200 rounded-2xl p-8 relative">
+    <div className="min-h-screen bg-slate-100 text-slate-900 flex items-center justify-center font-sans p-6">
+      <div className="w-full max-w-md bg-slate-50 border border-slate-200 rounded-2xl p-8 relative">
         <button 
           onClick={() => setView('landing')}
           className="absolute top-4 left-4 text-slate-500 hover:text-slate-900 flex items-center text-sm"

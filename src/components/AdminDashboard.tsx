@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useAppContext } from '../context/AppContext';
-import { LogOut, LayoutDashboard, Users, Bell, UserCog, PackagePlus, FileBarChart, Check, X, RefreshCw, Box, Wrench, XCircle, Trophy, Layers, Search, UserCheck } from 'lucide-react';
+import { LogOut, LayoutDashboard, Users, Bell, UserCog, PackagePlus, FileBarChart, Check, X, RefreshCw, Box, Wrench, XCircle, Trophy, Layers, Search, UserCheck, Trash2 } from 'lucide-react';
 import { BorrowRequest, Equipment } from '../types';
 import { getCategoryMeta } from '../data/categoryData';
 import { CategoryIcon } from './CategoryIcon';
 
 export default function AdminDashboard() {
-  const { currentUser, logout, users, equipment, requests, updateRequestStatus, updateUserStatus, addEquipment, updateUserDetails } = useAppContext();
+  const { currentUser, logout, users, equipment, requests, updateRequestStatus, updateUserStatus, addEquipment, updateUserDetails, deleteEquipment } = useAppContext();
   const [activeTab, setActiveTab] = useState<'dashboard' | 'requests' | 'users' | 'arrivals' | 'reports' | 'active_borrowers'>('dashboard');
   const [activeOverlay, setActiveOverlay] = useState<string | null>(null);
 
@@ -90,15 +90,15 @@ export default function AdminDashboard() {
   if (!currentUser) return null;
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 flex font-sans">
+    <div className="min-h-screen bg-slate-100 text-slate-900 flex font-sans">
       {/* Sidebar */}
-      <div className="w-64 bg-white border-r border-slate-200 flex flex-col">
+      <div className="w-64 bg-slate-50 border-r border-slate-200 flex flex-col">
         <div className="p-6 border-b border-slate-200">
-          <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold text-xl mb-3">
+          <div className="w-12 h-12 bg-[#800000] rounded-full flex items-center justify-center text-white font-bold text-xl mb-3">
             {currentUser.name.split(' ').map(n => n[0]).join('').substring(0,2)}
           </div>
           <h3 className="font-bold">{currentUser.name}</h3>
-          <p className="text-xs text-blue-700 uppercase tracking-wider">ADMINISTRATOR</p>
+          <p className="text-xs text-[#800000] uppercase tracking-wider">ADMINISTRATOR</p>
         </div>
         
         <nav className="flex-1 py-4">
@@ -146,7 +146,7 @@ export default function AdminDashboard() {
                     }
                     setIsEditingProfile(false);
                   }}
-                  className="text-xs bg-blue-600 hover:bg-blue-700 text-white px-2 py-1 rounded"
+                  className="text-xs bg-[#800000] hover:bg-[#600000] text-white px-2 py-1 rounded"
                 >
                   Save
                 </button>
@@ -159,13 +159,13 @@ export default function AdminDashboard() {
               </div>
             ) : (
               <div className="flex items-center space-x-2">
-                <span className="text-blue-700 font-medium">{currentUser.name}</span>
+                <span className="text-[#800000] font-medium">{currentUser.name}</span>
                 <button 
                   onClick={() => {
                     setEditProfileName(currentUser.name);
                     setIsEditingProfile(true);
                   }}
-                  className="text-xs text-blue-600 hover:text-blue-800 underline"
+                  className="text-xs text-[#800000] hover:text-[#600000] underline"
                 >
                   Edit
                 </button>
@@ -190,10 +190,10 @@ export default function AdminDashboard() {
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8 relative z-10">
                 <StatCard onClick={() => setActiveOverlay('total')} title="TOTAL UNITS" count={totalUnits} subtext="Across all sports" icon={<Box className="w-6 h-6 text-slate-300" />} color="border-slate-200" />
                 <StatCard onClick={() => setActiveOverlay('available')} title="AVAILABLE ITEMS" count={availableUnits} subtext="Ready to borrow" icon={<Check className="w-6 h-6 text-green-500/50" />} color="border-green-500/30" />
-                <StatCard onClick={() => setActiveOverlay('borrowed')} title="BORROWED" count={borrowedUnits} subtext="Currently out" icon={<RefreshCw className="w-6 h-6 text-blue-500/50" />} color="border-blue-500/30" />
+                <StatCard onClick={() => setActiveOverlay('borrowed')} title="BORROWED" count={borrowedUnits} subtext="Currently out" icon={<RefreshCw className="w-6 h-6 text-[#800000]/50" />} color="border-[#800000]/30" />
                 <StatCard onClick={() => setActiveOverlay('repair')} title="FOR REPAIR" count={forRepairUnits} subtext="Under maintenance" icon={<Wrench className="w-6 h-6 text-orange-500/50" />} color="border-orange-500/30" />
                 <StatCard onClick={() => setActiveOverlay('damaged')} title="DAMAGED UNITS" count={damagedUnits} subtext="Unserviceable" icon={<XCircle className="w-6 h-6 text-red-500/50" />} color="border-red-500/30" />
-                <StatCard onClick={() => setActiveOverlay('sports')} title="SPORTS TRACKS" count={sportsTracksCount} subtext="Active sports" icon={<Trophy className="w-6 h-6 text-blue-700/50" />} color="border-blue-700/30" />
+                <StatCard onClick={() => setActiveOverlay('sports')} title="SPORTS TRACKS" count={sportsTracksCount} subtext="Active sports" icon={<Trophy className="w-6 h-6 text-[#800000]/50" />} color="border-[#800000]/30" />
               </div>
 
               {activeOverlay && (
@@ -203,7 +203,7 @@ export default function AdminDashboard() {
               )}
 
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
-                <h2 className="text-xl font-bold text-blue-700">Public Equipment Status Availability</h2>
+                <h2 className="text-xl font-bold text-[#800000]">Public Equipment Status Availability</h2>
                 
                 {/* Search Bar */}
                 <div className="relative w-full md:w-64">
@@ -213,7 +213,7 @@ export default function AdminDashboard() {
                     placeholder="Search inventory..."
                     value={adminSearch}
                     onChange={e => setAdminSearch(e.target.value)}
-                    className="w-full pl-9 pr-4 py-1.5 bg-white border border-slate-200 rounded-lg text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:border-blue-500 transition"
+                    className="w-full pl-9 pr-4 py-1.5 bg-white border border-slate-200 rounded-lg text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#800000] transition"
                   />
                 </div>
               </div>
@@ -224,7 +224,7 @@ export default function AdminDashboard() {
                   onClick={() => setAdminCatFilter('All')}
                   className={`px-3 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap transition flex items-center space-x-1.5 ${
                     adminCatFilter === 'All'
-                      ? 'bg-blue-600 text-white shadow-xs'
+                      ? 'bg-[#800000] text-white shadow-xs'
                       : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-50'
                   }`}
                 >
@@ -265,12 +265,13 @@ export default function AdminDashboard() {
                       <th className="px-6 py-4 font-semibold text-center">Damaged</th>
                       <th className="px-6 py-4 font-semibold text-center">Status Badge</th>
                       <th className="px-6 py-4 font-semibold text-center">Last Checked</th>
+                      <th className="px-6 py-4 font-semibold text-center">Actions</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-200">
                     {filteredAdminEquipment.length === 0 ? (
                       <tr>
-                        <td colSpan={9} className="px-6 py-12 text-center text-slate-400 text-xs font-medium">
+                        <td colSpan={10} className="px-6 py-12 text-center text-slate-400 text-xs font-medium">
                           No equipment matching your category or search filter.
                         </td>
                       </tr>
@@ -291,7 +292,7 @@ export default function AdminDashboard() {
                             </td>
                             <td className="px-6 py-4 text-center font-bold text-slate-800">{eq.total}</td>
                             <td className="px-6 py-4 text-center text-emerald-600 font-bold">{eq.available} Units</td>
-                            <td className="px-6 py-4 text-center text-blue-600 font-semibold">{eq.borrowed}</td>
+                            <td className="px-6 py-4 text-center text-[#800000] font-semibold">{eq.borrowed}</td>
                             <td className="px-6 py-4 text-center text-amber-600 font-semibold">{eq.inRepair}</td>
                             <td className="px-6 py-4 text-center text-red-600 font-semibold">{eq.damaged}</td>
                             <td className="px-6 py-4 text-center">
@@ -302,12 +303,24 @@ export default function AdminDashboard() {
                               ) : eq.inRepair > 0 ? (
                                 <span className="text-xs font-bold text-amber-700 bg-amber-50 border border-amber-200 px-2.5 py-1 rounded-full">In Repair</span>
                               ) : eq.borrowed > 0 ? (
-                                <span className="text-xs font-bold text-blue-700 bg-blue-50 border border-blue-200 px-2.5 py-1 rounded-full">Borrowed</span>
+                                <span className="text-xs font-bold text-[#800000] bg-[#800000]/10 border border-[#800000]/20 px-2.5 py-1 rounded-full">Borrowed</span>
                               ) : (
                                 <span className="text-xs font-bold text-slate-700 bg-slate-50 border border-slate-200 px-2.5 py-1 rounded-full">Out of Stock</span>
                               )}
                             </td>
                             <td className="px-6 py-4 text-center text-slate-500 text-xs">{eq.lastChecked || 'N/A'}</td>
+                            <td className="px-6 py-4 text-center">
+                              <button 
+                                onClick={() => {
+                                  if (window.confirm(`Are you sure you want to delete ${eq.name}?`)) {
+                                    deleteEquipment(eq.id);
+                                  }
+                                }}
+                                className="text-red-500 hover:text-red-700 transition"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            </td>
                           </tr>
                         );
                       })
@@ -539,9 +552,16 @@ export default function AdminDashboard() {
                       <label className="block text-xs text-slate-500 mb-1">Remarks / Notes (Optional)</label>
                       <textarea value={eqNotes} onChange={e => setEqNotes(e.target.value)} className="w-full bg-slate-50 border border-slate-200 rounded px-4 py-2 text-slate-900 focus:outline-none focus:border-blue-700 h-24" />
                     </div>
-                    <button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded mt-4 flex justify-center items-center space-x-2 transition">
+                    <button type="submit" className="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 rounded mt-4 flex justify-center items-center space-x-2 transition">
                       <PackagePlus className="w-5 h-5" />
                       <span>Save to Inventory</span>
+                    </button>
+                    <button 
+                      type="button" 
+                      onClick={() => setActiveTab('dashboard')}
+                      className="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-3 rounded mt-2 flex justify-center items-center space-x-2 transition"
+                    >
+                      <span>Cancel</span>
                     </button>
                   </form>
                 </div>
@@ -645,8 +665,23 @@ export default function AdminDashboard() {
               
               <div className="bg-white border border-slate-200 rounded-xl p-8 relative">
                  <div className="absolute top-8 right-8 flex space-x-4">
-                    <button className="bg-blue-600 text-white px-4 py-2 rounded font-semibold text-sm hover:bg-blue-700 transition">Print Report</button>
-                    <button className="bg-blue-600 text-white px-4 py-2 rounded font-semibold text-sm hover:bg-blue-700 transition">Export as PDF</button>
+                    <button className="bg-[#800000] text-white px-4 py-2 rounded font-semibold text-sm hover:bg-[#600000] transition">Print Report</button>
+                    <button className="bg-[#800000] text-white px-4 py-2 rounded font-semibold text-sm hover:bg-[#600000] transition">Export as PDF</button>
+                    <button 
+                      onClick={async () => {
+                        if(window.confirm('Are you sure you want to clear ALL borrow requests and user accounts? This cannot be undone.')) {
+                          const success = await clearData();
+                          if (success) {
+                            alert('Data cleared successfully!');
+                          } else {
+                            alert('Failed to clear data. Please try again.');
+                          }
+                        }
+                      }}
+                      className="bg-red-600 text-white px-4 py-2 rounded font-semibold text-sm hover:bg-red-700 transition"
+                    >
+                      Clear All Data
+                    </button>
                  </div>
                  
                  <div className="mb-8">

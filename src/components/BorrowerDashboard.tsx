@@ -240,9 +240,9 @@ export default function BorrowerDashboard() {
   const activeCategoryMeta = selectedCategory !== 'All' ? getCategoryMeta(selectedCategory) : null;
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 flex font-sans">
+    <div className="min-h-screen bg-slate-100 text-slate-900 flex font-sans">
       {/* Sidebar Navigation */}
-      <div className="w-64 bg-white border-r border-slate-200 flex flex-col shrink-0">
+      <div className="w-64 bg-slate-50 border-r border-slate-200 flex flex-col shrink-0">
         <div className="p-6 border-b border-slate-200">
           <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold text-xl mb-3 shadow-sm">
             {currentUser.name.split(' ').map(n => n[0]).join('').substring(0,2)}
