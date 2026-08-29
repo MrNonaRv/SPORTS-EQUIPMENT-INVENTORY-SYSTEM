@@ -143,14 +143,15 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
   // Real-time Cloud Synchronization with Firestore
   useEffect(() => {
-    let seededUsers = false;
-    let seededRequests = false;
+    let seededUsers = localStorage.getItem('csu_seeded_users') === 'true';
+    let seededRequests = localStorage.getItem('csu_seeded_requests') === 'true';
 
     // 1. Listen to Users Collection
     const usersColRef = collection(db, 'users');
     const unsubUsers = onSnapshot(usersColRef, async (snapshot) => {
       if (snapshot.empty && !seededUsers) {
         seededUsers = true;
+        localStorage.setItem('csu_seeded_users', 'true');
         try {
           const batch = writeBatch(db);
           for (const u of initialUsers) {
@@ -201,6 +202,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     const unsubRequests = onSnapshot(requestsColRef, async (snapshot) => {
       if (snapshot.empty && !seededRequests) {
         seededRequests = true;
+        localStorage.setItem('csu_seeded_requests', 'true');
         try {
           const batch = writeBatch(db);
           for (const r of initialRequests) {
@@ -378,23 +380,31 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
   const clearData = async () => {
     try {
+      console.log('Clearing data...');
       // 1. Clear Requests
       const reqSnapshot = await getDocs(collection(db, 'requests'));
+      console.log(`Found ${reqSnapshot.size} requests to delete.`);
       const reqBatch = writeBatch(db);
       reqSnapshot.forEach((d) => reqBatch.delete(d.ref));
       await reqBatch.commit();
       setRequests([]);
+      console.log('Requests cleared.');
 
       // 2. Clear Users (except admin)
       const userSnapshot = await getDocs(collection(db, 'users'));
+      console.log(`Found ${userSnapshot.size} users to check for deletion.`);
       const userBatch = writeBatch(db);
       userSnapshot.forEach((d) => {
         if (d.id !== 'admin') {
+          console.log(`Deleting user ${d.id}`);
           userBatch.delete(d.ref);
         }
       });
       await userBatch.commit();
       setUsers(initialUsers.filter(u => u.id === 'admin'));
+      console.log('Users cleared.');
+      localStorage.removeItem('csu_seeded_users');
+      localStorage.removeItem('csu_seeded_requests');
       return true;
     } catch (err) {
       console.error('Failed to clear data:', err);
