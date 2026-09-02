@@ -26,6 +26,7 @@ export default function AdminDashboard() {
   const [eqCondition, setEqCondition] = useState('Good / Available');
   const [eqSupplier, setEqSupplier] = useState('');
   const [eqNotes, setEqNotes] = useState('');
+  const [eqDescription, setEqDescription] = useState('');
   const [addSuccess, setAddSuccess] = useState(false);
   const [now, setNow] = useState(new Date());
 
@@ -68,7 +69,8 @@ export default function AdminDashboard() {
       inRepair: eqCondition === 'For Repair' ? eqQty : 0,
       damaged: eqCondition === 'Damaged' ? eqQty : 0,
       location: 'Main Sports Storage',
-      lastChecked: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+      lastChecked: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+      description: eqDescription
     };
     addEquipment(newEq);
     setAddSuccess(true);
@@ -77,6 +79,7 @@ export default function AdminDashboard() {
     setEqQty(0);
     setEqSupplier('');
     setEqNotes('');
+    setEqDescription('');
     setTimeout(() => setAddSuccess(false), 3000);
   };
 
@@ -557,8 +560,12 @@ export default function AdminDashboard() {
                       <input type="text" value={eqSupplier} onChange={e => setEqSupplier(e.target.value)} className="w-full bg-slate-50 border border-slate-200 rounded px-4 py-2 text-slate-900 focus:outline-none focus:border-amber-600" />
                     </div>
                     <div>
+                      <label className="block text-xs text-slate-500 mb-1">Physical Description (Shape, Color, Characteristics)</label>
+                      <textarea placeholder="e.g., Shape: Round, Color: Orange..." value={eqDescription} onChange={e => setEqDescription(e.target.value)} className="w-full bg-slate-50 border border-slate-200 rounded px-4 py-2 text-slate-900 focus:outline-none focus:border-amber-600 h-20" />
+                    </div>
+                    <div>
                       <label className="block text-xs text-slate-500 mb-1">Remarks / Notes (Optional)</label>
-                      <textarea value={eqNotes} onChange={e => setEqNotes(e.target.value)} className="w-full bg-slate-50 border border-slate-200 rounded px-4 py-2 text-slate-900 focus:outline-none focus:border-amber-600 h-24" />
+                      <textarea value={eqNotes} onChange={e => setEqNotes(e.target.value)} className="w-full bg-slate-50 border border-slate-200 rounded px-4 py-2 text-slate-900 focus:outline-none focus:border-amber-600 h-20" />
                     </div>
                     <button type="submit" className="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 rounded mt-4 flex justify-center items-center space-x-2 transition">
                       <PackagePlus className="w-5 h-5" />

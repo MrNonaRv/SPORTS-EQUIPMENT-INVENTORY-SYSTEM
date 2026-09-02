@@ -641,6 +641,13 @@ export default function BorrowerDashboard() {
                                   {eq.name}
                                 </h3>
 
+                                {eq.description && (
+                                  <p className="text-xs text-slate-600 mb-2 line-clamp-2">
+                                    <span className="font-semibold text-slate-700">Details: </span>
+                                    {eq.description}
+                                  </p>
+                                )}
+
                                 {/* Equipment Location and Status */}
                                 <div className="text-xs text-slate-500 space-y-0.5 mb-4">
                                   <div className="flex items-center space-x-1.5">

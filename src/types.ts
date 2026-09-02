@@ -22,6 +22,7 @@ export interface Equipment {
   damaged: number;
   location?: string;
   lastChecked?: string;
+  description?: string;
 }
 
 export type RequestStatus = 'pending' | 'approved' | 'declined' | 'returned' | 'return_pending' | 'overdue';

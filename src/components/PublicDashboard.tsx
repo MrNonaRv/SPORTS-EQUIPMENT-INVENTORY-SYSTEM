@@ -176,6 +176,12 @@ export default function PublicDashboard() {
                       <td className="px-6 py-4 font-medium">
                         <span className="text-slate-900 font-bold text-base">{eq.name}</span>
                         <div className="text-xs text-slate-500 font-medium mt-0.5">{eq.location || 'Main Storage'}</div>
+                        {eq.description && (
+                          <div className="text-xs text-slate-600 mt-1.5 leading-snug max-w-xs">
+                            <span className="font-semibold text-slate-700">Details: </span>
+                            {eq.description}
+                          </div>
+                        )}
                       </td>
                       <td className="px-6 py-4">
                         <span className={`inline-flex items-center space-x-1 text-xs font-bold px-3 py-1 rounded-full bg-slate-100 text-slate-700 border border-slate-200`}>
