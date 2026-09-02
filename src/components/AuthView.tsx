@@ -31,7 +31,7 @@ const AuthView: React.FC<AuthViewProps> = ({ type }) => {
         setError('Invalid admin credentials.');
       }
     } else {
-      const user = users.find(u => u.id === idNumber && (u.role === 'student' || u.role === 'faculty'));
+      const user = users.find(u => u.id === idNumber && u.password === password && (u.role === 'student' || u.role === 'faculty'));
       if (user) {
         if (user.status === 'approved') {
           login(user);
@@ -39,7 +39,7 @@ const AuthView: React.FC<AuthViewProps> = ({ type }) => {
           setError(`Account is currently ${user.status}.`);
         }
       } else {
-        setError('ID not found. Please register first.');
+        setError('Invalid ID or password. Please register if you do not have an account.');
       }
     }
   };
@@ -60,7 +60,8 @@ const AuthView: React.FC<AuthViewProps> = ({ type }) => {
       role: accountType,
       department,
       contact,
-      status: 'pending'
+      status: 'pending',
+      password
     };
 
     registerUser(newUser);
@@ -134,18 +135,16 @@ const AuthView: React.FC<AuthViewProps> = ({ type }) => {
                 />
               </div>
 
-              {type === 'login_admin' && (
-                <div>
-                  <label className="block text-sm font-semibold text-slate-700 mb-1">Password</label>
-                  <input 
-                    required
-                    type="password" 
-                    value={password}
-                    onChange={e => setPassword(e.target.value)}
-                    className="w-full bg-slate-50 border border-slate-300 rounded-lg px-4 py-3 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-900 focus:border-emerald-900 transition-all"
-                  />
-                </div>
-              )}
+              <div>
+                <label className="block text-sm font-semibold text-slate-700 mb-1">Password</label>
+                <input 
+                  required
+                  type="password" 
+                  value={password}
+                  onChange={e => setPassword(e.target.value)}
+                  className="w-full bg-slate-50 border border-slate-300 rounded-lg px-4 py-3 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-900 focus:border-emerald-900 transition-all"
+                />
+              </div>
 
               {type === 'signup' && (
                 <>
