@@ -6,7 +6,7 @@ import { getCategoryMeta } from '../data/categoryData';
 import { CategoryIcon } from './CategoryIcon';
 
 export default function AdminDashboard() {
-  const { currentUser, logout, users, equipment, requests, updateRequestStatus, updateUserStatus, addEquipment, updateUserDetails, deleteEquipment } = useAppContext();
+  const { currentUser, logout, users, equipment, requests, updateRequestStatus, updateUserStatus, addEquipment, updateUserDetails, deleteEquipment, clearData } = useAppContext();
   const [activeTab, setActiveTab] = useState<'dashboard' | 'requests' | 'users' | 'arrivals' | 'reports' | 'active_borrowers'>('dashboard');
   const [activeOverlay, setActiveOverlay] = useState<string | null>(null);
 
@@ -118,7 +118,19 @@ export default function AdminDashboard() {
           <NavItem icon={<FileBarChart />} label="Reports Center" active={activeTab === 'reports'} onClick={() => setActiveTab('reports')} />
         </nav>
 
-        <div className="p-4 border-t border-slate-200">
+        <div className="p-4 border-t border-slate-200 space-y-3">
+          <button 
+            onClick={() => {
+              if (window.confirm('Are you sure you want to clear all active borrowers, borrow requests, and users? This action cannot be undone.')) {
+                clearData();
+                alert('Records cleared successfully.');
+              }
+            }}
+            className="w-full flex items-center justify-center space-x-2 px-4 py-2.5 bg-orange-50 text-orange-700 hover:bg-orange-100 font-bold border border-orange-200 rounded-lg transition"
+          >
+            <Trash2 className="w-4 h-4" />
+            <span>Clear Records</span>
+          </button>
           <button 
             onClick={logout}
             className="w-full flex items-center justify-center space-x-2 px-4 py-2.5 bg-red-50 text-red-700 hover:bg-red-100 font-bold border border-red-200 rounded-lg transition"
@@ -265,7 +277,7 @@ export default function AdminDashboard() {
                 })}
               </div>
               
-              <div className="bg-white rounded-xl overflow-hidden border border-slate-200 shadow-xs">
+              <div className="bg-white rounded-xl overflow-hidden overflow-x-auto border border-slate-200 shadow-xs">
                 <table className="w-full text-left text-sm">
                   <thead className="bg-slate-100 text-slate-700 text-xs uppercase border-b border-slate-200 tracking-wider">
                     <tr>
@@ -349,7 +361,7 @@ export default function AdminDashboard() {
               <h2 className="text-2xl font-bold text-emerald-900 mb-2">Borrow Requests & Log Records</h2>
               <p className="text-slate-500 text-sm mb-8">Accept or decline pending equipment borrow requests and view log records</p>
 
-              <div className="bg-white border border-slate-200 rounded-xl overflow-hidden mb-8">
+              <div className="bg-white border border-slate-200 rounded-xl overflow-hidden overflow-x-auto mb-8">
                 <table className="w-full text-left text-sm">
                   <thead className="bg-slate-100 text-slate-700 text-xs uppercase tracking-wider border-b border-slate-200">
                     <tr>
@@ -415,7 +427,7 @@ export default function AdminDashboard() {
               <p className="text-slate-500 text-sm mb-6">Review active approved website users or open pending registrations log logs.</p>
 
               {pendingUsers.length > 0 && (
-                <div className="bg-white border border-orange-500/30 rounded-xl overflow-hidden mb-8">
+                <div className="bg-white border border-orange-500/30 rounded-xl overflow-hidden overflow-x-auto mb-8">
                   <div className="bg-orange-500/10 px-6 py-3 font-semibold text-orange-400 flex items-center space-x-2">
                     <span className="w-2 h-2 rounded-full bg-orange-500"></span>
                     <span>Users Pending Registration Review</span>
@@ -453,7 +465,7 @@ export default function AdminDashboard() {
                 </div>
               )}
 
-              <div className="bg-white border border-slate-200 rounded-xl overflow-hidden">
+              <div className="bg-white border border-slate-200 rounded-xl overflow-hidden overflow-x-auto">
                 <div className="px-6 py-4 font-bold text-emerald-900 border-b border-slate-200">
                   Already Approved Users
                 </div>
@@ -604,7 +616,7 @@ export default function AdminDashboard() {
               <h2 className="text-2xl font-bold text-emerald-900 mb-2">Active Borrowers</h2>
               <p className="text-slate-500 text-sm mb-6">Explicitly filtered view displaying all current users holding equipment and their items.</p>
               
-              <div className="bg-white rounded-xl overflow-hidden border border-slate-200">
+              <div className="bg-white rounded-xl overflow-hidden overflow-x-auto border border-slate-200">
                 <table className="w-full text-left text-sm">
                   <thead className="bg-slate-100 text-slate-700 text-xs uppercase border-b border-slate-200 tracking-wider">
                     <tr>
@@ -687,41 +699,43 @@ export default function AdminDashboard() {
                    <div className="text-sm text-slate-500">Report Generated: {new Date().toLocaleString()}</div>
                  </div>
 
-                 <table className="w-full text-left text-sm">
-                  <thead className="bg-slate-100 text-slate-700 text-xs uppercase tracking-wider border-b border-slate-200">
-                    <tr>
-                      <th className="px-4 py-3 font-semibold">Equipment</th>
-                      <th className="px-4 py-3 font-semibold">Sports Category</th>
-                      <th className="px-4 py-3 font-semibold text-center">Available</th>
-                      <th className="px-4 py-3 font-semibold text-center">Borrowed</th>
-                      <th className="px-4 py-3 font-semibold text-center">In Repair</th>
-                      <th className="px-4 py-3 font-semibold text-center">Damaged</th>
-                      <th className="px-4 py-3 font-semibold text-center">Status Badge</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-200">
-                    {equipment.map((eq) => (
-                      <tr key={eq.id}>
-                        <td className="px-4 py-3 font-medium">{eq.name}</td>
-                        <td className="px-4 py-3 text-slate-600">{eq.category}</td>
-                        <td className="px-4 py-3 text-center">{eq.available}</td>
-                        <td className="px-4 py-3 text-center">{eq.borrowed}</td>
-                        <td className="px-4 py-3 text-center">{eq.inRepair}</td>
-                        <td className="px-4 py-3 text-center">{eq.damaged}</td>
-                        <td className="px-4 py-3 text-center">
-                          {eq.available > 0 ? (
-                            <span className="text-xs text-green-400">Available</span>
-                          ) : eq.inRepair > 0 ? (
-                             <span className="text-xs text-orange-400">For Repair</span>
-                          ) : (
-                             <span className="text-xs text-red-400">Damaged</span>
-                          )}
-                        </td>
+                 <div className="overflow-x-auto">
+                   <table className="w-full text-left text-sm">
+                    <thead className="bg-slate-100 text-slate-700 text-xs uppercase tracking-wider border-b border-slate-200">
+                      <tr>
+                        <th className="px-4 py-3 font-semibold">Equipment</th>
+                        <th className="px-4 py-3 font-semibold">Sports Category</th>
+                        <th className="px-4 py-3 font-semibold text-center">Available</th>
+                        <th className="px-4 py-3 font-semibold text-center">Borrowed</th>
+                        <th className="px-4 py-3 font-semibold text-center">In Repair</th>
+                        <th className="px-4 py-3 font-semibold text-center">Damaged</th>
+                        <th className="px-4 py-3 font-semibold text-center">Status Badge</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-                <div className="mt-8 text-xs text-slate-400">Printed for: CSU MSAC Administration</div>
+                    </thead>
+                    <tbody className="divide-y divide-slate-200">
+                      {equipment.map((eq) => (
+                        <tr key={eq.id}>
+                          <td className="px-4 py-3 font-medium">{eq.name}</td>
+                          <td className="px-4 py-3 text-slate-600">{eq.category}</td>
+                          <td className="px-4 py-3 text-center">{eq.available}</td>
+                          <td className="px-4 py-3 text-center">{eq.borrowed}</td>
+                          <td className="px-4 py-3 text-center">{eq.inRepair}</td>
+                          <td className="px-4 py-3 text-center">{eq.damaged}</td>
+                          <td className="px-4 py-3 text-center">
+                            {eq.available > 0 ? (
+                              <span className="text-xs text-green-400">Available</span>
+                            ) : eq.inRepair > 0 ? (
+                               <span className="text-xs text-orange-400">For Repair</span>
+                            ) : (
+                               <span className="text-xs text-red-400">Damaged</span>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                 </div>
+                 <div className="mt-8 text-xs text-slate-400">Printed for: CSU MSAC Administration</div>
               </div>
             </div>
           )}
