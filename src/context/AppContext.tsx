@@ -391,7 +391,22 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       setUsers(initialUsers.filter(u => u.id === 'admin'));
       console.log('Users cleared.');
 
+      // 3. Reset Equipment borrowed counts
+      const eqSnapshot = await getDocs(collection(db, 'equipment'));
+      const eqBatch = writeBatch(db);
+      eqSnapshot.forEach((d) => {
+        const eqData = d.data() as Equipment;
+        const available = eqData.total - eqData.inRepair - eqData.damaged;
+        eqBatch.update(d.ref, { borrowed: 0, available });
+      });
+      await eqBatch.commit();
       
+      setEquipment(prev => prev.map(eq => ({
+        ...eq,
+        borrowed: 0,
+        available: eq.total - eq.inRepair - eq.damaged
+      })));
+      console.log('Equipment records reset.');
 
       localStorage.removeItem('csu_seeded_users');
       localStorage.removeItem('csu_seeded_requests');
