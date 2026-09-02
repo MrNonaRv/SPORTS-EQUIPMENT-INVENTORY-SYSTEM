@@ -151,6 +151,7 @@ export default function PublicDashboard() {
             <thead className="bg-slate-100 text-slate-700 text-xs uppercase tracking-wider border-b border-slate-200">
               <tr>
                 <th className="px-6 py-4 font-bold">Equipment Name</th>
+                <th className="px-6 py-4 font-bold">Location</th>
                 <th className="px-6 py-4 font-bold">Sport Category</th>
                 <th className="px-6 py-4 font-bold text-center">Total Units</th>
                 <th className="px-6 py-4 font-bold text-center">Available</th>
@@ -164,7 +165,7 @@ export default function PublicDashboard() {
             <tbody className="divide-y divide-slate-200">
               {filteredEquipment.length === 0 ? (
                 <tr>
-                  <td colSpan={9} className="px-6 py-12 text-center text-slate-500 text-sm font-medium bg-slate-50">
+                  <td colSpan={10} className="px-6 py-12 text-center text-slate-500 text-sm font-medium bg-slate-50">
                     No equipment found in {selectedCategory === 'All' ? 'inventory' : selectedCategory}.
                   </td>
                 </tr>
@@ -175,13 +176,18 @@ export default function PublicDashboard() {
                     <tr key={eq.id} className="hover:bg-slate-50 transition">
                       <td className="px-6 py-4 font-medium">
                         <span className="text-slate-900 font-bold text-base">{eq.name}</span>
-                        <div className="text-xs text-slate-500 font-medium mt-0.5">{eq.location || 'Main Storage'}</div>
                         {eq.description && (
                           <div className="text-xs text-slate-600 mt-1.5 leading-snug max-w-xs">
                             <span className="font-semibold text-slate-700">Details: </span>
                             {eq.description}
                           </div>
                         )}
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="flex items-center space-x-1.5 text-emerald-800 bg-emerald-50 px-2.5 py-1 rounded border border-emerald-200 w-max">
+                          <span className="text-xs">📍</span>
+                          <span className="font-bold text-xs whitespace-nowrap">{eq.location || 'Main Storage'}</span>
+                        </div>
                       </td>
                       <td className="px-6 py-4">
                         <span className={`inline-flex items-center space-x-1 text-xs font-bold px-3 py-1 rounded-full bg-slate-100 text-slate-700 border border-slate-200`}>

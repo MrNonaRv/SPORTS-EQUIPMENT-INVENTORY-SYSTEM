@@ -27,6 +27,7 @@ export default function AdminDashboard() {
   const [eqSupplier, setEqSupplier] = useState('');
   const [eqNotes, setEqNotes] = useState('');
   const [eqDescription, setEqDescription] = useState('');
+  const [eqLocation, setEqLocation] = useState('');
   const [addSuccess, setAddSuccess] = useState(false);
   const [now, setNow] = useState(new Date());
 
@@ -68,7 +69,7 @@ export default function AdminDashboard() {
       borrowed: 0,
       inRepair: eqCondition === 'For Repair' ? eqQty : 0,
       damaged: eqCondition === 'Damaged' ? eqQty : 0,
-      location: 'Main Sports Storage',
+      location: eqLocation.trim() || 'Main Sports Storage',
       lastChecked: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
       description: eqDescription
     };
@@ -80,6 +81,7 @@ export default function AdminDashboard() {
     setEqSupplier('');
     setEqNotes('');
     setEqDescription('');
+    setEqLocation('');
     setTimeout(() => setAddSuccess(false), 3000);
   };
 
@@ -558,6 +560,10 @@ export default function AdminDashboard() {
                     <div>
                       <label className="block text-xs text-slate-500 mb-1">Delivery Source / Supplier</label>
                       <input type="text" value={eqSupplier} onChange={e => setEqSupplier(e.target.value)} className="w-full bg-slate-50 border border-slate-200 rounded px-4 py-2 text-slate-900 focus:outline-none focus:border-amber-600" />
+                    </div>
+                    <div>
+                      <label className="block text-xs text-slate-500 mb-1">Facility / Exact Location</label>
+                      <input required type="text" placeholder="e.g. Gymnasium Storage Rm A" value={eqLocation} onChange={e => setEqLocation(e.target.value)} className="w-full bg-slate-50 border border-slate-200 rounded px-4 py-2 text-slate-900 focus:outline-none focus:border-amber-600" />
                     </div>
                     <div>
                       <label className="block text-xs text-slate-500 mb-1">Physical Description (Shape, Color, Characteristics)</label>

@@ -33,16 +33,16 @@ const initialUsers: User[] = [
 
 const initialEquipment: Equipment[] = [
   // Badminton
-  { id: 'eq-doc-bad-1', name: 'Shuttlecock Feathers (RSL Silver, Tube)', category: 'Badminton', total: 3, available: 3, borrowed: 0, inRepair: 0, damaged: 0, location: 'Storage', lastChecked: 'Aug 24', description: 'Shape: Conical with rounded cork base. Color: White feathers, tan cork.' },
-  { id: 'eq-doc-bad-2', name: 'Plastic Shuttle (Yonex Mavis 10)', category: 'Badminton', total: 0, available: 0, borrowed: 0, inRepair: 0, damaged: 0, location: 'Storage', lastChecked: 'Aug 24', description: 'Shape: Conical. Color: Neon Yellow. Material: Nylon plastic skirt.' },
-  { id: 'eq-doc-bad-3', name: 'Badminton Racket (28lbs max, 80g)', category: 'Badminton', total: 2, available: 2, borrowed: 0, inRepair: 0, damaged: 0, location: 'Storage', lastChecked: 'Aug 24' },
-  { id: 'eq-doc-bad-4', name: 'Badminton Over Grip', category: 'Badminton', total: 5, available: 5, borrowed: 0, inRepair: 0, damaged: 0, location: 'Storage', lastChecked: 'Aug 24' },
-  { id: 'eq-doc-bad-5', name: 'Badminton Net', category: 'Badminton', total: 2, available: 2, borrowed: 0, inRepair: 0, damaged: 0, location: 'Storage', lastChecked: 'Aug 24' },
+  { id: 'eq-doc-bad-1', name: 'Shuttlecock Feathers (RSL Silver, Tube)', category: 'Badminton', total: 3, available: 3, borrowed: 0, inRepair: 0, damaged: 0, location: 'Gymnasium Storage Rm A', lastChecked: 'Aug 24', description: 'Shape: Conical with rounded cork base. Color: White feathers, tan cork.' },
+  { id: 'eq-doc-bad-2', name: 'Plastic Shuttle (Yonex Mavis 10)', category: 'Badminton', total: 0, available: 0, borrowed: 0, inRepair: 0, damaged: 0, location: 'Gymnasium Storage Rm A', lastChecked: 'Aug 24', description: 'Shape: Conical. Color: Neon Yellow. Material: Nylon plastic skirt.' },
+  { id: 'eq-doc-bad-3', name: 'Badminton Racket (28lbs max, 80g)', category: 'Badminton', total: 2, available: 2, borrowed: 0, inRepair: 0, damaged: 0, location: 'Gymnasium Storage Rm A', lastChecked: 'Aug 24' },
+  { id: 'eq-doc-bad-4', name: 'Badminton Over Grip', category: 'Badminton', total: 5, available: 5, borrowed: 0, inRepair: 0, damaged: 0, location: 'Gymnasium Storage Rm A', lastChecked: 'Aug 24' },
+  { id: 'eq-doc-bad-5', name: 'Badminton Net', category: 'Badminton', total: 2, available: 2, borrowed: 0, inRepair: 0, damaged: 0, location: 'Indoor Court Locker', lastChecked: 'Aug 24' },
 
   // Sepak Takraw
-  { id: 'eq-doc-st-1', name: 'Takraw Ball (Men)', category: 'Sepak Takraw', total: 1, available: 1, borrowed: 0, inRepair: 0, damaged: 0, location: 'Storage', lastChecked: 'Aug 24' },
-  { id: 'eq-doc-st-2', name: 'Takraw Ball (Women)', category: 'Sepak Takraw', total: 1, available: 1, borrowed: 0, inRepair: 0, damaged: 0, location: 'Storage', lastChecked: 'Aug 24' },
-  { id: 'eq-doc-st-3', name: 'Takraw Net', category: 'Sepak Takraw', total: 2, available: 2, borrowed: 0, inRepair: 0, damaged: 0, location: 'Storage', lastChecked: 'Aug 24' },
+  { id: 'eq-doc-st-1', name: 'Takraw Ball (Men)', category: 'Sepak Takraw', total: 1, available: 1, borrowed: 0, inRepair: 0, damaged: 0, location: 'Outdoor Court Storage', lastChecked: 'Aug 24' },
+  { id: 'eq-doc-st-2', name: 'Takraw Ball (Women)', category: 'Sepak Takraw', total: 1, available: 1, borrowed: 0, inRepair: 0, damaged: 0, location: 'Outdoor Court Storage', lastChecked: 'Aug 24' },
+  { id: 'eq-doc-st-3', name: 'Takraw Net', category: 'Sepak Takraw', total: 2, available: 2, borrowed: 0, inRepair: 0, damaged: 0, location: 'Outdoor Court Storage', lastChecked: 'Aug 24' },
 
   // Volleyball
   { id: 'eq-doc-vb-1', name: 'Volleyball Net', category: 'Volleyball', total: 2, available: 2, borrowed: 0, inRepair: 0, damaged: 0, location: 'Storage', lastChecked: 'Aug 24' },
@@ -52,15 +52,15 @@ const initialEquipment: Equipment[] = [
   { id: 'eq-doc-vb-5', name: 'Volleyball Antennae', category: 'Volleyball', total: 2, available: 2, borrowed: 0, inRepair: 0, damaged: 0, location: 'Storage', lastChecked: 'Aug 24' },
 
   // Basketball
-  { id: 'eq-doc-bb-1', name: 'Basketball', category: 'Basketball', total: 3, available: 3, borrowed: 0, inRepair: 0, damaged: 0, location: 'Storage', lastChecked: 'Aug 24', description: 'Shape: Spherical. Color: Orange with black ribs. Standard Size 7.' },
-  { id: 'eq-doc-bb-2', name: 'Basketball Ring', category: 'Basketball', total: 2, available: 2, borrowed: 0, inRepair: 0, damaged: 0, location: 'Storage', lastChecked: 'Aug 24', description: 'Shape: Circular hoop. Color: Orange. Material: Heavy-duty steel.' },
-  { id: 'eq-doc-bb-3', name: 'Basketball Net', category: 'Basketball', total: 2, available: 2, borrowed: 0, inRepair: 0, damaged: 0, location: 'Storage', lastChecked: 'Aug 24' },
-  { id: 'eq-doc-bb-4', name: 'Basketball Ring Net', category: 'Basketball', total: 2, available: 2, borrowed: 0, inRepair: 0, damaged: 0, location: 'Storage', lastChecked: 'Aug 24' },
-  { id: 'eq-doc-bb-5', name: 'Basketball Fiberglass Board', category: 'Basketball', total: 2, available: 2, borrowed: 0, inRepair: 0, damaged: 0, location: 'Storage', lastChecked: 'Aug 24' },
+  { id: 'eq-doc-bb-1', name: 'Basketball', category: 'Basketball', total: 3, available: 3, borrowed: 0, inRepair: 0, damaged: 0, location: 'Main Sports Storage - Shelf 3', lastChecked: 'Aug 24', description: 'Shape: Spherical. Color: Orange with black ribs. Standard Size 7.' },
+  { id: 'eq-doc-bb-2', name: 'Basketball Ring', category: 'Basketball', total: 2, available: 2, borrowed: 0, inRepair: 0, damaged: 0, location: 'Main Sports Storage - Heavy Eq', lastChecked: 'Aug 24', description: 'Shape: Circular hoop. Color: Orange. Material: Heavy-duty steel.' },
+  { id: 'eq-doc-bb-3', name: 'Basketball Net', category: 'Basketball', total: 2, available: 2, borrowed: 0, inRepair: 0, damaged: 0, location: 'Main Sports Storage - Shelf 3', lastChecked: 'Aug 24' },
+  { id: 'eq-doc-bb-4', name: 'Basketball Ring Net', category: 'Basketball', total: 2, available: 2, borrowed: 0, inRepair: 0, damaged: 0, location: 'Main Sports Storage - Shelf 3', lastChecked: 'Aug 24' },
+  { id: 'eq-doc-bb-5', name: 'Basketball Fiberglass Board', category: 'Basketball', total: 2, available: 2, borrowed: 0, inRepair: 0, damaged: 0, location: 'Main Sports Storage - Heavy Eq', lastChecked: 'Aug 24' },
 
   // Tournament Chess
-  { id: 'eq-doc-ch-1', name: 'Chessboard', category: 'Chess', total: 4, available: 4, borrowed: 0, inRepair: 0, damaged: 0, location: 'Storage', lastChecked: 'Aug 24' },
-  { id: 'eq-doc-ch-2', name: 'Chess Mat', category: 'Chess', total: 4, available: 4, borrowed: 0, inRepair: 0, damaged: 0, location: 'Storage', lastChecked: 'Aug 24' },
+  { id: 'eq-doc-ch-1', name: 'Chessboard', category: 'Chess', total: 4, available: 4, borrowed: 0, inRepair: 0, damaged: 0, location: 'Student Lounge Cabinet', lastChecked: 'Aug 24' },
+  { id: 'eq-doc-ch-2', name: 'Chess Mat', category: 'Chess', total: 4, available: 4, borrowed: 0, inRepair: 0, damaged: 0, location: 'Student Lounge Cabinet', lastChecked: 'Aug 24' },
 
   // Taekwondo
   { id: 'eq-doc-tk-1', name: 'Rubber Matting', category: 'Taekwondo', total: 20, available: 20, borrowed: 0, inRepair: 0, damaged: 0, location: 'Storage', lastChecked: 'Aug 24' },

@@ -649,10 +649,13 @@ export default function BorrowerDashboard() {
                                 )}
 
                                 {/* Equipment Location and Status */}
-                                <div className="text-xs text-slate-500 space-y-0.5 mb-4">
-                                  <div className="flex items-center space-x-1.5">
-                                    <span className="text-slate-400">Location:</span>
-                                    <span className="text-slate-700 font-medium truncate">{eq.location || 'Main Sports Storage'}</span>
+                                <div className="text-xs text-slate-500 space-y-2 mb-4">
+                                  <div className="flex items-start space-x-2 bg-emerald-50 p-2 rounded-md border border-emerald-200">
+                                    <span className="text-emerald-700 mt-0.5 text-sm">📍</span>
+                                    <div className="flex flex-col">
+                                      <span className="text-[10px] font-bold text-emerald-800 uppercase tracking-wider">Facility / Exact Location</span>
+                                      <span className="text-slate-900 font-bold text-sm leading-tight">{eq.location || 'Main Sports Storage'}</span>
+                                    </div>
                                   </div>
                                   <div className="flex items-center space-x-2 text-[11px] text-slate-400">
                                     <span>Total: {eq.total}</span>
