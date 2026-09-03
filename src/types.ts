@@ -14,6 +14,7 @@ export interface User {
 export interface Equipment {
   id: string;
   name: string;
+  description?: string;
   category: string;
   total: number;
   available: number;

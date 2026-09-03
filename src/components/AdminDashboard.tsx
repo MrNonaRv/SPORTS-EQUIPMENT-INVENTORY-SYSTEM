@@ -20,13 +20,13 @@ export default function AdminDashboard() {
 
   // New Equipment State
   const [eqName, setEqName] = useState('');
+  const [eqDescription, setEqDescription] = useState('');
   const [eqCat, setEqCat] = useState('Basketball');
   const [customCat, setCustomCat] = useState('');
   const [eqQty, setEqQty] = useState(0);
   const [eqCondition, setEqCondition] = useState('Good / Available');
   const [eqSupplier, setEqSupplier] = useState('');
   const [eqNotes, setEqNotes] = useState('');
-  const [eqDescription, setEqDescription] = useState('');
   const [eqLocation, setEqLocation] = useState('');
   const [addSuccess, setAddSuccess] = useState(false);
   const [now, setNow] = useState(new Date());
@@ -63,6 +63,7 @@ export default function AdminDashboard() {
     const newEq: Equipment = {
       id: `eq-${Date.now()}`,
       name: eqName,
+      description: eqDescription,
       category: finalCategory,
       total: eqQty,
       available: eqCondition === 'Good / Available' ? eqQty : 0,
@@ -76,11 +77,11 @@ export default function AdminDashboard() {
     addEquipment(newEq);
     setAddSuccess(true);
     setEqName('');
+    setEqDescription('');
     setCustomCat('');
     setEqQty(0);
     setEqSupplier('');
     setEqNotes('');
-    setEqDescription('');
     setEqLocation('');
     setTimeout(() => setAddSuccess(false), 3000);
   };
@@ -307,7 +308,12 @@ export default function AdminDashboard() {
                           <tr key={eq.id} className="hover:bg-slate-50 transition">
                             <td className="px-6 py-4 font-medium">
                               <span className="text-slate-900 font-bold">{eq.name}</span>
-                              <div className="text-[11px] text-slate-400 font-normal">{eq.location || 'Storage'}</div>
+                              {eq.description && (
+                                <div className="text-xs text-slate-500 mt-1 max-w-xs leading-relaxed line-clamp-2" title={eq.description}>
+                                  {eq.description}
+                                </div>
+                              )}
+                              <div className="text-[11px] text-slate-400 font-normal mt-1">{eq.location || 'Storage'}</div>
                             </td>
                             <td className="px-6 py-4">
                               <span className={`inline-flex items-center space-x-1 text-[11px] font-bold px-2.5 py-0.5 rounded-full ${meta.badgeBg} ${meta.badgeText}`}>
@@ -519,6 +525,10 @@ export default function AdminDashboard() {
                     <div>
                       <label className="block text-xs text-slate-500 mb-1">Equipment Name</label>
                       <input required type="text" value={eqName} onChange={e => setEqName(e.target.value)} className="w-full bg-slate-50 border border-slate-200 rounded px-4 py-2 text-slate-900 focus:outline-none focus:border-amber-600" />
+                    </div>
+                    <div>
+                      <label className="block text-xs text-slate-500 mb-1">Product Description (Shape, Color, Physical Details)</label>
+                      <textarea placeholder="e.g. Spherical, standard orange composite leather with deep channels..." value={eqDescription} onChange={e => setEqDescription(e.target.value)} className="w-full bg-slate-50 border border-slate-200 rounded px-4 py-2 text-slate-900 focus:outline-none focus:border-amber-600 h-20 text-sm" />
                     </div>
                     <div>
                       <label className="block text-xs font-bold text-slate-600 uppercase tracking-wide mb-1">Sport Category</label>
