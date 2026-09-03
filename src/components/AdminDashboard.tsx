@@ -4,6 +4,8 @@ import { LogOut, LayoutDashboard, Users, Bell, UserCog, PackagePlus, FileBarChar
 import { BorrowRequest, Equipment } from '../types';
 import { getCategoryMeta } from '../data/categoryData';
 import { CategoryIcon } from './CategoryIcon';
+import jsPDF from 'jspdf';
+import { toPng } from 'html-to-image';
 
 export default function AdminDashboard() {
   const { currentUser, logout, users, equipment, requests, updateRequestStatus, updateUserStatus, addEquipment, updateUserDetails, deleteEquipment, clearData } = useAppContext();
@@ -35,6 +37,29 @@ export default function AdminDashboard() {
     const timer = setInterval(() => setNow(new Date()), 1000);
     return () => clearInterval(timer);
   }, []);
+
+  const handleExportPDF = async () => {
+    const reportElement = document.getElementById('report-content');
+    if (!reportElement) return;
+
+    try {
+      const imgData = await toPng(reportElement, { pixelRatio: 2, backgroundColor: '#ffffff' });
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4',
+      });
+
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = (reportElement.offsetHeight * pdfWidth) / reportElement.offsetWidth;
+
+      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+      pdf.save(`CSU-Equipment-Report-${new Date().toISOString().split('T')[0]}.pdf`);
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      alert('Failed to generate PDF.');
+    }
+  };
 
   const pendingRequests = requests.filter(r => r.status === 'pending');
   const activeRequests = requests.filter(r => r.status === 'approved' || r.status === 'overdue');
@@ -101,7 +126,7 @@ export default function AdminDashboard() {
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 flex font-sans">
       {/* Sidebar */}
-      <div className="w-64 bg-white border-r border-slate-200 flex flex-col">
+      <div className="w-64 bg-white border-r border-slate-200 flex flex-col print:hidden">
         <div className="p-6 border-b border-slate-200">
           <div className="w-12 h-12 bg-emerald-900 rounded-full flex items-center justify-center text-white font-bold text-xl mb-3">
             {currentUser.name.split(' ').map(n => n[0]).join('').substring(0,2)}
@@ -143,8 +168,8 @@ export default function AdminDashboard() {
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col h-screen overflow-hidden">
-        <header className="flex justify-between items-center px-8 py-4 border-b border-slate-200 bg-white shadow-sm relative z-20">
+      <div className="flex-1 flex flex-col h-screen overflow-hidden print:h-auto print:overflow-visible">
+        <header className="flex justify-between items-center px-8 py-4 border-b border-slate-200 bg-white shadow-sm relative z-20 print:hidden">
           <div className="flex items-center space-x-3 text-emerald-900 font-bold text-lg tracking-wide">
             <div className="bg-amber-600 p-1.5 rounded-lg">
               <Trophy className="w-5 h-5 text-white" />
@@ -198,7 +223,7 @@ export default function AdminDashboard() {
           </div>
         </header>
 
-        <main className="flex-1 overflow-y-auto p-8">
+        <main className="flex-1 overflow-y-auto p-8 print:p-0 print:bg-white print:overflow-visible">
 
           {activeTab === 'dashboard' && (
             <div className="max-w-6xl mx-auto relative">
@@ -693,14 +718,14 @@ export default function AdminDashboard() {
           )}
 
           {activeTab === 'reports' && (
-            <div className="max-w-6xl mx-auto">
-              <h2 className="text-3xl font-bold text-emerald-900 mb-2">REPORTS CENTER</h2>
-              <p className="text-slate-500 text-sm mb-6 max-w-md">Access and generate key reports to monitor equipment availability, inventory health, and repair activity.</p>
+            <div className="max-w-6xl mx-auto print:max-w-none print:w-full">
+              <h2 className="text-3xl font-bold text-emerald-900 mb-2 print:hidden">REPORTS CENTER</h2>
+              <p className="text-slate-500 text-sm mb-6 max-w-md print:hidden">Access and generate key reports to monitor equipment availability, inventory health, and repair activity.</p>
               
-              <div className="bg-white border border-slate-200 rounded-xl p-8 relative">
-                 <div className="absolute top-8 right-8 flex space-x-4">
-                    <button className="bg-amber-600 text-white px-4 py-2 rounded font-semibold text-sm hover:bg-amber-700 transition">Print Report</button>
-                    <button className="bg-amber-600 text-white px-4 py-2 rounded font-semibold text-sm hover:bg-amber-700 transition">Export as PDF</button>
+              <div id="report-content" className="bg-white border border-slate-200 rounded-xl p-8 relative print:border-none print:shadow-none print:p-0">
+                 <div className="absolute top-8 right-8 flex space-x-4 print:hidden" data-html2canvas-ignore="true">
+                    <button onClick={() => window.print()} className="bg-amber-600 text-white px-4 py-2 rounded font-semibold text-sm hover:bg-amber-700 transition">Print Report</button>
+                    <button onClick={handleExportPDF} className="bg-emerald-700 text-white px-4 py-2 rounded font-semibold text-sm hover:bg-emerald-800 transition">Export as PDF</button>
                  </div>
                  
                  <div className="mb-8">
