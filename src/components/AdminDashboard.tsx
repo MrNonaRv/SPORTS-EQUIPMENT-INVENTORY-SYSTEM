@@ -96,8 +96,7 @@ export default function AdminDashboard() {
       inRepair: eqCondition === 'For Repair' ? eqQty : 0,
       damaged: eqCondition === 'Damaged' ? eqQty : 0,
       location: eqLocation.trim() || 'Main Sports Storage',
-      lastChecked: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-      description: eqDescription
+      lastChecked: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
     };
     addEquipment(newEq);
     setAddSuccess(true);
@@ -124,9 +123,15 @@ export default function AdminDashboard() {
   if (!currentUser) return null;
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 flex font-sans">
+    <div 
+      className="min-h-screen bg-slate-50 text-slate-900 flex font-sans relative bg-cover bg-center bg-fixed"
+      style={{ backgroundImage: 'url("https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?q=80&w=2000&auto=format&fit=crop")' }}
+    >
+      {/* Background Overlay */}
+      <div className="absolute inset-0 bg-slate-100/85 backdrop-blur-[2px] z-0 print:hidden"></div>
+
       {/* Sidebar */}
-      <div className="w-64 bg-white border-r border-slate-200 flex flex-col print:hidden">
+      <div className="w-64 bg-white/95 backdrop-blur-md border-r border-slate-200/50 flex flex-col print:hidden relative z-10 shadow-[4px_0_24px_rgba(0,0,0,0.02)]">
         <div className="p-6 border-b border-slate-200">
           <div className="w-12 h-12 bg-emerald-900 rounded-full flex items-center justify-center text-white font-bold text-xl mb-3">
             {currentUser.name.split(' ').map(n => n[0]).join('').substring(0,2)}
@@ -168,8 +173,8 @@ export default function AdminDashboard() {
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col h-screen overflow-hidden print:h-auto print:overflow-visible">
-        <header className="flex justify-between items-center px-8 py-4 border-b border-slate-200 bg-white shadow-sm relative z-20 print:hidden">
+      <div className="flex-1 flex flex-col h-screen overflow-hidden print:h-auto print:overflow-visible relative z-10">
+        <header className="flex justify-between items-center px-8 py-4 border-b border-slate-200/50 bg-white/95 backdrop-blur-md shadow-sm relative z-20 print:hidden">
           <div className="flex items-center space-x-3 text-emerald-900 font-bold text-lg tracking-wide">
             <div className="bg-amber-600 p-1.5 rounded-lg">
               <Trophy className="w-5 h-5 text-white" />
@@ -396,12 +401,12 @@ export default function AdminDashboard() {
                 <table className="w-full text-left text-sm">
                   <thead className="bg-slate-100 text-slate-700 text-xs uppercase tracking-wider border-b border-slate-200">
                     <tr>
-                      <th className="px-6 py-3">Borrower Full Name</th>
-                      <th className="px-6 py-3">Account Type</th>
-                      <th className="px-6 py-3">Equipment To Borrow</th>
-                      <th className="px-6 py-3">Requested Date & Time</th>
-                      <th className="px-6 py-3">Status</th>
-                      <th className="px-6 py-3 text-center">Action Buttons</th>
+                      <th className="px-6 py-4 font-semibold">Borrower</th>
+                      <th className="px-6 py-4 font-semibold">Contact / Dept</th>
+                      <th className="px-6 py-4 font-semibold">Equipment To Borrow</th>
+                      <th className="px-6 py-4 font-semibold">Requested Date & Time</th>
+                      <th className="px-6 py-4 font-semibold">Status</th>
+                      <th className="px-6 py-4 font-semibold text-center">Action Buttons</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-200">
@@ -410,24 +415,39 @@ export default function AdminDashboard() {
                       const items = req.items && req.items.length > 0 ? req.items : [{ equipmentId: req.equipmentId || '', quantity: req.quantity || 0 }];
                       return (
                         <tr key={req.id} className="hover:bg-slate-100">
-                          <td className="px-6 py-4 font-medium flex items-center space-x-2">
-                            <span className="w-8 h-8 rounded-full bg-emerald-900 flex items-center justify-center text-sm font-bold text-white ring-2 ring-white shadow-sm">{user?.name?.[0]}</span>
-                            <span>{user?.name}</span>
+                          <td className="px-6 py-4 font-medium flex items-center space-x-3">
+                            <div className="w-10 h-10 rounded-full bg-emerald-900 flex items-center justify-center text-sm font-bold text-white ring-2 ring-white shadow-sm">{user?.name?.[0]}</div>
+                            <div>
+                              <div>{user?.name}</div>
+                              <div className="text-xs text-slate-500">{user?.role} - ID: {user?.id}</div>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 text-slate-600">
+                            <div>{user?.department || 'N/A'}</div>
+                            <div className="text-xs">{user?.contact || ''}</div>
                           </td>
                           <td className="px-6 py-4">
-                            <span className="bg-emerald-100 text-emerald-800 border border-emerald-200 px-3 py-1.5 rounded-full font-bold text-xs shadow-sm">{user?.role}</span>
-                          </td>
-                          <td className="px-6 py-4">
-                            {items.map((item, idx) => {
-                              const eq = equipment.find(e => e.id === item.equipmentId);
-                              return <div key={idx} className="mb-1 text-slate-700">{item.quantity}× {eq?.name || 'Item'}</div>
-                            })}
+                            <div className="space-y-3">
+                              <div className="border-l-2 border-amber-400 pl-3">
+                                {items.map((item, idx) => {
+                                  const eq = equipment.find(e => e.id === item.equipmentId);
+                                  return <div key={idx} className="font-medium text-slate-800">{item.quantity}× {eq?.name || 'Item'}</div>
+                                })}
+                              </div>
+                            </div>
                           </td>
                           <td className="px-6 py-4 text-slate-600 text-xs">
-                            Pickup: {new Date(req.pickupDate).toLocaleString()}
+                            <div><strong className="text-slate-700">Pickup:</strong> {new Date(req.pickupDate).toLocaleString()}</div>
+                            <div><strong className="text-slate-700">Return:</strong> {new Date(req.returnDate).toLocaleString()}</div>
+                            <div className="mt-1 text-slate-500">Req: {new Date(req.requestDate).toLocaleDateString()}</div>
                           </td>
                           <td className="px-6 py-4">
                             <StatusBadge status={req.status} />
+                            {req.returnCondition && req.status === 'return_pending' && (
+                              <div className={`mt-2 text-xs font-bold px-2 py-1 rounded-md ${req.returnCondition === 'Damaged' ? 'bg-red-100 text-red-700' : 'bg-emerald-100 text-emerald-700'}`}>
+                                Condition: {req.returnCondition}
+                              </div>
+                            )}
                           </td>
                           <td className="px-6 py-4 text-center">
                             {req.status === 'pending' && (
@@ -676,7 +696,7 @@ export default function AdminDashboard() {
                               <div className="w-10 h-10 rounded-full bg-emerald-900 flex items-center justify-center text-sm font-bold text-white ring-2 ring-white shadow-sm">{user.name[0]}</div>
                               <div>
                                 <div>{user.name}</div>
-                                <div className="text-xs text-slate-500">{user.role}</div>
+                                <div className="text-xs text-slate-500">{user.role} - ID: {user.id}</div>
                               </div>
                             </td>
                             <td className="px-6 py-4 text-slate-600">

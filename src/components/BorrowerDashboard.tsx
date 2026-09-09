@@ -29,6 +29,7 @@ import { CategoryIcon } from './CategoryIcon';
 export default function BorrowerDashboard() {
   const { currentUser, logout, equipment, requests, submitBorrowRequest, updateRequestStatus } = useAppContext();
   const [activeTab, setActiveTab] = useState<'dashboard' | 'borrow' | 'notifications'>('dashboard');
+  const [returnConditions, setReturnConditions] = useState<Record<string, 'Good' | 'Damaged'>>({});
 
   const userRequests = requests.filter(r => r.userId === currentUser?.id);
   const activeBorrows = userRequests.filter(r => r.status === 'approved' || r.status === 'overdue').length;
@@ -249,7 +250,8 @@ export default function BorrowerDashboard() {
           </div>
           <h3 className="font-bold text-slate-900 leading-snug">{currentUser.name}</h3>
           <p className="text-xs text-emerald-900 font-semibold uppercase tracking-wider mt-0.5">{currentUser.role} BORROWER</p>
-          <p className="text-[11px] text-slate-400 mt-1">{currentUser.department || 'Student Portal'}</p>
+          <p className="text-[11px] font-medium text-slate-500 mt-1">ID: {currentUser.id}</p>
+          <p className="text-[11px] text-slate-400 mt-0.5">{currentUser.department || 'Student Portal'}</p>
         </div>
         
         <nav className="flex-1 py-4 space-y-1">
@@ -400,12 +402,22 @@ export default function BorrowerDashboard() {
                               <td className="px-6 py-4 text-center">
                                 <StatusBadge status={req.status} />
                                 {req.status === 'approved' && (
-                                  <button 
-                                    onClick={() => updateRequestStatus(req.id, 'return_pending')}
-                                    className="mt-2 block w-full text-[11px] font-bold bg-amber-600 hover:bg-amber-700 text-white py-1.5 px-2 rounded-md transition shadow-2xs"
-                                  >
-                                    Initiate Return
-                                  </button>
+                                  <div className="mt-2 space-y-2">
+                                    <select 
+                                      value={returnConditions[req.id] || 'Good'}
+                                      onChange={(e) => setReturnConditions({...returnConditions, [req.id]: e.target.value as 'Good' | 'Damaged'})}
+                                      className="w-full text-xs border border-slate-200 rounded p-1.5 focus:outline-none focus:border-amber-500"
+                                    >
+                                      <option value="Good">Condition: Good</option>
+                                      <option value="Damaged">Condition: Damaged</option>
+                                    </select>
+                                    <button 
+                                      onClick={() => updateRequestStatus(req.id, 'return_pending', returnConditions[req.id] || 'Good')}
+                                      className="block w-full text-[11px] font-bold bg-amber-600 hover:bg-amber-700 text-white py-1.5 px-2 rounded-md transition shadow-2xs"
+                                    >
+                                      Initiate Return
+                                    </button>
+                                  </div>
                                 )}
                               </td>
                             </tr>

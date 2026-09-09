@@ -23,7 +23,6 @@ export interface Equipment {
   damaged: number;
   location?: string;
   lastChecked?: string;
-  description?: string;
 }
 
 export type RequestStatus = 'pending' | 'approved' | 'declined' | 'returned' | 'return_pending' | 'overdue';
@@ -46,6 +45,7 @@ export interface BorrowRequest {
   returnDate: string;
   status: RequestStatus;
   requestDate: string;
+  returnCondition?: 'Good' | 'Damaged';
 }
 
 export interface AppState {

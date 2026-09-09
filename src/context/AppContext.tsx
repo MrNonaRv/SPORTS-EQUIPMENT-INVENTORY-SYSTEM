@@ -22,7 +22,7 @@ interface AppContextType extends AppState {
   addEquipment: (equipment: Equipment) => Promise<void>;
   deleteEquipment: (equipmentId: string) => Promise<void>;
   submitBorrowRequest: (request: BorrowRequest) => Promise<void>;
-  updateRequestStatus: (requestId: string, status: RequestStatus) => Promise<void>;
+  updateRequestStatus: (requestId: string, status: RequestStatus, returnCondition?: 'Good' | 'Damaged') => Promise<void>;
   clearData: () => Promise<void>;
   isSyncing: boolean;
 }
@@ -325,12 +325,14 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     }
   };
 
-  const updateRequestStatus = async (requestId: string, status: RequestStatus) => {
+  const updateRequestStatus = async (requestId: string, status: RequestStatus, returnCondition?: 'Good' | 'Damaged') => {
     const req = requests.find(r => r.id === requestId);
-    setRequests(prev => prev.map(r => r.id === requestId ? { ...r, status } : r));
+    setRequests(prev => prev.map(r => r.id === requestId ? { ...r, status, ...(returnCondition && { returnCondition }) } : r));
 
     try {
-      await updateDoc(doc(db, 'requests', requestId), { status });
+      const updateData: any = { status };
+      if (returnCondition) updateData.returnCondition = returnCondition;
+      await updateDoc(doc(db, 'requests', requestId), updateData);
 
       if (req) {
         const items = req.items && req.items.length > 0 
@@ -349,12 +351,15 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
                 borrowed: newBorrowed
               });
             } else if (status === 'returned') {
-              const newAvail = targetEq.available + item.quantity;
+              const isDamaged = req.returnCondition === 'Damaged';
+              const newAvail = isDamaged ? targetEq.available : targetEq.available + item.quantity;
+              const newDamaged = isDamaged ? targetEq.damaged + item.quantity : targetEq.damaged;
               const newBorrowed = Math.max(0, targetEq.borrowed - item.quantity);
-              setEquipment(prev => prev.map(e => e.id === targetEq.id ? { ...e, available: newAvail, borrowed: newBorrowed } : e));
+              setEquipment(prev => prev.map(e => e.id === targetEq.id ? { ...e, available: newAvail, borrowed: newBorrowed, damaged: newDamaged } : e));
               await updateDoc(doc(db, 'equipment', targetEq.id), {
                 available: newAvail,
-                borrowed: newBorrowed
+                borrowed: newBorrowed,
+                damaged: newDamaged
               });
             }
           }
