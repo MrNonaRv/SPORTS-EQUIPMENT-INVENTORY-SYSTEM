@@ -125,7 +125,7 @@ export default function AdminDashboard() {
   return (
     <div 
       className="min-h-screen bg-slate-50 text-slate-900 flex font-sans relative bg-cover bg-center bg-fixed"
-      style={{ backgroundImage: 'url("https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?q=80&w=2000&auto=format&fit=crop")' }}
+      style={{ backgroundImage: 'url("https://images.unsplash.com/photo-1517649763962-0c623066013b?q=80&w=2000&auto=format&fit=crop")' }}
     >
       {/* Background Overlay */}
       <div className="absolute inset-0 bg-slate-100/85 backdrop-blur-[2px] z-0 print:hidden"></div>

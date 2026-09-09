@@ -74,7 +74,7 @@ const AuthView: React.FC<AuthViewProps> = ({ type }) => {
   return (
     <div 
       className="min-h-screen bg-slate-100 text-slate-900 flex flex-col font-sans relative bg-cover bg-center"
-      style={{ backgroundImage: 'url("https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?q=80&w=2000&auto=format&fit=crop")' }}
+      style={{ backgroundImage: 'url("https://images.unsplash.com/photo-1517649763962-0c623066013b?q=80&w=2000&auto=format&fit=crop")' }}
     >
       {/* Dark Overlay */}
       <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm z-0"></div>
