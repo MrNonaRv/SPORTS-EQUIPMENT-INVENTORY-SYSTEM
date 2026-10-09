@@ -8,7 +8,28 @@ import jsPDF from 'jspdf';
 import { toPng } from 'html-to-image';
 
 export default function AdminDashboard() {
-  const { currentUser, logout, users, equipment, requests, updateRequestStatus, updateUserStatus, addEquipment, updateUserDetails, deleteEquipment, clearData } = useAppContext();
+  const { 
+    currentUser, 
+    logout, 
+    users, 
+    equipment, 
+    requests, 
+    updateRequestStatus, 
+    updateUserStatus, 
+    addEquipment, 
+    updateUserDetails, 
+    deleteEquipment, 
+    deleteUser,
+    clearAllUsers,
+    deleteRequest,
+    clearAllRequests,
+    clearActiveBorrowers,
+    arrivalRecords = [],
+    addArrivalRecord,
+    deleteArrivalRecord,
+    clearArrivalRecords,
+    clearData 
+  } = useAppContext();
   const [activeTab, setActiveTab] = useState<'dashboard' | 'requests' | 'users' | 'arrivals' | 'reports' | 'active_borrowers'>('dashboard');
   const [activeOverlay, setActiveOverlay] = useState<string | null>(null);
 
@@ -85,10 +106,11 @@ export default function AdminDashboard() {
   const handleAddEquipment = (e: React.FormEvent) => {
     e.preventDefault();
     const finalCategory = eqCat === 'Custom' ? (customCat.trim() || 'General') : eqCat;
+    const newEqId = `eq-${Date.now()}`;
     const newEq: Equipment = {
-      id: `eq-${Date.now()}`,
-      name: eqName,
-      description: eqDescription,
+      id: newEqId,
+      name: eqName.trim(),
+      description: eqDescription.trim(),
       category: finalCategory,
       total: eqQty,
       available: eqCondition === 'Good / Available' ? eqQty : 0,
@@ -99,6 +121,21 @@ export default function AdminDashboard() {
       lastChecked: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
     };
     addEquipment(newEq);
+
+    addArrivalRecord({
+      id: `arr-${Date.now()}`,
+      equipmentName: eqName.trim(),
+      category: finalCategory,
+      quantity: eqQty,
+      condition: eqCondition,
+      supplier: eqSupplier.trim() || undefined,
+      location: eqLocation.trim() || 'Main Sports Storage',
+      description: eqDescription.trim() || undefined,
+      notes: eqNotes.trim() || undefined,
+      date: new Date().toISOString(),
+      receivedBy: currentUser.name
+    });
+
     setAddSuccess(true);
     setEqName('');
     setEqDescription('');
@@ -151,16 +188,18 @@ export default function AdminDashboard() {
 
         <div className="p-4 border-t border-slate-200 space-y-3">
           <button 
-            onClick={() => {
-              if (window.confirm('Are you sure you want to clear all active borrowers, borrow requests, and users? This action cannot be undone.')) {
-                clearData();
-                alert('Records cleared successfully.');
+            onClick={async () => {
+              if (window.confirm('Are you sure you want to delete and clear ALL records (Active Borrowers, Borrow Requests, Registered Users, and New Arrivals)? This will reset borrowed equipment and cannot be undone.')) {
+                const res = await clearData();
+                if (res) {
+                  alert('All records for active borrowers, borrow requests, users, and arrivals have been successfully cleared.');
+                }
               }
             }}
-            className="w-full flex items-center justify-center space-x-2 px-4 py-2.5 bg-orange-50 text-orange-700 hover:bg-orange-100 font-bold border border-orange-200 rounded-lg transition"
+            className="w-full flex items-center justify-center space-x-2 px-4 py-2.5 bg-orange-50 text-orange-700 hover:bg-orange-100 font-bold border border-orange-200 rounded-lg transition text-xs"
           >
             <Trash2 className="w-4 h-4" />
-            <span>Clear Records</span>
+            <span>Clear All System Records</span>
           </button>
           <button 
             onClick={logout}
@@ -394,10 +433,28 @@ export default function AdminDashboard() {
 
           {activeTab === 'requests' && (
             <div className="max-w-6xl mx-auto">
-              <h2 className="text-2xl font-bold text-emerald-900 mb-2">Borrow Requests & Log Records</h2>
-              <p className="text-slate-500 text-sm mb-8">Accept or decline pending equipment borrow requests and view log records</p>
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+                <div>
+                  <h2 className="text-2xl font-bold text-emerald-900">Borrow Requests & Log Records</h2>
+                  <p className="text-slate-500 text-sm mt-1">Accept or decline pending equipment borrow requests and manage borrow logs</p>
+                </div>
+                {requests.length > 0 && (
+                  <button 
+                    onClick={async () => {
+                      if (window.confirm('Are you sure you want to delete and clear ALL borrow request records? This will also release borrowed equipment back to available inventory.')) {
+                        await clearAllRequests();
+                        alert('All borrow request records have been deleted.');
+                      }
+                    }}
+                    className="flex items-center space-x-2 px-4 py-2 bg-red-50 text-red-700 hover:bg-red-100 border border-red-200 rounded-lg text-sm font-semibold transition self-start md:self-auto shadow-xs"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                    <span>Clear All Requests ({requests.length})</span>
+                  </button>
+                )}
+              </div>
 
-              <div className="bg-white border border-slate-200 rounded-xl overflow-hidden overflow-x-auto mb-8">
+              <div className="bg-white border border-slate-200 rounded-xl overflow-hidden overflow-x-auto mb-8 shadow-xs">
                 <table className="w-full text-left text-sm">
                   <thead className="bg-slate-100 text-slate-700 text-xs uppercase tracking-wider border-b border-slate-200">
                     <tr>
@@ -406,66 +463,90 @@ export default function AdminDashboard() {
                       <th className="px-6 py-4 font-semibold">Equipment To Borrow</th>
                       <th className="px-6 py-4 font-semibold">Requested Date & Time</th>
                       <th className="px-6 py-4 font-semibold">Status</th>
-                      <th className="px-6 py-4 font-semibold text-center">Action Buttons</th>
+                      <th className="px-6 py-4 font-semibold text-center">Actions</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-200">
-                    {requests.map(req => {
-                      const user = users.find(u => u.id === req.userId);
-                      const items = req.items && req.items.length > 0 ? req.items : [{ equipmentId: req.equipmentId || '', quantity: req.quantity || 0 }];
-                      return (
-                        <tr key={req.id} className="hover:bg-slate-100">
-                          <td className="px-6 py-4 font-medium flex items-center space-x-3">
-                            <div className="w-10 h-10 rounded-full bg-emerald-900 flex items-center justify-center text-sm font-bold text-white ring-2 ring-white shadow-sm">{user?.name?.[0]}</div>
-                            <div>
-                              <div>{user?.name}</div>
-                              <div className="text-xs text-slate-500">{user?.role} - ID: {user?.id}</div>
-                            </div>
-                          </td>
-                          <td className="px-6 py-4 text-slate-600">
-                            <div>{user?.department || 'N/A'}</div>
-                            <div className="text-xs">{user?.contact || ''}</div>
-                          </td>
-                          <td className="px-6 py-4">
-                            <div className="space-y-3">
-                              <div className="border-l-2 border-amber-400 pl-3">
-                                {items.map((item, idx) => {
-                                  const eq = equipment.find(e => e.id === item.equipmentId);
-                                  return <div key={idx} className="font-medium text-slate-800">{item.quantity}× {eq?.name || 'Item'}</div>
-                                })}
+                    {requests.length === 0 ? (
+                      <tr>
+                        <td colSpan={6} className="px-6 py-12 text-center text-slate-400">
+                          <p className="font-medium">No borrow requests or records found.</p>
+                          <p className="text-xs text-slate-400 mt-1">New requests from students and faculty will appear here.</p>
+                        </td>
+                      </tr>
+                    ) : (
+                      requests.map(req => {
+                        const user = users.find(u => u.id === req.userId);
+                        const items = req.items && req.items.length > 0 ? req.items : [{ equipmentId: req.equipmentId || '', quantity: req.quantity || 0 }];
+                        return (
+                          <tr key={req.id} className="hover:bg-slate-50 transition">
+                            <td className="px-6 py-4 font-medium flex items-center space-x-3">
+                              <div className="w-10 h-10 rounded-full bg-emerald-900 flex items-center justify-center text-sm font-bold text-white ring-2 ring-white shadow-sm">
+                                {user?.name?.[0] || 'U'}
                               </div>
-                            </div>
-                          </td>
-                          <td className="px-6 py-4 text-slate-600 text-xs">
-                            <div><strong className="text-slate-700">Pickup:</strong> {new Date(req.pickupDate).toLocaleString()}</div>
-                            <div><strong className="text-slate-700">Return:</strong> {new Date(req.returnDate).toLocaleString()}</div>
-                            <div className="mt-1 text-slate-500">Req: {new Date(req.requestDate).toLocaleDateString()}</div>
-                          </td>
-                          <td className="px-6 py-4">
-                            <StatusBadge status={req.status} />
-                            {req.returnCondition && req.status === 'return_pending' && (
-                              <div className={`mt-2 text-xs font-bold px-2 py-1 rounded-md ${req.returnCondition === 'Damaged' ? 'bg-red-100 text-red-700' : 'bg-emerald-100 text-emerald-700'}`}>
-                                Condition: {req.returnCondition}
+                              <div>
+                                <div>{user?.name || req.userId}</div>
+                                <div className="text-xs text-slate-500">{user?.role || 'Borrower'} - ID: {user?.id || req.userId}</div>
                               </div>
-                            )}
-                          </td>
-                          <td className="px-6 py-4 text-center">
-                            {req.status === 'pending' && (
-                              <div className="flex flex-col space-y-2">
-                                <button onClick={() => updateRequestStatus(req.id, 'approved')} className="text-xs border border-emerald-400 text-emerald-800 bg-emerald-100 hover:bg-emerald-200 font-bold px-3 py-1.5 rounded-lg shadow-sm transition">Accept</button>
-                                <button onClick={() => updateRequestStatus(req.id, 'declined')} className="text-xs border border-red-400 text-red-800 bg-red-100 hover:bg-red-200 font-bold px-3 py-1.5 rounded-lg shadow-sm transition">Decline</button>
+                            </td>
+                            <td className="px-6 py-4 text-slate-600">
+                              <div>{user?.department || 'N/A'}</div>
+                              <div className="text-xs">{user?.contact || ''}</div>
+                            </td>
+                            <td className="px-6 py-4">
+                              <div className="space-y-2">
+                                <div className="border-l-2 border-amber-400 pl-3">
+                                  {items.map((item, idx) => {
+                                    const eq = equipment.find(e => e.id === item.equipmentId);
+                                    return <div key={idx} className="font-medium text-slate-800">{item.quantity}× {eq?.name || 'Item'}</div>
+                                  })}
+                                </div>
                               </div>
-                            )}
-                            {(req.status === 'approved' || req.status === 'overdue' || req.status === 'return_pending') && (
-                              <button onClick={() => updateRequestStatus(req.id, 'returned')} className="text-xs bg-emerald-700 text-white border border-emerald-800 hover:bg-emerald-800 font-bold px-4 py-2 rounded-lg shadow-sm flex items-center space-x-1 mx-auto transition">
-                                <Check className="w-3 h-3" />
-                                <span>Confirm Return</span>
-                              </button>
-                            )}
-                          </td>
-                        </tr>
-                      )
-                    })}
+                            </td>
+                            <td className="px-6 py-4 text-slate-600 text-xs">
+                              <div><strong className="text-slate-700">Pickup:</strong> {new Date(req.pickupDate).toLocaleString()}</div>
+                              <div><strong className="text-slate-700">Return:</strong> {new Date(req.returnDate).toLocaleString()}</div>
+                              <div className="mt-1 text-slate-500">Req: {new Date(req.requestDate).toLocaleDateString()}</div>
+                            </td>
+                            <td className="px-6 py-4">
+                              <StatusBadge status={req.status} />
+                              {req.returnCondition && req.status === 'return_pending' && (
+                                <div className={`mt-2 text-xs font-bold px-2 py-1 rounded-md ${req.returnCondition === 'Damaged' ? 'bg-red-100 text-red-700' : 'bg-emerald-100 text-emerald-700'}`}>
+                                  Condition: {req.returnCondition}
+                                </div>
+                              )}
+                            </td>
+                            <td className="px-6 py-4 text-center">
+                              <div className="flex items-center justify-center gap-2">
+                                {req.status === 'pending' && (
+                                  <>
+                                    <button onClick={() => updateRequestStatus(req.id, 'approved')} className="text-xs border border-emerald-400 text-emerald-800 bg-emerald-100 hover:bg-emerald-200 font-bold px-3 py-1.5 rounded-lg shadow-sm transition">Accept</button>
+                                    <button onClick={() => updateRequestStatus(req.id, 'declined')} className="text-xs border border-red-400 text-red-800 bg-red-100 hover:bg-red-200 font-bold px-3 py-1.5 rounded-lg shadow-sm transition">Decline</button>
+                                  </>
+                                )}
+                                {(req.status === 'approved' || req.status === 'overdue' || req.status === 'return_pending') && (
+                                  <button onClick={() => updateRequestStatus(req.id, 'returned')} className="text-xs bg-emerald-700 text-white border border-emerald-800 hover:bg-emerald-800 font-bold px-3 py-1.5 rounded-lg shadow-sm flex items-center space-x-1 transition">
+                                    <Check className="w-3 h-3" />
+                                    <span>Return</span>
+                                  </button>
+                                )}
+                                <button 
+                                  onClick={async () => {
+                                    if (window.confirm('Are you sure you want to delete this borrow request record?')) {
+                                      await deleteRequest(req.id);
+                                    }
+                                  }}
+                                  className="text-red-500 hover:text-red-700 p-1.5 rounded-lg hover:bg-red-50 transition border border-transparent hover:border-red-200"
+                                  title="Delete request record"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        );
+                      })
+                    )}
                   </tbody>
                 </table>
               </div>
@@ -474,14 +555,32 @@ export default function AdminDashboard() {
 
           {activeTab === 'users' && (
             <div className="max-w-6xl mx-auto">
-              <h2 className="text-2xl font-bold text-emerald-900 mb-2">Manage System Accounts</h2>
-              <p className="text-slate-500 text-sm mb-6">Review active approved website users or open pending registrations log logs.</p>
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+                <div>
+                  <h2 className="text-2xl font-bold text-emerald-900">Manage System Accounts</h2>
+                  <p className="text-slate-500 text-sm mt-1">Review active approved website users or open pending registrations.</p>
+                </div>
+                {(pendingUsers.length > 0 || approvedUsers.length > 0) && (
+                  <button 
+                    onClick={async () => {
+                      if (window.confirm('Are you sure you want to delete and clear ALL registered borrower accounts (students & faculty)? The admin account will remain safe.')) {
+                        await clearAllUsers();
+                        alert('All registered borrower user accounts have been deleted.');
+                      }
+                    }}
+                    className="flex items-center space-x-2 px-4 py-2 bg-red-50 text-red-700 hover:bg-red-100 border border-red-200 rounded-lg text-sm font-semibold transition self-start md:self-auto shadow-xs"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                    <span>Clear All Users ({pendingUsers.length + approvedUsers.length})</span>
+                  </button>
+                )}
+              </div>
 
               {pendingUsers.length > 0 && (
-                <div className="bg-white border border-orange-500/30 rounded-xl overflow-hidden overflow-x-auto mb-8">
-                  <div className="bg-orange-500/10 px-6 py-3 font-semibold text-orange-400 flex items-center space-x-2">
-                    <span className="w-2 h-2 rounded-full bg-orange-500"></span>
-                    <span>Users Pending Registration Review</span>
+                <div className="bg-white border border-amber-300 rounded-xl overflow-hidden overflow-x-auto mb-8 shadow-xs">
+                  <div className="bg-amber-50 px-6 py-3 font-semibold text-amber-800 flex items-center space-x-2 border-b border-amber-200">
+                    <span className="w-2 h-2 rounded-full bg-amber-500"></span>
+                    <span>Users Pending Registration Review ({pendingUsers.length})</span>
                   </div>
                   <table className="w-full text-left text-sm">
                     <thead className="bg-slate-100 text-slate-700 text-xs uppercase tracking-wider border-b border-slate-200">
@@ -495,7 +594,7 @@ export default function AdminDashboard() {
                     </thead>
                     <tbody className="divide-y divide-slate-200">
                       {pendingUsers.map(u => (
-                        <tr key={u.id}>
+                        <tr key={u.id} className="hover:bg-slate-50 transition">
                           <td className="px-6 py-4 font-medium flex items-center space-x-2">
                              <span className="w-2.5 h-2.5 rounded-full bg-amber-500 shadow-sm"></span>
                              <span>{u.name}</span>
@@ -505,8 +604,19 @@ export default function AdminDashboard() {
                           <td className="px-6 py-4">{u.department}</td>
                           <td className="px-6 py-4 text-center">
                             <div className="flex items-center justify-center space-x-2">
-                              <button onClick={() => updateUserStatus(u.id, 'approved')} className="text-xs border border-emerald-400 text-emerald-800 bg-emerald-100 hover:bg-emerald-200 font-bold px-4 py-2 rounded-lg shadow-sm transition">Accept Account</button>
-                              <button onClick={() => updateUserStatus(u.id, 'rejected')} className="text-xs border border-red-400 text-red-800 bg-red-100 hover:bg-red-200 font-bold px-4 py-2 rounded-lg shadow-sm transition">Decline</button>
+                              <button onClick={() => updateUserStatus(u.id, 'approved')} className="text-xs border border-emerald-400 text-emerald-800 bg-emerald-100 hover:bg-emerald-200 font-bold px-3 py-1.5 rounded-lg shadow-sm transition">Accept</button>
+                              <button onClick={() => updateUserStatus(u.id, 'rejected')} className="text-xs border border-amber-400 text-amber-800 bg-amber-100 hover:bg-amber-200 font-bold px-3 py-1.5 rounded-lg shadow-sm transition">Decline</button>
+                              <button 
+                                onClick={async () => {
+                                  if (window.confirm(`Delete user record for ${u.name}?`)) {
+                                    await deleteUser(u.id);
+                                  }
+                                }} 
+                                className="text-red-500 hover:text-red-700 p-1.5 rounded-lg hover:bg-red-50 transition border border-transparent hover:border-red-200"
+                                title="Delete user"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
                             </div>
                           </td>
                         </tr>
@@ -516,9 +626,9 @@ export default function AdminDashboard() {
                 </div>
               )}
 
-              <div className="bg-white border border-slate-200 rounded-xl overflow-hidden overflow-x-auto">
-                <div className="px-6 py-4 font-bold text-emerald-900 border-b border-slate-200">
-                  Already Approved Users
+              <div className="bg-white border border-slate-200 rounded-xl overflow-hidden overflow-x-auto shadow-xs">
+                <div className="px-6 py-4 font-bold text-emerald-900 border-b border-slate-200 flex items-center justify-between">
+                  <span>Already Approved Users ({approvedUsers.length})</span>
                 </div>
                 <table className="w-full text-left text-sm">
                   <thead className="bg-slate-100 text-slate-700 text-xs uppercase tracking-wider border-b border-slate-200">
@@ -528,23 +638,46 @@ export default function AdminDashboard() {
                       <th className="px-6 py-3">Account Type</th>
                       <th className="px-6 py-3">Course / Department</th>
                       <th className="px-6 py-3">Account Status</th>
+                      <th className="px-6 py-3 text-center">Action</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-200">
-                    {approvedUsers.map(u => (
-                      <tr key={u.id} className="hover:bg-slate-100">
-                        <td className="px-6 py-4 font-medium flex items-center space-x-2">
-                            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-sm"></span>
-                            <span>{u.name}</span>
-                        </td>
-                        <td className="px-6 py-4">{u.id}</td>
-                        <td className="px-6 py-4 capitalize">{u.role}</td>
-                        <td className="px-6 py-4">{u.department}</td>
-                        <td className="px-6 py-4">
-                          <span className="text-green-400 bg-green-400/10 px-4 py-2 rounded-lg shadow-sm-lg shadow-sm text-xs font-medium">Approved Member</span>
+                    {approvedUsers.length === 0 ? (
+                      <tr>
+                        <td colSpan={6} className="px-6 py-12 text-center text-slate-400">
+                          <p className="font-medium">No approved borrower user accounts found.</p>
+                          <p className="text-xs text-slate-400 mt-1">Users will appear here once registered and approved.</p>
                         </td>
                       </tr>
-                    ))}
+                    ) : (
+                      approvedUsers.map(u => (
+                        <tr key={u.id} className="hover:bg-slate-50 transition">
+                          <td className="px-6 py-4 font-medium flex items-center space-x-2">
+                              <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-sm"></span>
+                              <span>{u.name}</span>
+                          </td>
+                          <td className="px-6 py-4">{u.id}</td>
+                          <td className="px-6 py-4 capitalize">{u.role}</td>
+                          <td className="px-6 py-4">{u.department}</td>
+                          <td className="px-6 py-4">
+                            <span className="text-emerald-700 bg-emerald-50 border border-emerald-200 px-3 py-1 rounded-full text-xs font-semibold">Approved Member</span>
+                          </td>
+                          <td className="px-6 py-4 text-center">
+                            <button
+                              onClick={async () => {
+                                if (window.confirm(`Are you sure you want to delete user account for ${u.name} (ID: ${u.id})?`)) {
+                                  await deleteUser(u.id);
+                                }
+                              }}
+                              className="text-red-500 hover:text-red-700 p-1.5 rounded-lg hover:bg-red-50 transition border border-transparent hover:border-red-200 inline-flex items-center"
+                              title="Delete user account"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </td>
+                        </tr>
+                      ))
+                    )}
                   </tbody>
                 </table>
               </div>
@@ -654,12 +787,74 @@ export default function AdminDashboard() {
                   </form>
                 </div>
 
-                <div>
-                  <h3 className="text-lg font-bold text-slate-600 mb-4 flex items-center space-x-2"><FileBarChart className="w-5 h-5"/> <span>Arrival Log Records</span></h3>
-                  <div className="space-y-4">
-                     <div className="bg-slate-50 border border-slate-200 border-dashed p-8 rounded-lg text-center text-slate-500">
-                        No recent equipment arrivals logged.
-                     </div>
+                <div className="flex flex-col h-full">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-bold text-slate-700 flex items-center space-x-2">
+                      <FileBarChart className="w-5 h-5 text-emerald-800"/> 
+                      <span>Arrival Log Records ({arrivalRecords.length})</span>
+                    </h3>
+                    {arrivalRecords.length > 0 && (
+                      <button
+                        onClick={async () => {
+                          if (window.confirm('Are you sure you want to delete and clear ALL arrival log records?')) {
+                            await clearArrivalRecords();
+                            alert('All arrival log records have been deleted.');
+                          }
+                        }}
+                        className="text-xs text-red-600 hover:text-red-800 font-semibold flex items-center space-x-1 p-1.5 rounded hover:bg-red-50 transition border border-red-200"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                        <span>Clear All Logs</span>
+                      </button>
+                    )}
+                  </div>
+                  
+                  <div className="space-y-3 overflow-y-auto max-h-[620px] pr-1">
+                    {arrivalRecords.length === 0 ? (
+                      <div className="bg-slate-50 border border-slate-200 border-dashed p-8 rounded-xl text-center text-slate-500">
+                        <PackagePlus className="w-8 h-8 text-slate-400 mx-auto mb-2 opacity-50" />
+                        <p className="font-medium text-sm">No recent equipment arrivals logged.</p>
+                        <p className="text-xs text-slate-400 mt-1">Encoded arrivals from the form will be recorded and displayed here.</p>
+                      </div>
+                    ) : (
+                      arrivalRecords.map(log => (
+                        <div key={log.id} className="bg-white border border-slate-200 rounded-xl p-4 shadow-xs hover:border-emerald-300 transition relative">
+                          <div className="flex items-start justify-between gap-2">
+                            <div>
+                              <div className="flex items-center space-x-2">
+                                <span className="font-bold text-slate-900">{log.equipmentName}</span>
+                                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">
+                                  {log.category}
+                                </span>
+                              </div>
+                              <div className="text-xs text-slate-500 mt-1">
+                                {new Date(log.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                              </div>
+                            </div>
+                            <button
+                              onClick={async () => {
+                                if (window.confirm(`Delete arrival record for ${log.equipmentName}?`)) {
+                                  await deleteArrivalRecord(log.id);
+                                }
+                              }}
+                              className="text-red-400 hover:text-red-600 p-1.5 rounded hover:bg-red-50 transition border border-transparent hover:border-red-200"
+                              title="Delete arrival record"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
+
+                          <div className="grid grid-cols-2 gap-2 mt-3 text-xs text-slate-600 bg-slate-50 p-2.5 rounded-lg border border-slate-100">
+                            <div><strong>Qty Received:</strong> {log.quantity} units</div>
+                            <div><strong>Condition:</strong> {log.condition}</div>
+                            {log.supplier && <div className="col-span-2"><strong>Supplier:</strong> {log.supplier}</div>}
+                            <div className="col-span-2"><strong>Location:</strong> {log.location}</div>
+                            {log.description && <div className="col-span-2 text-slate-500"><strong>Desc:</strong> {log.description}</div>}
+                            {log.notes && <div className="col-span-2 text-slate-500"><strong>Notes:</strong> {log.notes}</div>}
+                          </div>
+                        </div>
+                      ))
+                    )}
                   </div>
                 </div>
               </div>
@@ -668,10 +863,28 @@ export default function AdminDashboard() {
 
           {activeTab === 'active_borrowers' && (
             <div className="max-w-6xl mx-auto">
-              <h2 className="text-2xl font-bold text-emerald-900 mb-2">Active Borrowers</h2>
-              <p className="text-slate-500 text-sm mb-6">Explicitly filtered view displaying all current users holding equipment and their items.</p>
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+                <div>
+                  <h2 className="text-2xl font-bold text-emerald-900">Active Borrowers</h2>
+                  <p className="text-slate-500 text-sm mt-1">Explicitly filtered view displaying all current users holding equipment and their items.</p>
+                </div>
+                {users.some(u => requests.some(r => r.userId === u.id && (r.status === 'approved' || r.status === 'overdue' || r.status === 'return_pending'))) && (
+                  <button
+                    onClick={async () => {
+                      if (window.confirm('Are you sure you want to clear ALL active borrower loans? This will reset all currently borrowed equipment back to available stock.')) {
+                        await clearActiveBorrowers();
+                        alert('All active borrower records have been cleared and inventory restored.');
+                      }
+                    }}
+                    className="flex items-center space-x-2 px-4 py-2 bg-red-50 text-red-700 hover:bg-red-100 border border-red-200 rounded-lg text-sm font-semibold transition self-start md:self-auto shadow-xs"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                    <span>Clear All Active Borrowers</span>
+                  </button>
+                )}
+              </div>
               
-              <div className="bg-white rounded-xl overflow-hidden overflow-x-auto border border-slate-200">
+              <div className="bg-white rounded-xl overflow-hidden overflow-x-auto border border-slate-200 shadow-xs">
                 <table className="w-full text-left text-sm">
                   <thead className="bg-slate-100 text-slate-700 text-xs uppercase border-b border-slate-200 tracking-wider">
                     <tr>
@@ -679,19 +892,23 @@ export default function AdminDashboard() {
                       <th className="px-6 py-4 font-semibold">Contact / Dept</th>
                       <th className="px-6 py-4 font-semibold">Currently Held Items</th>
                       <th className="px-6 py-4 font-semibold">Status</th>
+                      <th className="px-6 py-4 font-semibold text-center">Actions</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-200">
                     {users.filter(u => requests.some(r => r.userId === u.id && (r.status === 'approved' || r.status === 'overdue' || r.status === 'return_pending'))).length === 0 ? (
                       <tr>
-                        <td colSpan={4} className="px-6 py-8 text-center text-slate-400">No active borrowers holding equipment.</td>
+                        <td colSpan={5} className="px-6 py-12 text-center text-slate-400">
+                          <p className="font-medium">No active borrowers holding equipment.</p>
+                          <p className="text-xs text-slate-400 mt-1">Users with approved borrowed equipment will be shown here.</p>
+                        </td>
                       </tr>
                     ) : (
                       users.filter(u => requests.some(r => r.userId === u.id && (r.status === 'approved' || r.status === 'overdue' || r.status === 'return_pending'))).map(user => {
                         const activeUserRequests = requests.filter(r => r.userId === user.id && (r.status === 'approved' || r.status === 'overdue' || r.status === 'return_pending'));
                         
                         return (
-                          <tr key={user.id} className="hover:bg-slate-100">
+                          <tr key={user.id} className="hover:bg-slate-50 transition">
                             <td className="px-6 py-4 font-medium flex items-center space-x-3">
                               <div className="w-10 h-10 rounded-full bg-emerald-900 flex items-center justify-center text-sm font-bold text-white ring-2 ring-white shadow-sm">{user.name[0]}</div>
                               <div>
@@ -722,10 +939,37 @@ export default function AdminDashboard() {
                             </td>
                             <td className="px-6 py-4">
                               {activeUserRequests.some(r => r.status === 'overdue') ? (
-                                <span className="bg-red-100 text-red-600 px-4 py-2 rounded-lg shadow-sm-lg shadow-sm text-xs font-semibold">Has Overdue</span>
+                                <span className="bg-red-100 text-red-600 px-3 py-1 rounded-full text-xs font-semibold">Has Overdue</span>
                               ) : (
-                                <span className="bg-green-100 text-green-600 px-4 py-2 rounded-lg shadow-sm-lg shadow-sm text-xs font-semibold">In Good Standing</span>
+                                <span className="bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full text-xs font-semibold">In Good Standing</span>
                               )}
+                            </td>
+                            <td className="px-6 py-4 text-center">
+                              <div className="flex flex-col gap-2 items-center justify-center">
+                                {activeUserRequests.map(req => (
+                                  <div key={req.id} className="flex items-center gap-1">
+                                    <button
+                                      onClick={() => updateRequestStatus(req.id, 'returned')}
+                                      className="text-xs bg-emerald-700 text-white hover:bg-emerald-800 font-semibold px-2.5 py-1 rounded-md shadow-xs flex items-center space-x-1 transition"
+                                      title="Confirm return of equipment"
+                                    >
+                                      <Check className="w-3 h-3" />
+                                      <span>Return</span>
+                                    </button>
+                                    <button
+                                      onClick={async () => {
+                                        if (window.confirm('Delete this active borrower loan record and restore equipment?')) {
+                                          await deleteRequest(req.id);
+                                        }
+                                      }}
+                                      className="text-red-500 hover:text-red-700 p-1 rounded hover:bg-red-50 transition border border-transparent hover:border-red-200"
+                                      title="Delete active loan record"
+                                    >
+                                      <Trash2 className="w-3.5 h-3.5" />
+                                    </button>
+                                  </div>
+                                ))}
+                              </div>
                             </td>
                           </tr>
                         );

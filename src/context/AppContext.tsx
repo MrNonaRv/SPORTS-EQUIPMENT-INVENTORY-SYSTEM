@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { AppState, User, Equipment, BorrowRequest, RequestStatus } from '../types';
+import { AppState, User, Equipment, BorrowRequest, RequestStatus, ArrivalRecord } from '../types';
 import { db } from '../firebase';
 import { 
   collection, 
@@ -13,22 +13,31 @@ import {
 } from 'firebase/firestore';
 
 interface AppContextType extends AppState {
+  arrivalRecords: ArrivalRecord[];
   setView: (view: AppState['currentView']) => void;
   login: (user: User) => void;
   logout: () => void;
   registerUser: (user: User) => Promise<void>;
   updateUserStatus: (userId: string, status: User['status']) => Promise<void>;
   updateUserDetails: (userId: string, updates: Partial<User>) => Promise<void>;
+  deleteUser: (userId: string) => Promise<void>;
+  clearAllUsers: () => Promise<void>;
   addEquipment: (equipment: Equipment) => Promise<void>;
   deleteEquipment: (equipmentId: string) => Promise<void>;
   submitBorrowRequest: (request: BorrowRequest) => Promise<void>;
   updateRequestStatus: (requestId: string, status: RequestStatus, returnCondition?: 'Good' | 'Damaged') => Promise<void>;
-  clearData: () => Promise<void>;
+  deleteRequest: (requestId: string) => Promise<void>;
+  clearAllRequests: () => Promise<void>;
+  clearActiveBorrowers: () => Promise<void>;
+  addArrivalRecord: (record: ArrivalRecord) => Promise<void>;
+  deleteArrivalRecord: (recordId: string) => Promise<void>;
+  clearArrivalRecords: () => Promise<void>;
+  clearData: () => Promise<boolean>;
   isSyncing: boolean;
 }
 
 const initialUsers: User[] = [
-  { id: 'admin', name: 'Maria Santos', role: 'admin', status: 'approved', password: 'admin' }
+  { id: 'admin', name: 'Dr. Janice D. Ballera', role: 'admin', status: 'approved', password: 'admin' }
 ];
 
 const initialEquipment: Equipment[] = [
@@ -121,6 +130,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [users, setUsers] = useState<User[]>(initialUsers);
   const [equipment, setEquipment] = useState<Equipment[]>(initialEquipment);
   const [requests, setRequests] = useState<BorrowRequest[]>(initialRequests);
+  const [arrivalRecords, setArrivalRecords] = useState<ArrivalRecord[]>([]);
   const [isSyncing, setIsSyncing] = useState<boolean>(true);
 
   const setView = (view: AppState['currentView']) => {
@@ -207,15 +217,31 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         // Sort newest first
         loadedRequests.sort((a, b) => new Date(b.requestDate).getTime() - new Date(a.requestDate).getTime());
         setRequests(loadedRequests);
+      } else {
+        setRequests([]);
       }
     }, (err) => {
       console.warn('Requests sync warning:', err);
+    });
+
+    // 4. Listen to Arrivals Collection
+    const arrivalsColRef = collection(db, 'arrivals');
+    const unsubArrivals = onSnapshot(arrivalsColRef, (snapshot) => {
+      const loadedArrivals: ArrivalRecord[] = [];
+      snapshot.forEach((d) => {
+        loadedArrivals.push(d.data() as ArrivalRecord);
+      });
+      loadedArrivals.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+      setArrivalRecords(loadedArrivals);
+    }, (err) => {
+      console.warn('Arrivals sync warning:', err);
     });
 
     return () => {
       unsubUsers();
       unsubEquipment();
       unsubRequests();
+      unsubArrivals();
     };
   }, []);
 
@@ -370,48 +396,192 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     }
   };
 
+  const deleteUser = async (userId: string) => {
+    if (userId === 'admin') return;
+    setUsers(prev => prev.filter(u => u.id !== userId));
+    try {
+      await deleteDoc(doc(db, 'users', userId));
+    } catch (err) {
+      console.error('Failed to delete user from Firestore:', err);
+    }
+  };
+
+  const clearAllUsers = async () => {
+    try {
+      const userSnapshot = await getDocs(collection(db, 'users'));
+      const batch = writeBatch(db);
+      userSnapshot.forEach((d) => {
+        if (d.id !== 'admin') {
+          batch.delete(d.ref);
+        }
+      });
+      await batch.commit();
+      setUsers(initialUsers.filter(u => u.id === 'admin'));
+    } catch (err) {
+      console.error('Failed to clear users from Firestore:', err);
+    }
+  };
+
+  const deleteRequest = async (requestId: string) => {
+    const targetReq = requests.find(r => r.id === requestId);
+    if (targetReq && (targetReq.status === 'approved' || targetReq.status === 'overdue' || targetReq.status === 'return_pending')) {
+      const items = targetReq.items && targetReq.items.length > 0 
+        ? targetReq.items 
+        : [{ equipmentId: targetReq.equipmentId || '', quantity: targetReq.quantity || 0 }];
+      for (const item of items) {
+        const eq = equipment.find(e => e.id === item.equipmentId);
+        if (eq) {
+          const newBorrowed = Math.max(0, eq.borrowed - item.quantity);
+          const newAvail = Math.min(eq.total - (eq.inRepair || 0) - (eq.damaged || 0), eq.available + item.quantity);
+          setEquipment(prev => prev.map(e => e.id === eq.id ? { ...e, borrowed: newBorrowed, available: newAvail } : e));
+          try {
+            await updateDoc(doc(db, 'equipment', eq.id), {
+              borrowed: newBorrowed,
+              available: newAvail
+            });
+          } catch (err) {
+            console.error('Failed to restore equipment on request deletion:', err);
+          }
+        }
+      }
+    }
+    setRequests(prev => prev.filter(r => r.id !== requestId));
+    try {
+      await deleteDoc(doc(db, 'requests', requestId));
+    } catch (err) {
+      console.error('Failed to delete request from Firestore:', err);
+    }
+  };
+
+  const clearAllRequests = async () => {
+    try {
+      const reqSnapshot = await getDocs(collection(db, 'requests'));
+      const batch = writeBatch(db);
+      reqSnapshot.forEach((d) => batch.delete(d.ref));
+      await batch.commit();
+      setRequests([]);
+
+      // Reset equipment borrowed counts
+      const eqSnapshot = await getDocs(collection(db, 'equipment'));
+      const eqBatch = writeBatch(db);
+      eqSnapshot.forEach((d) => {
+        const eqData = d.data() as Equipment;
+        const available = eqData.total - (eqData.inRepair || 0) - (eqData.damaged || 0);
+        eqBatch.update(d.ref, { borrowed: 0, available: Math.max(0, available) });
+      });
+      await eqBatch.commit();
+
+      setEquipment(prev => prev.map(eq => ({
+        ...eq,
+        borrowed: 0,
+        available: Math.max(0, eq.total - (eq.inRepair || 0) - (eq.damaged || 0))
+      })));
+    } catch (err) {
+      console.error('Failed to clear all requests from Firestore:', err);
+    }
+  };
+
+  const clearActiveBorrowers = async () => {
+    try {
+      const activeReqs = requests.filter(r => r.status === 'approved' || r.status === 'overdue' || r.status === 'return_pending');
+      const batch = writeBatch(db);
+      activeReqs.forEach(r => batch.delete(doc(db, 'requests', r.id)));
+      await batch.commit();
+      setRequests(prev => prev.filter(r => !(r.status === 'approved' || r.status === 'overdue' || r.status === 'return_pending')));
+
+      // Reset equipment borrowed counts
+      const eqSnapshot = await getDocs(collection(db, 'equipment'));
+      const eqBatch = writeBatch(db);
+      eqSnapshot.forEach((d) => {
+        const eqData = d.data() as Equipment;
+        const available = eqData.total - (eqData.inRepair || 0) - (eqData.damaged || 0);
+        eqBatch.update(d.ref, { borrowed: 0, available: Math.max(0, available) });
+      });
+      await eqBatch.commit();
+
+      setEquipment(prev => prev.map(eq => ({
+        ...eq,
+        borrowed: 0,
+        available: Math.max(0, eq.total - (eq.inRepair || 0) - (eq.damaged || 0))
+      })));
+    } catch (err) {
+      console.error('Failed to clear active borrowers from Firestore:', err);
+    }
+  };
+
+  const addArrivalRecord = async (record: ArrivalRecord) => {
+    setArrivalRecords(prev => [record, ...prev]);
+    try {
+      await setDoc(doc(db, 'arrivals', record.id), record);
+    } catch (err) {
+      console.error('Failed to save arrival record to Firestore:', err);
+    }
+  };
+
+  const deleteArrivalRecord = async (recordId: string) => {
+    setArrivalRecords(prev => prev.filter(a => a.id !== recordId));
+    try {
+      await deleteDoc(doc(db, 'arrivals', recordId));
+    } catch (err) {
+      console.error('Failed to delete arrival record from Firestore:', err);
+    }
+  };
+
+  const clearArrivalRecords = async () => {
+    try {
+      const arrivalSnapshot = await getDocs(collection(db, 'arrivals'));
+      const batch = writeBatch(db);
+      arrivalSnapshot.forEach((d) => batch.delete(d.ref));
+      await batch.commit();
+      setArrivalRecords([]);
+    } catch (err) {
+      console.error('Failed to clear arrival records from Firestore:', err);
+    }
+  };
+
   const clearData = async () => {
     try {
-      console.log('Clearing data...');
-      // 1. Clear Requests
+      console.log('Clearing all records...');
+      // 1. Clear Requests & Active Borrowers
       const reqSnapshot = await getDocs(collection(db, 'requests'));
-      console.log(`Found ${reqSnapshot.size} requests to delete.`);
       const reqBatch = writeBatch(db);
       reqSnapshot.forEach((d) => reqBatch.delete(d.ref));
       await reqBatch.commit();
       setRequests([]);
-      console.log('Requests cleared.');
 
       // 2. Clear Users (except admin)
       const userSnapshot = await getDocs(collection(db, 'users'));
-      console.log(`Found ${userSnapshot.size} users to check for deletion.`);
       const userBatch = writeBatch(db);
       userSnapshot.forEach((d) => {
         if (d.id !== 'admin') {
-          console.log(`Deleting user ${d.id}`);
           userBatch.delete(d.ref);
         }
       });
       await userBatch.commit();
       setUsers(initialUsers.filter(u => u.id === 'admin'));
-      console.log('Users cleared.');
 
       // 3. Reset Equipment borrowed counts
       const eqSnapshot = await getDocs(collection(db, 'equipment'));
       const eqBatch = writeBatch(db);
       eqSnapshot.forEach((d) => {
         const eqData = d.data() as Equipment;
-        const available = eqData.total - eqData.inRepair - eqData.damaged;
-        eqBatch.update(d.ref, { borrowed: 0, available });
+        const available = eqData.total - (eqData.inRepair || 0) - (eqData.damaged || 0);
+        eqBatch.update(d.ref, { borrowed: 0, available: Math.max(0, available) });
       });
       await eqBatch.commit();
       
       setEquipment(prev => prev.map(eq => ({
         ...eq,
         borrowed: 0,
-        available: eq.total - eq.inRepair - eq.damaged
+        available: Math.max(0, eq.total - (eq.inRepair || 0) - (eq.damaged || 0))
       })));
-      console.log('Equipment records reset.');
+
+      // 4. Clear Arrivals Records
+      const arrSnapshot = await getDocs(collection(db, 'arrivals'));
+      const arrBatch = writeBatch(db);
+      arrSnapshot.forEach((d) => arrBatch.delete(d.ref));
+      await arrBatch.commit();
+      setArrivalRecords([]);
 
       localStorage.removeItem('csu_seeded_users');
       localStorage.removeItem('csu_seeded_requests');
@@ -426,9 +596,11 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     <AppContext.Provider value={{
       currentView, setView,
       currentUser, login, logout,
-      users, registerUser, updateUserStatus, updateUserDetails,
+      users, registerUser, updateUserStatus, updateUserDetails, deleteUser, clearAllUsers,
       equipment, addEquipment, deleteEquipment,
-      requests, submitBorrowRequest, updateRequestStatus, clearData,
+      requests, submitBorrowRequest, updateRequestStatus, deleteRequest, clearAllRequests, clearActiveBorrowers,
+      arrivalRecords, addArrivalRecord, deleteArrivalRecord, clearArrivalRecords,
+      clearData,
       isSyncing
     }}>
       {children}

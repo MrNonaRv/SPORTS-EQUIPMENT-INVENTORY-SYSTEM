@@ -48,10 +48,25 @@ export interface BorrowRequest {
   returnCondition?: 'Good' | 'Damaged';
 }
 
+export interface ArrivalRecord {
+  id: string;
+  equipmentName: string;
+  category: string;
+  quantity: number;
+  condition: string;
+  supplier?: string;
+  location: string;
+  description?: string;
+  notes?: string;
+  date: string;
+  receivedBy?: string;
+}
+
 export interface AppState {
   users: User[];
   equipment: Equipment[];
   requests: BorrowRequest[];
+  arrivalRecords?: ArrivalRecord[];
   currentUser: User | null;
   currentView: 'landing' | 'login_admin' | 'login_borrower' | 'signup' | 'public_dashboard' | 'borrower_dashboard' | 'admin_dashboard';
 }

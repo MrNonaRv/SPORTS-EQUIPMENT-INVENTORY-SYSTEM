@@ -59,6 +59,25 @@
         "requestDate": { "type": "string" }
       },
       "required": ["id", "userId", "purpose", "status"]
+    },
+    "arrivals": {
+      "title": "ArrivalRecord",
+      "description": "Logged records of newly arrived equipment",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "equipmentName": { "type": "string" },
+        "category": { "type": "string" },
+        "quantity": { "type": "number" },
+        "condition": { "type": "string" },
+        "supplier": { "type": "string" },
+        "location": { "type": "string" },
+        "description": { "type": "string" },
+        "notes": { "type": "string" },
+        "date": { "type": "string" },
+        "receivedBy": { "type": "string" }
+      },
+      "required": ["id", "equipmentName", "category", "quantity", "date"]
     }
   }
 }
