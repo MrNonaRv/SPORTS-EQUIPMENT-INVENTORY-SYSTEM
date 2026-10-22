@@ -621,7 +621,7 @@ export default function BorrowerDashboard() {
               ) : (
                 <div className="flex flex-col lg:flex-row gap-6 items-start">
                   {/* Left Column: Equipment Cards (Categorized Items) */}
-                  <div className="flex-1 w-full">
+                  <div className="flex-1 w-full max-h-[calc(100vh-14rem)] overflow-y-auto pr-2 scrollbar-thin">
                     {filteredEquipment.length === 0 ? (
                       <div className="bg-white border border-slate-200 rounded-xl p-12 text-center text-slate-400">
                         <Box className="w-12 h-12 mx-auto mb-3 text-slate-300" />
@@ -640,7 +640,7 @@ export default function BorrowerDashboard() {
                         </button>
                       </div>
                     ) : (
-                      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3.5">
                         {filteredEquipment.map(eq => {
                           const meta = getCategoryMeta(eq.category);
                           const inCart = cart.find(c => c.equipmentId === eq.id);
@@ -650,7 +650,7 @@ export default function BorrowerDashboard() {
                           return (
                             <div 
                               key={eq.id} 
-                              className={`bg-white border rounded-xl p-5 flex flex-col justify-between transition hover:shadow-sm ${
+                              className={`bg-white border rounded-xl p-4 flex flex-col justify-between transition hover:shadow-sm ${
                                 inCartCount > 0 
                                   ? 'border-amber-400 ring-1 ring-blue-400/30' 
                                   : 'border-slate-200 hover:border-slate-300'
@@ -658,13 +658,13 @@ export default function BorrowerDashboard() {
                             >
                               <div>
                                 {/* Category Badge and Available Count */}
-                                <div className="flex justify-between items-start mb-2.5">
-                                  <span className={`inline-flex items-center space-x-1 text-[11px] font-bold px-2.5 py-0.5 rounded-full ${meta.badgeBg} ${meta.badgeText}`}>
+                                <div className="flex justify-between items-start mb-2">
+                                  <span className={`inline-flex items-center space-x-1 text-[10px] font-bold px-2 py-0.5 rounded-full ${meta.badgeBg} ${meta.badgeText}`}>
                                     <CategoryIcon category={eq.category} className="w-3 h-3" />
                                     <span>{eq.category}</span>
                                   </span>
 
-                                  <span className={`text-xs font-bold px-2.5 py-0.5 rounded-full ${
+                                  <span className={`text-[11px] font-bold px-2 py-0.5 rounded-full ${
                                     eq.available > 0 
                                       ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' 
                                       : eq.damaged > 0
@@ -688,27 +688,27 @@ export default function BorrowerDashboard() {
                                 </div>
 
                                 {/* Equipment Name */}
-                                <h3 className="font-bold text-slate-900 text-base leading-tight mb-1">
+                                <h3 className="font-bold text-slate-900 text-sm leading-tight mb-1">
                                   {eq.name}
                                 </h3>
 
                                 {eq.description && (
-                                  <p className="text-xs text-slate-600 mb-2 line-clamp-2">
+                                  <p className="text-[11px] text-slate-600 mb-2 line-clamp-2">
                                     <span className="font-semibold text-slate-700">Details: </span>
                                     {eq.description}
                                   </p>
                                 )}
 
                                 {/* Equipment Location and Status */}
-                                <div className="text-xs text-slate-500 space-y-2 mb-4">
-                                  <div className="flex items-start space-x-2 bg-emerald-50 p-2 rounded-md border border-emerald-200">
-                                    <span className="text-emerald-700 mt-0.5 text-sm">📍</span>
+                                <div className="text-[11px] text-slate-500 space-y-1.5 mb-3">
+                                  <div className="flex items-start space-x-1.5 bg-emerald-50 p-1.5 rounded-md border border-emerald-200">
+                                    <span className="text-emerald-700 mt-0.5 text-xs">📍</span>
                                     <div className="flex flex-col">
-                                      <span className="text-[10px] font-bold text-emerald-800 uppercase tracking-wider">Facility / Exact Location</span>
-                                      <span className="text-slate-900 font-bold text-sm leading-tight">{eq.location || 'Main Sports Storage'}</span>
+                                      <span className="text-[9px] font-bold text-emerald-800 uppercase tracking-wider">Facility / Location</span>
+                                      <span className="text-slate-900 font-bold text-xs leading-tight">{eq.location || 'Main Sports Storage'}</span>
                                     </div>
                                   </div>
-                                  <div className="flex items-center space-x-2 text-[11px] text-slate-400">
+                                  <div className="flex items-center space-x-2 text-[10px] text-slate-400">
                                     <span>Available: {eq.available}</span>
                                     <span>•</span>
                                     <span>Borrowed: {eq.borrowed}</span>
@@ -723,43 +723,43 @@ export default function BorrowerDashboard() {
                               </div>
 
                               {/* Card Action Footer */}
-                              <div className="pt-3 border-t border-slate-100 flex items-center justify-between gap-2">
+                              <div className="pt-2.5 border-t border-slate-100 flex items-center justify-between gap-1.5">
                                 <div>
                                   {inCartCount > 0 ? (
-                                    <div className="flex items-center space-x-1 text-xs font-bold text-amber-600">
-                                      <Check className="w-3.5 h-3.5" />
+                                    <div className="flex items-center space-x-1 text-[11px] font-bold text-amber-600">
+                                      <Check className="w-3 h-3" />
                                       <span>{inCartCount} in voucher</span>
                                     </div>
                                   ) : (
-                                    <span className="text-xs text-slate-400 font-medium">
-                                      {eq.available > 0 ? 'Ready to borrow' : eq.damaged > 0 ? 'Currently damaged' : eq.inRepair > 0 ? 'Under maintenance' : eq.borrowed > 0 ? 'Currently borrowed' : 'Unavailable'}
+                                    <span className="text-[11px] text-slate-400 font-medium">
+                                      {eq.available > 0 ? 'Ready' : 'Unavailable'}
                                     </span>
                                   )}
                                 </div>
 
-                                <div className="flex items-center space-x-2">
+                                <div className="flex items-center space-x-1.5">
                                   {inCartCount > 0 && (
-                                    <div className="flex items-center border border-slate-200 rounded-lg bg-slate-50 overflow-hidden">
+                                    <div className="flex items-center border border-slate-200 rounded-md bg-slate-50 overflow-hidden">
                                       <button
                                         type="button"
                                         onClick={() => {
                                           const idx = cart.findIndex(c => c.equipmentId === eq.id);
                                           if (idx >= 0) updateCartQuantity(idx, inCartCount - 1);
                                         }}
-                                        className="p-1.5 hover:bg-slate-200 text-slate-600 transition"
+                                        className="p-1 hover:bg-slate-200 text-slate-600 transition"
                                         title="Decrease quantity"
                                       >
-                                        <Minus className="w-3 h-3" />
+                                        <Minus className="w-2.5 h-2.5" />
                                       </button>
-                                      <span className="px-2 text-xs font-bold text-slate-800">{inCartCount}</span>
+                                      <span className="px-1.5 text-[11px] font-bold text-slate-800">{inCartCount}</span>
                                       <button
                                         type="button"
                                         disabled={availableToAdd <= 0}
                                         onClick={() => addToCart(eq.id, 1)}
-                                        className="p-1.5 hover:bg-slate-200 text-slate-600 disabled:opacity-30 disabled:cursor-not-allowed transition"
+                                        className="p-1 hover:bg-slate-200 text-slate-600 disabled:opacity-30 disabled:cursor-not-allowed transition"
                                         title="Increase quantity"
                                       >
-                                        <Plus className="w-3 h-3" />
+                                        <Plus className="w-2.5 h-2.5" />
                                       </button>
                                     </div>
                                   )}
@@ -768,7 +768,7 @@ export default function BorrowerDashboard() {
                                     type="button"
                                     disabled={eq.available <= 0 || availableToAdd <= 0}
                                     onClick={() => addToCart(eq.id, 1)}
-                                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center space-x-1 ${
+                                    className={`px-2.5 py-1 rounded-md text-[11px] font-bold transition flex items-center space-x-1 ${
                                       eq.available <= 0
                                         ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
                                         : availableToAdd <= 0
@@ -778,8 +778,8 @@ export default function BorrowerDashboard() {
                                             : 'bg-amber-600 text-white hover:bg-amber-700 shadow-2xs'
                                     }`}
                                   >
-                                    <Plus className="w-3.5 h-3.5" />
-                                    <span>{inCartCount > 0 ? 'Add More' : 'Add Item'}</span>
+                                    <Plus className="w-3 h-3" />
+                                    <span>{inCartCount > 0 ? 'Add More' : 'Add'}</span>
                                   </button>
                                 </div>
                               </div>
@@ -790,45 +790,45 @@ export default function BorrowerDashboard() {
                     )}
                   </div>
 
-                  {/* Right Column: Consolidated Voucher Cart Checkout Sidebar */}
-                  <div className="w-full lg:w-[410px] shrink-0">
-                    <div className="bg-white border border-slate-200 rounded-xl p-5 sticky top-6 shadow-xs">
+                  {/* Right Column: Consolidated Voucher Cart Checkout Sidebar (Non-scrollable) */}
+                  <div className="w-full lg:w-[380px] shrink-0">
+                    <div className="bg-white border border-slate-200 rounded-xl p-4 sticky top-4 shadow-xs">
                       {/* Cart Header */}
-                      <div className="flex justify-between items-center pb-3.5 border-b border-slate-200 mb-4">
+                      <div className="flex justify-between items-center pb-3 border-b border-slate-200 mb-3">
                         <div className="flex items-center space-x-2">
-                          <ShoppingBag className="w-5 h-5 text-amber-600" />
-                          <h3 className="font-bold text-slate-900 text-base">Consolidated Voucher</h3>
+                          <ShoppingBag className="w-4 h-4 text-amber-600" />
+                          <h3 className="font-bold text-slate-900 text-sm">Consolidated Voucher</h3>
                         </div>
                         {cart.length > 0 && (
                           <button
                             type="button"
                             onClick={clearCart}
-                            className="text-xs font-semibold text-red-500 hover:text-red-700 transition"
+                            className="text-[11px] font-semibold text-red-500 hover:text-red-700 transition"
                           >
                             Clear All
                           </button>
                         )}
                       </div>
 
-                      <form onSubmit={handleBorrowSubmit} className="space-y-4">
+                      <form onSubmit={handleBorrowSubmit} className="space-y-3">
                         {/* Cart Bundled Items List */}
                         <div>
-                          <div className="flex justify-between items-center mb-2">
-                            <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                          <div className="flex justify-between items-center mb-1.5">
+                            <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
                               Bundled Gear ({cart.length} items • {totalCartUnits} units)
                             </span>
                           </div>
 
                           {cart.length === 0 ? (
-                            <div className="text-center py-8 px-4 border-2 border-dashed border-slate-200 rounded-xl bg-slate-50/70">
-                              <ShoppingBag className="w-8 h-8 mx-auto text-slate-300 mb-2" />
-                              <p className="text-xs font-bold text-slate-600">Your voucher cart is empty</p>
-                              <p className="text-[11px] text-slate-400 mt-0.5">
-                                Select items from any sport category above to bundle them into this request.
+                            <div className="text-center py-6 px-3 border-2 border-dashed border-slate-200 rounded-xl bg-slate-50/70">
+                              <ShoppingBag className="w-7 h-7 mx-auto text-slate-300 mb-1.5" />
+                              <p className="text-[11px] font-bold text-slate-600">Your voucher cart is empty</p>
+                              <p className="text-[10px] text-slate-400 mt-0.5">
+                                Select items from any sport category above to bundle them.
                               </p>
                             </div>
                           ) : (
-                            <ul className="space-y-2.5 max-h-[260px] overflow-y-auto pr-1 scrollbar-thin">
+                            <ul className="space-y-2">
                               {cart.map((item, index) => {
                                 const eq = equipment.find(e => e.id === item.equipmentId);
                                 const meta = getCategoryMeta(eq?.category || 'Other');
@@ -837,34 +837,34 @@ export default function BorrowerDashboard() {
                                 return (
                                   <li 
                                     key={item.equipmentId}
-                                    className="p-3 bg-slate-50 rounded-xl border border-slate-200/80 flex items-center justify-between gap-2"
+                                    className="p-2.5 bg-slate-50 rounded-lg border border-slate-200/80 flex items-center justify-between gap-2"
                                   >
-                                    <div className="flex-1 min-w-0 pr-2">
-                                      <div className="flex items-center space-x-1.5 mb-1">
-                                        <span className={`text-[10px] font-bold px-2 py-0.2 rounded-full ${meta.badgeBg} ${meta.badgeText}`}>
+                                    <div className="flex-1 min-w-0 pr-1">
+                                      <div className="flex items-center space-x-1 mb-0.5">
+                                        <span className={`text-[9px] font-bold px-1.5 py-0.2 rounded-full ${meta.badgeBg} ${meta.badgeText}`}>
                                           {eq?.category}
                                         </span>
                                       </div>
-                                      <div className="text-xs font-bold text-slate-900 truncate">
+                                      <div className="text-[11px] font-bold text-slate-900 truncate">
                                         {eq?.name || 'Equipment'}
                                       </div>
-                                      <div className="text-[11px] text-slate-400">
-                                        Max available: {maxAvail}
+                                      <div className="text-[10px] text-slate-400">
+                                        Max avail: {maxAvail}
                                       </div>
                                     </div>
 
                                     {/* Quantity Stepper and Delete */}
-                                    <div className="flex items-center space-x-2 shrink-0">
-                                      <div className="flex items-center border border-slate-200 bg-white rounded-lg shadow-2xs overflow-hidden">
+                                    <div className="flex items-center space-x-1.5 shrink-0">
+                                      <div className="flex items-center border border-slate-200 bg-white rounded-md shadow-2xs overflow-hidden">
                                         <button
                                           type="button"
                                           onClick={() => updateCartQuantity(index, item.quantity - 1)}
                                           className="p-1 hover:bg-slate-100 text-slate-600 transition"
                                           title="Decrease"
                                         >
-                                          <Minus className="w-3 h-3" />
+                                          <Minus className="w-2.5 h-2.5" />
                                         </button>
-                                        <span className="w-6 text-center text-xs font-bold text-slate-800">
+                                        <span className="w-5 text-center text-[11px] font-bold text-slate-800">
                                           {item.quantity}
                                         </span>
                                         <button
@@ -874,7 +874,7 @@ export default function BorrowerDashboard() {
                                           className="p-1 hover:bg-slate-100 text-slate-600 disabled:opacity-30 disabled:cursor-not-allowed transition"
                                           title="Increase"
                                         >
-                                          <Plus className="w-3 h-3" />
+                                          <Plus className="w-2.5 h-2.5" />
                                         </button>
                                       </div>
 
@@ -884,7 +884,7 @@ export default function BorrowerDashboard() {
                                         className="p-1 text-slate-400 hover:text-red-500 transition"
                                         title="Remove from bundle"
                                       >
-                                        <Trash2 className="w-3.5 h-3.5" />
+                                        <Trash2 className="w-3 h-3" />
                                       </button>
                                     </div>
                                   </li>
