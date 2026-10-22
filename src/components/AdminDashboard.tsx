@@ -178,12 +178,12 @@ export default function AdminDashboard() {
 
       {/* Sidebar (Desktop & Mobile Drawer) */}
       <div className={`
-        fixed lg:static inset-y-0 left-0 z-50 w-64 bg-white/95 backdrop-blur-md border-r border-slate-200/50 
-        flex flex-col print:hidden shadow-2xl lg:shadow-[4px_0_24px_rgba(0,0,0,0.02)]
+        fixed lg:sticky lg:top-0 h-screen inset-y-0 left-0 z-50 w-64 bg-white/95 backdrop-blur-md border-r border-slate-200/50 
+        flex flex-col shrink-0 overflow-hidden print:hidden shadow-2xl lg:shadow-[4px_0_24px_rgba(0,0,0,0.02)]
         transform transition-transform duration-300 ease-in-out
         ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
       `}>
-        <div className="p-6 border-b border-slate-200 flex items-center justify-between">
+        <div className="p-6 border-b border-slate-200 flex items-center justify-between shrink-0">
           <div>
             <div className="w-12 h-12 bg-emerald-900 rounded-full flex items-center justify-center text-white font-bold text-xl mb-3">
               {currentUser.name.split(' ').map(n => n[0]).join('').substring(0,2)}
@@ -199,7 +199,7 @@ export default function AdminDashboard() {
           </button>
         </div>
         
-        <nav className="flex-1 py-4 space-y-1">
+        <nav className="flex-1 py-4 space-y-1 overflow-y-auto scrollbar-thin">
           <div onClick={() => setMobileMenuOpen(false)}><NavItem icon={<LayoutDashboard />} label="Dashboard" active={activeTab === 'dashboard'} onClick={() => setActiveTab('dashboard')} /></div>
           <div onClick={() => setMobileMenuOpen(false)}><NavItem icon={<Users />} label="Active Borrowers" active={activeTab === 'active_borrowers'} onClick={() => setActiveTab('active_borrowers')} /></div>
           <div onClick={() => setMobileMenuOpen(false)}><NavItem icon={<Bell />} label="Borrow Requests" active={activeTab === 'requests'} onClick={() => setActiveTab('requests')} badge={pendingRequests.length} /></div>
@@ -208,7 +208,7 @@ export default function AdminDashboard() {
           <div onClick={() => setMobileMenuOpen(false)}><NavItem icon={<FileBarChart />} label="Reports Center" active={activeTab === 'reports'} onClick={() => setActiveTab('reports')} /></div>
         </nav>
 
-        <div className="p-4 border-t border-slate-200 space-y-3">
+        <div className="p-4 border-t border-slate-200 space-y-3 shrink-0 bg-white/95">
           <button 
             onClick={async () => {
               if (window.confirm('Are you sure you want to delete and clear ALL records (Active Borrowers, Borrow Requests, Registered Users, and New Arrivals)? This will reset borrowed equipment and cannot be undone.')) {
