@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useAppContext } from '../context/AppContext';
-import { LogOut, LayoutDashboard, Users, Bell, UserCog, PackagePlus, FileBarChart, Check, X, RefreshCw, Box, Wrench, XCircle, Trophy, Layers, Search, UserCheck, Trash2 } from 'lucide-react';
+import { LogOut, LayoutDashboard, Users, Bell, UserCog, PackagePlus, FileBarChart, Check, X, RefreshCw, Box, Wrench, XCircle, Trophy, Layers, Search, UserCheck, Trash2, Menu } from 'lucide-react';
 import { BorrowRequest, Equipment } from '../types';
 import { getCategoryMeta } from '../data/categoryData';
 import { CategoryIcon } from './CategoryIcon';
@@ -31,6 +31,7 @@ export default function AdminDashboard() {
     clearData 
   } = useAppContext();
   const [activeTab, setActiveTab] = useState<'dashboard' | 'requests' | 'users' | 'arrivals' | 'reports' | 'active_borrowers'>('dashboard');
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeOverlay, setActiveOverlay] = useState<string | null>(null);
 
   // Profile Edit State
@@ -167,23 +168,44 @@ export default function AdminDashboard() {
       {/* Background Overlay */}
       <div className="absolute inset-0 bg-slate-100/85 backdrop-blur-[2px] z-0 print:hidden"></div>
 
-      {/* Sidebar */}
-      <div className="w-64 bg-white/95 backdrop-blur-md border-r border-slate-200/50 flex flex-col print:hidden relative z-10 shadow-[4px_0_24px_rgba(0,0,0,0.02)]">
-        <div className="p-6 border-b border-slate-200">
-          <div className="w-12 h-12 bg-emerald-900 rounded-full flex items-center justify-center text-white font-bold text-xl mb-3">
-            {currentUser.name.split(' ').map(n => n[0]).join('').substring(0,2)}
+      {/* Mobile Backdrop */}
+      {mobileMenuOpen && (
+        <div 
+          onClick={() => setMobileMenuOpen(false)}
+          className="fixed inset-0 bg-slate-900/50 z-40 lg:hidden backdrop-blur-xs transition-opacity print:hidden"
+        />
+      )}
+
+      {/* Sidebar (Desktop & Mobile Drawer) */}
+      <div className={`
+        fixed lg:static inset-y-0 left-0 z-50 w-64 bg-white/95 backdrop-blur-md border-r border-slate-200/50 
+        flex flex-col print:hidden shadow-2xl lg:shadow-[4px_0_24px_rgba(0,0,0,0.02)]
+        transform transition-transform duration-300 ease-in-out
+        ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+      `}>
+        <div className="p-6 border-b border-slate-200 flex items-center justify-between">
+          <div>
+            <div className="w-12 h-12 bg-emerald-900 rounded-full flex items-center justify-center text-white font-bold text-xl mb-3">
+              {currentUser.name.split(' ').map(n => n[0]).join('').substring(0,2)}
+            </div>
+            <h3 className="font-bold">{currentUser.name}</h3>
+            <p className="text-xs text-emerald-900 uppercase tracking-wider">ADMINISTRATOR</p>
           </div>
-          <h3 className="font-bold">{currentUser.name}</h3>
-          <p className="text-xs text-emerald-900 uppercase tracking-wider">ADMINISTRATOR</p>
+          <button 
+            onClick={() => setMobileMenuOpen(false)}
+            className="lg:hidden text-slate-400 hover:text-slate-600 p-1 rounded-lg"
+          >
+            <X className="w-6 h-6" />
+          </button>
         </div>
         
-        <nav className="flex-1 py-4">
-          <NavItem icon={<LayoutDashboard />} label="Dashboard" active={activeTab === 'dashboard'} onClick={() => setActiveTab('dashboard')} />
-          <NavItem icon={<Users />} label="Active Borrowers" active={activeTab === 'active_borrowers'} onClick={() => setActiveTab('active_borrowers')} />
-          <NavItem icon={<Bell />} label="Borrow Requests" active={activeTab === 'requests'} onClick={() => setActiveTab('requests')} badge={pendingRequests.length} />
-          <NavItem icon={<UserCog />} label="Manage Users" active={activeTab === 'users'} onClick={() => setActiveTab('users')} badge={pendingUsers.length} />
-          <NavItem icon={<PackagePlus />} label="New Arrivals" active={activeTab === 'arrivals'} onClick={() => setActiveTab('arrivals')} />
-          <NavItem icon={<FileBarChart />} label="Reports Center" active={activeTab === 'reports'} onClick={() => setActiveTab('reports')} />
+        <nav className="flex-1 py-4 space-y-1">
+          <div onClick={() => setMobileMenuOpen(false)}><NavItem icon={<LayoutDashboard />} label="Dashboard" active={activeTab === 'dashboard'} onClick={() => setActiveTab('dashboard')} /></div>
+          <div onClick={() => setMobileMenuOpen(false)}><NavItem icon={<Users />} label="Active Borrowers" active={activeTab === 'active_borrowers'} onClick={() => setActiveTab('active_borrowers')} /></div>
+          <div onClick={() => setMobileMenuOpen(false)}><NavItem icon={<Bell />} label="Borrow Requests" active={activeTab === 'requests'} onClick={() => setActiveTab('requests')} badge={pendingRequests.length} /></div>
+          <div onClick={() => setMobileMenuOpen(false)}><NavItem icon={<UserCog />} label="Manage Users" active={activeTab === 'users'} onClick={() => setActiveTab('users')} badge={pendingUsers.length} /></div>
+          <div onClick={() => setMobileMenuOpen(false)}><NavItem icon={<PackagePlus />} label="New Arrivals" active={activeTab === 'arrivals'} onClick={() => setActiveTab('arrivals')} /></div>
+          <div onClick={() => setMobileMenuOpen(false)}><NavItem icon={<FileBarChart />} label="Reports Center" active={activeTab === 'reports'} onClick={() => setActiveTab('reports')} /></div>
         </nav>
 
         <div className="p-4 border-t border-slate-200 space-y-3">
@@ -212,13 +234,20 @@ export default function AdminDashboard() {
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col h-screen overflow-hidden print:h-auto print:overflow-visible relative z-10">
-        <header className="flex justify-between items-center px-8 py-4 border-b border-slate-200/50 bg-white/95 backdrop-blur-md shadow-sm relative z-20 print:hidden">
-          <div className="flex items-center space-x-3 text-emerald-900 font-bold text-lg tracking-wide">
-            <div className="bg-amber-600 p-1.5 rounded-lg">
+      <div className="flex-1 flex flex-col min-h-screen overflow-x-hidden print:h-auto print:overflow-visible relative z-10 w-full">
+        <header className="flex justify-between items-center px-4 sm:px-8 py-4 border-b border-slate-200/50 bg-white/95 backdrop-blur-md shadow-sm relative z-20 print:hidden">
+          <div className="flex items-center space-x-3 text-emerald-900 font-bold text-base sm:text-lg tracking-wide">
+            <button 
+              onClick={() => setMobileMenuOpen(true)}
+              className="lg:hidden p-2 text-slate-700 hover:text-emerald-900 rounded-lg hover:bg-slate-100 transition"
+              title="Open Menu"
+            >
+              <Menu className="w-6 h-6" />
+            </button>
+            <div className="bg-amber-600 p-1.5 rounded-lg hidden sm:block">
               <Trophy className="w-5 h-5 text-white" />
             </div>
-            <span>CSU Sports Inventory - Admin Control Center</span>
+            <span className="truncate">CSU Sports - Admin Control</span>
           </div>
           <div className="text-sm flex items-center space-x-2">
             <span className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]"></span>

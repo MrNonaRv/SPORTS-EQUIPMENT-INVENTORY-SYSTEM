@@ -20,7 +20,9 @@ import {
   Layers,
   ShoppingBag,
   Info,
-  CheckCircle2
+  CheckCircle2,
+  Menu,
+  X
 } from 'lucide-react';
 import { BorrowRequest } from '../types';
 import { getCategoryMeta } from '../data/categoryData';
@@ -29,6 +31,7 @@ import { CategoryIcon } from './CategoryIcon';
 export default function BorrowerDashboard() {
   const { currentUser, logout, equipment, requests, submitBorrowRequest, updateRequestStatus } = useAppContext();
   const [activeTab, setActiveTab] = useState<'dashboard' | 'borrow' | 'notifications'>('dashboard');
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [returnConditions, setReturnConditions] = useState<Record<string, 'Good' | 'Damaged'>>({});
 
   const userRequests = requests.filter(r => r.userId === currentUser?.id);
@@ -241,40 +244,66 @@ export default function BorrowerDashboard() {
   const activeCategoryMeta = selectedCategory !== 'All' ? getCategoryMeta(selectedCategory) : null;
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 flex font-sans">
-      {/* Sidebar Navigation */}
-      <div className="w-64 bg-white border-r border-slate-200 flex flex-col shrink-0">
-        <div className="p-6 border-b border-slate-200">
-          <div className="w-12 h-12 bg-emerald-900 rounded-full flex items-center justify-center text-white font-bold text-xl mb-3 shadow-sm">
-            {currentUser.name.split(' ').map(n => n[0]).join('').substring(0,2)}
+    <div className="min-h-screen bg-slate-50 text-slate-900 flex font-sans relative overflow-x-hidden">
+      {/* Mobile Backdrop */}
+      {mobileMenuOpen && (
+        <div 
+          onClick={() => setMobileMenuOpen(false)}
+          className="fixed inset-0 bg-slate-900/50 z-40 lg:hidden backdrop-blur-xs transition-opacity"
+        />
+      )}
+
+      {/* Sidebar Navigation (Desktop & Mobile Drawer) */}
+      <div className={`
+        fixed lg:static inset-y-0 left-0 z-50 w-64 bg-white border-r border-slate-200 flex flex-col shrink-0 
+        transform transition-transform duration-300 ease-in-out shadow-xl lg:shadow-none
+        ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+      `}>
+        <div className="p-6 border-b border-slate-200 flex items-center justify-between">
+          <div>
+            <div className="w-12 h-12 bg-emerald-900 rounded-full flex items-center justify-center text-white font-bold text-xl mb-3 shadow-sm">
+              {currentUser.name.split(' ').map(n => n[0]).join('').substring(0,2)}
+            </div>
+            <h3 className="font-bold text-slate-900 leading-snug">{currentUser.name}</h3>
+            <p className="text-xs text-emerald-900 font-semibold uppercase tracking-wider mt-0.5">{currentUser.role} BORROWER</p>
+            <p className="text-[11px] font-medium text-slate-500 mt-1">ID: {currentUser.id}</p>
+            <p className="text-[11px] text-slate-400 mt-0.5">{currentUser.department || 'Student Portal'}</p>
           </div>
-          <h3 className="font-bold text-slate-900 leading-snug">{currentUser.name}</h3>
-          <p className="text-xs text-emerald-900 font-semibold uppercase tracking-wider mt-0.5">{currentUser.role} BORROWER</p>
-          <p className="text-[11px] font-medium text-slate-500 mt-1">ID: {currentUser.id}</p>
-          <p className="text-[11px] text-slate-400 mt-0.5">{currentUser.department || 'Student Portal'}</p>
+          <button 
+            onClick={() => setMobileMenuOpen(false)}
+            className="lg:hidden text-slate-400 hover:text-slate-600 p-1 rounded-lg"
+          >
+            <X className="w-6 h-6" />
+          </button>
         </div>
         
         <nav className="flex-1 py-4 space-y-1">
-          <NavItem 
-            icon={<LayoutDashboard className="w-5 h-5" />} 
-            label="Dashboard" 
-            active={activeTab === 'dashboard'} 
-            onClick={() => setActiveTab('dashboard')} 
-          />
-          <NavItem 
-            icon={<CalendarPlus className="w-5 h-5" />} 
-            label="Borrow Equipment" 
-            active={activeTab === 'borrow'} 
-            onClick={() => setActiveTab('borrow')} 
-            badge={totalCartUnits > 0 ? totalCartUnits : undefined}
-          />
-          <NavItem 
-            icon={<Bell className="w-5 h-5" />} 
-            label="Notifications" 
-            active={activeTab === 'notifications'} 
-            onClick={() => setActiveTab('notifications')} 
-            badge={userRequests.filter(r => r.status === 'pending' || r.status === 'approved').length} 
-          />
+          <div onClick={() => setMobileMenuOpen(false)}>
+            <NavItem 
+              icon={<LayoutDashboard className="w-5 h-5" />} 
+              label="Dashboard" 
+              active={activeTab === 'dashboard'} 
+              onClick={() => setActiveTab('dashboard')} 
+            />
+          </div>
+          <div onClick={() => setMobileMenuOpen(false)}>
+            <NavItem 
+              icon={<CalendarPlus className="w-5 h-5" />} 
+              label="Borrow Equipment" 
+              active={activeTab === 'borrow'} 
+              onClick={() => setActiveTab('borrow')} 
+              badge={totalCartUnits > 0 ? totalCartUnits : undefined}
+            />
+          </div>
+          <div onClick={() => setMobileMenuOpen(false)}>
+            <NavItem 
+              icon={<Bell className="w-5 h-5" />} 
+              label="Notifications" 
+              active={activeTab === 'notifications'} 
+              onClick={() => setActiveTab('notifications')} 
+              badge={userRequests.filter(r => r.status === 'pending' || r.status === 'approved').length} 
+            />
+          </div>
         </nav>
 
         <div className="p-4 border-t border-slate-200">
@@ -289,16 +318,26 @@ export default function BorrowerDashboard() {
       </div>
 
       {/* Main Content Area */}
-      <div className="flex-1 flex flex-col h-screen overflow-hidden">
+      <div className="flex-1 flex flex-col min-h-screen overflow-x-hidden w-full">
         {/* Header Bar */}
-        <header className="flex justify-between items-center px-8 py-3.5 border-b border-slate-200 bg-white shadow-xs shrink-0">
+        <header className="flex justify-between items-center px-4 sm:px-8 py-3.5 border-b border-slate-200 bg-white shadow-xs shrink-0">
           <div className="flex items-center space-x-3 text-sm text-slate-600">
-            <span className="font-semibold text-emerald-900">CSU MSAC Sports Management</span>
-            <span className="text-slate-300">/</span>
-            <span>Student Borrowing Station</span>
+            <button 
+              onClick={() => setMobileMenuOpen(true)}
+              className="lg:hidden p-2 text-slate-700 hover:text-emerald-900 rounded-lg hover:bg-slate-100 transition"
+              title="Open Menu"
+            >
+              <Menu className="w-6 h-6" />
+            </button>
+            <div className="hidden sm:flex items-center space-x-2">
+              <span className="font-semibold text-emerald-900">CSU MSAC Sports Management</span>
+              <span className="text-slate-300">/</span>
+              <span>Student Borrowing Station</span>
+            </div>
+            <div className="sm:hidden font-bold text-emerald-900">CSU MSAC Sports</div>
           </div>
-          <div className="text-sm flex items-center space-x-3">
-            <div className="flex items-center space-x-1.5 bg-slate-100 px-3 py-1.5 rounded-full text-slate-700 text-xs font-medium">
+          <div className="text-sm flex items-center space-x-2 sm:space-x-3">
+            <div className="hidden sm:flex items-center space-x-1.5 bg-slate-100 px-3 py-1.5 rounded-full text-slate-700 text-xs font-medium">
               <span className="w-2 h-2 rounded-full bg-green-500"></span>
               <span>Online: <strong className="text-slate-900">{currentUser.name}</strong></span>
             </div>
@@ -315,7 +354,7 @@ export default function BorrowerDashboard() {
         </header>
 
         {/* Tab Contents */}
-        <main className="flex-1 overflow-y-auto p-8">
+        <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-full overflow-x-hidden">
           {/* TAB 1: OVERVIEW DASHBOARD */}
           {activeTab === 'dashboard' && (
             <div className="max-w-5xl mx-auto">
@@ -670,7 +709,7 @@ export default function BorrowerDashboard() {
                                     </div>
                                   </div>
                                   <div className="flex items-center space-x-2 text-[11px] text-slate-400">
-                                    <span>Total: {eq.total}</span>
+                                    <span>Available: {eq.available}</span>
                                     <span>•</span>
                                     <span>Borrowed: {eq.borrowed}</span>
                                     {eq.inRepair > 0 && (
