@@ -19,6 +19,7 @@ export default function AdminDashboard() {
     addEquipment, 
     updateUserDetails, 
     deleteEquipment, 
+    updateEquipment,
     deleteUser,
     clearAllUsers,
     deleteRequest,
@@ -439,16 +440,27 @@ export default function AdminDashboard() {
                             </td>
                             <td className="px-6 py-4 text-center text-slate-500 text-xs">{eq.lastChecked || 'N/A'}</td>
                             <td className="px-6 py-4 text-center">
-                              <button 
-                                onClick={() => {
-                                  if (window.confirm(`Are you sure you want to delete ${eq.name}?`)) {
-                                    deleteEquipment(eq.id);
-                                  }
-                                }}
-                                className="text-red-500 hover:text-red-700 transition"
-                              >
-                                <Trash2 className="w-4 h-4" />
-                              </button>
+                              <div className="flex items-center justify-center gap-2">
+                                {eq.damaged > 0 && (
+                                  <button 
+                                    onClick={() => updateEquipment(eq.id, { damaged: 0, available: eq.available + eq.damaged })}
+                                    className="text-xs border border-emerald-400 text-emerald-800 bg-emerald-100 hover:bg-emerald-200 font-bold px-3 py-1.5 rounded-lg shadow-sm transition"
+                                    title="Mark as Repaired"
+                                  >
+                                    Repair
+                                  </button>
+                                )}
+                                <button 
+                                  onClick={() => {
+                                    if (window.confirm(`Are you sure you want to delete ${eq.name}?`)) {
+                                      deleteEquipment(eq.id);
+                                    }
+                                  }}
+                                  className="text-red-500 hover:text-red-700 transition p-1.5 rounded-lg hover:bg-red-50"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </button>
+                              </div>
                             </td>
                           </tr>
                         );

@@ -23,6 +23,7 @@ interface AppContextType extends AppState {
   deleteUser: (userId: string) => Promise<void>;
   clearAllUsers: () => Promise<void>;
   addEquipment: (equipment: Equipment) => Promise<void>;
+  updateEquipment: (equipmentId: string, updates: Partial<Equipment>) => Promise<void>;
   deleteEquipment: (equipmentId: string) => Promise<void>;
   submitBorrowRequest: (request: BorrowRequest) => Promise<void>;
   updateRequestStatus: (requestId: string, status: RequestStatus, returnCondition?: 'Good' | 'Damaged') => Promise<void>;
@@ -333,6 +334,15 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     }
   };
 
+  const updateEquipment = async (equipmentId: string, updates: Partial<Equipment>) => {
+    setEquipment(prev => prev.map(e => e.id === equipmentId ? { ...e, ...updates } : e));
+    try {
+      await updateDoc(doc(db, 'equipment', equipmentId), updates);
+    } catch (err) {
+      console.error('Failed to update equipment in Firestore:', err);
+    }
+  };
+
   const deleteEquipment = async (equipmentId: string) => {
     setEquipment(prev => prev.filter(e => e.id !== equipmentId));
     try {
@@ -597,7 +607,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       currentView, setView,
       currentUser, login, logout,
       users, registerUser, updateUserStatus, updateUserDetails, deleteUser, clearAllUsers,
-      equipment, addEquipment, deleteEquipment,
+      equipment, addEquipment, updateEquipment, deleteEquipment,
       requests, submitBorrowRequest, updateRequestStatus, deleteRequest, clearAllRequests, clearActiveBorrowers,
       arrivalRecords, addArrivalRecord, deleteArrivalRecord, clearArrivalRecords,
       clearData,
