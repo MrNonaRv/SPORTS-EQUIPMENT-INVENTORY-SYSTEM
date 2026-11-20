@@ -1,11 +1,14 @@
 @import "tailwindcss";
 
 @theme {
-  --font-sans: "Oswald", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
-  --font-teko: "Teko", sans-serif;
+  --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-display: "Barlow Condensed", ui-sans-serif, sans-serif;
+  --font-teko: "Barlow Condensed", ui-sans-serif, sans-serif;
 }
 
 body {
-  font-family: "Oswald", sans-serif;
-  letter-spacing: 0.02em;
+  font-family: "Plus Jakarta Sans", sans-serif;
+  background-color: #091122;
+  color: #cbd5e1;
+  letter-spacing: 0.01em;
 }

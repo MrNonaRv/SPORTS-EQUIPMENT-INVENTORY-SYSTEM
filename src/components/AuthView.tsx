@@ -73,40 +73,40 @@ const AuthView: React.FC<AuthViewProps> = ({ type }) => {
 
   return (
     <div 
-      className="min-h-screen bg-slate-100 text-slate-900 flex flex-col font-sans relative bg-cover bg-center"
+      className="min-h-screen bg-[#080e1e] text-slate-300 flex flex-col font-sans relative bg-cover bg-center"
       style={{ backgroundImage: 'url("https://images.unsplash.com/photo-1517649763962-0c623066013b?q=80&w=2000&auto=format&fit=crop")' }}
     >
-      {/* Dark Overlay */}
-      <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm z-0"></div>
+      {/* Dark Navy Overlay */}
+      <div className="absolute inset-0 bg-[#070d1e]/85 backdrop-blur-sm z-0"></div>
 
-      {/* Sporty Header Accent */}
-      <div className="h-4 bg-emerald-900 w-full absolute top-0 left-0 z-10"></div>
+      {/* Sporty Yellow Accent Bar */}
+      <div className="h-2 bg-yellow-400 w-full absolute top-0 left-0 z-10"></div>
 
       <div className="flex-1 flex items-center justify-center p-6 relative z-10">
-        <div className="w-full max-w-md bg-white rounded-2xl shadow-xl overflow-hidden">
+        <div className="w-full max-w-md bg-[#101b38] border border-blue-900/60 rounded-2xl shadow-2xl overflow-hidden">
           {/* Top colored banner for the card */}
-          <div className="bg-emerald-900 p-6 flex flex-col items-center justify-center relative">
+          <div className="bg-[#0b142a] p-6 flex flex-col items-center justify-center relative border-b border-blue-900/50">
             <button 
               onClick={() => setView('landing')}
-              className="absolute top-4 left-4 text-emerald-300 hover:text-white flex items-center text-sm transition-colors"
+              className="absolute top-4 left-4 text-slate-400 hover:text-yellow-400 flex items-center text-sm transition-colors cursor-pointer"
             >
               <ArrowLeft className="w-4 h-4 mr-1" /> Back
             </button>
-            <div className="bg-white p-3 rounded-full mb-3 shadow-md mt-6">
+            <div className="bg-blue-900/60 p-3 rounded-full mb-3 shadow-md mt-6 border border-blue-700/50">
               {type === 'signup' ? (
-                <ClipboardList className="w-8 h-8 text-emerald-900" />
+                <ClipboardList className="w-8 h-8 text-yellow-400" />
               ) : type === 'login_admin' ? (
-                <Key className="w-8 h-8 text-emerald-900" />
+                <Key className="w-8 h-8 text-yellow-400" />
               ) : (
-                <UserIcon className="w-8 h-8 text-emerald-900" />
+                <UserIcon className="w-8 h-8 text-yellow-400" />
               )}
             </div>
-            <h2 className="text-2xl font-bold text-white text-center">
+            <h2 className="text-2xl font-bold text-white text-center font-display tracking-wide uppercase">
               {type === 'login_admin' && 'Admin Login'}
               {type === 'login_borrower' && 'Borrower Portal'}
               {type === 'signup' && 'Create Account'}
             </h2>
-            <p className="text-emerald-200 text-sm text-center mt-2 max-w-[280px]">
+            <p className="text-slate-400 text-xs sm:text-sm text-center mt-1.5 max-w-[280px]">
               {type === 'login_admin' && 'Enter your administrator credentials'}
               {type === 'login_borrower' && 'Enter your student or faculty ID'}
               {type === 'signup' && 'Register to borrow athletic equipment'}
@@ -114,22 +114,22 @@ const AuthView: React.FC<AuthViewProps> = ({ type }) => {
           </div>
 
           <div className="p-8">
-            <form onSubmit={type === 'signup' ? handleSignup : handleLogin} className="space-y-5">
+            <form onSubmit={type === 'signup' ? handleSignup : handleLogin} className="space-y-4">
               {type === 'signup' && (
                 <div>
-                  <label className="block text-sm font-semibold text-slate-700 mb-1">Full Name</label>
+                  <label className="block text-xs font-bold text-slate-300 uppercase tracking-wide mb-1">Full Name</label>
                   <input 
                     required
                     type="text" 
                     value={fullName}
                     onChange={e => setFullName(e.target.value)}
-                    className="w-full bg-slate-50 border border-slate-300 rounded-lg px-4 py-3 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-900 focus:border-emerald-900 transition-all"
+                    className="w-full bg-[#0a1122] border border-blue-900/70 rounded-lg px-4 py-2.5 text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-yellow-400/30 focus:border-yellow-400 text-sm transition-all"
                   />
                 </div>
               )}
 
               <div>
-                <label className="block text-sm font-semibold text-slate-700 mb-1">
+                <label className="block text-xs font-bold text-slate-300 uppercase tracking-wide mb-1">
                   {type === 'login_admin' ? 'Username' : 'ID Number'}
                 </label>
                 <input 
@@ -137,79 +137,79 @@ const AuthView: React.FC<AuthViewProps> = ({ type }) => {
                   type="text" 
                   value={idNumber}
                   onChange={e => setIdNumber(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-300 rounded-lg px-4 py-3 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-900 focus:border-emerald-900 transition-all"
+                  className="w-full bg-[#0a1122] border border-blue-900/70 rounded-lg px-4 py-2.5 text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-yellow-400/30 focus:border-yellow-400 text-sm transition-all"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-slate-700 mb-1">Password</label>
+                <label className="block text-xs font-bold text-slate-300 uppercase tracking-wide mb-1">Password</label>
                 <input 
                   required
                   type="password" 
                   value={password}
                   onChange={e => setPassword(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-300 rounded-lg px-4 py-3 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-900 focus:border-emerald-900 transition-all"
+                  className="w-full bg-[#0a1122] border border-blue-900/70 rounded-lg px-4 py-2.5 text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-yellow-400/30 focus:border-yellow-400 text-sm transition-all"
                 />
               </div>
 
               {type === 'signup' && (
                 <>
                   <div>
-                    <label className="block text-sm font-semibold text-slate-700 mb-1">Account Type</label>
+                    <label className="block text-xs font-bold text-slate-300 uppercase tracking-wide mb-1">Account Type</label>
                     <select 
                       value={accountType}
                       onChange={e => setAccountType(e.target.value as 'student' | 'faculty')}
-                      className="w-full bg-slate-50 border border-slate-300 rounded-lg px-4 py-3 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-900 focus:border-emerald-900 transition-all"
+                      className="w-full bg-[#0a1122] border border-blue-900/70 rounded-lg px-4 py-2.5 text-slate-200 focus:outline-none focus:ring-2 focus:ring-yellow-400/30 focus:border-yellow-400 text-sm transition-all"
                     >
-                      <option value="student">Student</option>
-                      <option value="faculty">Faculty</option>
+                      <option value="student" className="bg-[#0a1122] text-slate-200">Student</option>
+                      <option value="faculty" className="bg-[#0a1122] text-slate-200">Faculty</option>
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm font-semibold text-slate-700 mb-1">Course / Department</label>
+                    <label className="block text-xs font-bold text-slate-300 uppercase tracking-wide mb-1">Course / Department</label>
                     <input 
                       required
                       type="text" 
                       value={department}
                       onChange={e => setDepartment(e.target.value)}
-                      className="w-full bg-slate-50 border border-slate-300 rounded-lg px-4 py-3 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-900 focus:border-emerald-900 transition-all"
+                      className="w-full bg-[#0a1122] border border-blue-900/70 rounded-lg px-4 py-2.5 text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-yellow-400/30 focus:border-yellow-400 text-sm transition-all"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-semibold text-slate-700 mb-1">Contact Number</label>
+                    <label className="block text-xs font-bold text-slate-300 uppercase tracking-wide mb-1">Contact Number</label>
                     <input 
                       required
                       type="text" 
                       value={contact}
                       onChange={e => setContact(e.target.value)}
-                      className="w-full bg-slate-50 border border-slate-300 rounded-lg px-4 py-3 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-900 focus:border-emerald-900 transition-all"
+                      className="w-full bg-[#0a1122] border border-blue-900/70 rounded-lg px-4 py-2.5 text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-yellow-400/30 focus:border-yellow-400 text-sm transition-all"
                     />
                   </div>
                 </>
               )}
 
-              {error && <div className="text-red-700 text-sm font-medium bg-red-50 border border-red-200 p-3 rounded-lg">{error}</div>}
-              {success && <div className="text-emerald-700 text-sm font-medium bg-emerald-50 border border-emerald-200 p-3 rounded-lg">{success}</div>}
+              {error && <div className="text-red-400 text-xs font-medium bg-red-950/60 border border-red-800/60 p-3 rounded-lg">{error}</div>}
+              {success && <div className="text-yellow-300 text-xs font-medium bg-yellow-400/10 border border-yellow-400/40 p-3 rounded-lg">{success}</div>}
 
               {type === 'login_borrower' && idNumber && !error && (
-                <div className="text-emerald-700 text-sm font-medium bg-emerald-50 border border-emerald-200 p-3 rounded-lg">
+                <div className="text-blue-300 text-xs font-medium bg-blue-950/60 border border-blue-800/60 p-3 rounded-lg">
                   Ready to access your dashboard.
                 </div>
               )}
 
               <button 
                 type="submit"
-                className="w-full bg-amber-600 hover:bg-amber-700 text-white font-bold py-3.5 rounded-lg transition-colors shadow-md mt-4 text-lg"
+                className="w-full bg-yellow-400 hover:bg-yellow-300 text-blue-950 font-bold py-3 rounded-lg transition-colors shadow-md mt-4 text-base cursor-pointer"
               >
                 {type === 'signup' ? 'Submit for Approval' : 'Sign In'}
               </button>
             </form>
 
-            <div className="mt-8 text-center text-sm text-slate-600">
+            <div className="mt-6 text-center text-xs text-slate-400">
               {type !== 'signup' ? (
-                <p>Don't have an account? <span onClick={() => setView('signup')} className="text-emerald-700 font-bold cursor-pointer hover:underline">Sign Up</span></p>
+                <p>Don't have an account? <span onClick={() => setView('signup')} className="text-yellow-400 font-bold cursor-pointer hover:underline">Sign Up</span></p>
               ) : (
-                <p>Already have an account? <span onClick={() => setView('login_borrower')} className="text-emerald-700 font-bold cursor-pointer hover:underline">Sign In</span></p>
+                <p>Already have an account? <span onClick={() => setView('login_borrower')} className="text-yellow-400 font-bold cursor-pointer hover:underline">Sign In</span></p>
               )}
             </div>
           </div>

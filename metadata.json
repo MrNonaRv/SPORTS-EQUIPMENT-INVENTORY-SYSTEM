@@ -1,5 +1,5 @@
 {
-  "name": "CSU - MSAC Sports Inventory",
+  "name": "CSU - CapSu Sports Inventory",
   "description": "Sports and equipment inventory tracking system with real-time multi-device cloud synchronization, borrower requests, and admin management.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]

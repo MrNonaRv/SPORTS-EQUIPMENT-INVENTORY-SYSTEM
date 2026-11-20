@@ -66,7 +66,7 @@ export default function AdminDashboard() {
     if (!reportElement) return;
 
     try {
-      const imgData = await toPng(reportElement, { pixelRatio: 2, backgroundColor: '#ffffff' });
+      const imgData = await toPng(reportElement, { pixelRatio: 2, backgroundColor: '#0b142a' });
       const pdf = new jsPDF({
         orientation: 'portrait',
         unit: 'mm',
@@ -77,7 +77,7 @@ export default function AdminDashboard() {
       const pdfHeight = (reportElement.offsetHeight * pdfWidth) / reportElement.offsetWidth;
 
       pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
-      pdf.save(`CSU-Equipment-Report-${new Date().toISOString().split('T')[0]}.pdf`);
+      pdf.save(`CapSu-Equipment-Report-${new Date().toISOString().split('T')[0]}.pdf`);
     } catch (error) {
       console.error('Error generating PDF:', error);
       alert('Failed to generate PDF.');
@@ -163,38 +163,38 @@ export default function AdminDashboard() {
 
   return (
     <div 
-      className="min-h-screen bg-slate-50 text-slate-900 flex font-sans relative bg-cover bg-center bg-fixed"
+      className="min-h-screen bg-[#080e1e] text-slate-300 flex font-sans relative bg-cover bg-center bg-fixed"
       style={{ backgroundImage: 'url("https://images.unsplash.com/photo-1517649763962-0c623066013b?q=80&w=2000&auto=format&fit=crop")' }}
     >
       {/* Background Overlay */}
-      <div className="absolute inset-0 bg-slate-100/85 backdrop-blur-[2px] z-0 print:hidden"></div>
+      <div className="absolute inset-0 bg-[#070d1e]/85 backdrop-blur-[2px] z-0 print:hidden"></div>
 
       {/* Mobile Backdrop */}
       {mobileMenuOpen && (
         <div 
           onClick={() => setMobileMenuOpen(false)}
-          className="fixed inset-0 bg-slate-900/50 z-40 lg:hidden backdrop-blur-xs transition-opacity print:hidden"
+          className="fixed inset-0 bg-slate-950/70 z-40 lg:hidden backdrop-blur-xs transition-opacity print:hidden"
         />
       )}
 
       {/* Sidebar (Desktop & Mobile Drawer) */}
       <div className={`
-        fixed lg:sticky lg:top-0 h-screen inset-y-0 left-0 z-50 w-64 bg-white/95 backdrop-blur-md border-r border-slate-200/50 
-        flex flex-col shrink-0 overflow-hidden print:hidden shadow-2xl lg:shadow-[4px_0_24px_rgba(0,0,0,0.02)]
+        fixed lg:sticky lg:top-0 h-screen inset-y-0 left-0 z-50 w-64 bg-[#0b142a] border-r border-blue-900/50 
+        flex flex-col shrink-0 overflow-hidden print:hidden shadow-2xl lg:shadow-none
         transform transition-transform duration-300 ease-in-out
         ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
       `}>
-        <div className="p-6 border-b border-slate-200 flex items-center justify-between shrink-0">
+        <div className="p-6 border-b border-blue-900/50 flex items-center justify-between shrink-0">
           <div>
-            <div className="w-12 h-12 bg-emerald-900 rounded-full flex items-center justify-center text-white font-bold text-xl mb-3">
+            <div className="w-12 h-12 bg-yellow-400 text-blue-950 rounded-full flex items-center justify-center font-bold text-xl mb-3 shadow-md">
               {currentUser.name.split(' ').map(n => n[0]).join('').substring(0,2)}
             </div>
-            <h3 className="font-bold">{currentUser.name}</h3>
-            <p className="text-xs text-emerald-900 uppercase tracking-wider">ADMINISTRATOR</p>
+            <h3 className="font-bold text-white">{currentUser.name}</h3>
+            <p className="text-xs text-yellow-400 font-semibold uppercase tracking-wider mt-0.5">ADMINISTRATOR</p>
           </div>
           <button 
             onClick={() => setMobileMenuOpen(false)}
-            className="lg:hidden text-slate-400 hover:text-slate-600 p-1 rounded-lg"
+            className="lg:hidden text-slate-400 hover:text-white p-1 rounded-lg"
           >
             <X className="w-6 h-6" />
           </button>
@@ -209,7 +209,7 @@ export default function AdminDashboard() {
           <div onClick={() => setMobileMenuOpen(false)}><NavItem icon={<FileBarChart />} label="Reports Center" active={activeTab === 'reports'} onClick={() => setActiveTab('reports')} /></div>
         </nav>
 
-        <div className="p-4 border-t border-slate-200 space-y-3 shrink-0 bg-white/95">
+        <div className="p-4 border-t border-blue-900/50 space-y-2.5 shrink-0 bg-[#0b142a]">
           <button 
             onClick={async () => {
               if (window.confirm('Are you sure you want to delete and clear ALL records (Active Borrowers, Borrow Requests, Registered Users, and New Arrivals)? This will reset borrowed equipment and cannot be undone.')) {
@@ -219,14 +219,14 @@ export default function AdminDashboard() {
                 }
               }
             }}
-            className="w-full flex items-center justify-center space-x-2 px-4 py-2.5 bg-orange-50 text-orange-700 hover:bg-orange-100 font-bold border border-orange-200 rounded-lg transition text-xs"
+            className="w-full flex items-center justify-center space-x-2 px-4 py-2 bg-orange-950/50 text-orange-400 hover:bg-orange-900/40 font-bold border border-orange-800/40 rounded-lg transition text-xs cursor-pointer"
           >
             <Trash2 className="w-4 h-4" />
             <span>Clear All System Records</span>
           </button>
           <button 
             onClick={logout}
-            className="w-full flex items-center justify-center space-x-2 px-4 py-2.5 bg-red-50 text-red-700 hover:bg-red-100 font-bold border border-red-200 rounded-lg transition"
+            className="w-full flex items-center justify-center space-x-2 px-4 py-2 bg-red-950/50 text-red-400 hover:bg-red-900/40 font-bold border border-red-800/40 rounded-lg transition text-xs cursor-pointer"
           >
             <LogOut className="w-4 h-4" />
             <span>Sign Out</span>
@@ -236,30 +236,30 @@ export default function AdminDashboard() {
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col min-h-screen overflow-x-hidden print:h-auto print:overflow-visible relative z-10 w-full">
-        <header className="flex justify-between items-center px-4 sm:px-8 py-4 border-b border-slate-200/50 bg-white/95 backdrop-blur-md shadow-sm relative z-20 print:hidden">
-          <div className="flex items-center space-x-3 text-emerald-900 font-bold text-base sm:text-lg tracking-wide">
+        <header className="flex justify-between items-center px-4 sm:px-8 py-3.5 border-b border-blue-900/50 bg-[#0b142a]/95 backdrop-blur-md shadow-sm relative z-20 print:hidden">
+          <div className="flex items-center space-x-3 text-white font-bold text-base sm:text-lg tracking-wide">
             <button 
               onClick={() => setMobileMenuOpen(true)}
-              className="lg:hidden p-2 text-slate-700 hover:text-emerald-900 rounded-lg hover:bg-slate-100 transition"
+              className="lg:hidden p-2 text-slate-400 hover:text-white rounded-lg hover:bg-blue-900/30 transition cursor-pointer"
               title="Open Menu"
             >
               <Menu className="w-6 h-6" />
             </button>
-            <div className="bg-amber-600 p-1.5 rounded-lg hidden sm:block">
-              <Trophy className="w-5 h-5 text-white" />
+            <div className="bg-yellow-400 p-1.5 rounded-lg text-blue-950 hidden sm:block shadow-sm">
+              <Trophy className="w-5 h-5" />
             </div>
-            <span className="truncate">CSU Sports - Admin Control</span>
+            <span className="truncate font-display uppercase tracking-wider text-lg">CSU CapSu Sports - Admin Control</span>
           </div>
           <div className="text-sm flex items-center space-x-2">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]"></span>
-            <span className="text-slate-500 font-medium">Admin Profile: </span>
+            <span className="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.5)]"></span>
+            <span className="text-slate-400 font-medium text-xs sm:text-sm">Admin: </span>
             {isEditingProfile ? (
               <div className="flex items-center space-x-2">
                 <input 
                   type="text" 
                   value={editProfileName} 
                   onChange={e => setEditProfileName(e.target.value)}
-                  className="px-2 py-0.5 border border-slate-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-emerald-900 focus:border-emerald-900"
+                  className="px-2 py-0.5 bg-[#0a1122] border border-blue-900/70 rounded text-sm text-slate-200 focus:outline-none focus:ring-2 focus:ring-yellow-400/40 focus:border-yellow-400"
                   autoFocus
                 />
                 <button 
@@ -269,26 +269,26 @@ export default function AdminDashboard() {
                     }
                     setIsEditingProfile(false);
                   }}
-                  className="text-xs bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-lg shadow-sm-lg shadow-sm"
+                  className="text-xs bg-yellow-400 hover:bg-yellow-300 text-blue-950 font-bold px-3 py-1 rounded shadow-sm cursor-pointer"
                 >
                   Save
                 </button>
                 <button 
                   onClick={() => setIsEditingProfile(false)}
-                  className="text-xs bg-slate-200 hover:bg-slate-300 text-slate-700 px-4 py-2 rounded-lg shadow-sm-lg shadow-sm"
+                  className="text-xs bg-[#0a1122] hover:bg-blue-900/40 text-slate-300 border border-blue-900/60 px-3 py-1 rounded shadow-sm cursor-pointer"
                 >
                   Cancel
                 </button>
               </div>
             ) : (
               <div className="flex items-center space-x-2">
-                <span className="text-emerald-900 font-medium">{currentUser.name}</span>
+                <span className="text-white font-bold">{currentUser.name}</span>
                 <button 
                   onClick={() => {
                     setEditProfileName(currentUser.name);
                     setIsEditingProfile(true);
                   }}
-                  className="text-xs text-emerald-900 hover:text-emerald-800 underline"
+                  className="text-xs text-yellow-400 hover:text-yellow-300 underline cursor-pointer"
                 >
                   Edit
                 </button>
@@ -297,49 +297,49 @@ export default function AdminDashboard() {
           </div>
         </header>
 
-        <main className="flex-1 overflow-y-auto p-8 print:p-0 print:bg-white print:overflow-visible">
+        <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 print:p-0 print:bg-white print:overflow-visible">
 
           {activeTab === 'dashboard' && (
             <div className="max-w-6xl mx-auto relative">
-              <div className="flex flex-wrap items-center gap-4 text-sm text-slate-500 mb-6 border-b border-slate-200 pb-4">
+              <div className="flex flex-wrap items-center gap-4 text-sm text-slate-400 mb-6 border-b border-blue-900/40 pb-4">
                 <span>📍 Location: Mambusao Campus</span>
                 <span>🕒 Clock: {dateStr} - {timeStr}</span>
-                <span className="inline-flex items-center text-xs font-medium text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1.5 animate-pulse"></span>
+                <span className="inline-flex items-center text-xs font-bold text-yellow-300 bg-yellow-400/10 px-2.5 py-0.5 rounded-full border border-yellow-400/30">
+                  <span className="w-1.5 h-1.5 rounded-full bg-yellow-400 mr-1.5 animate-pulse"></span>
                   Cloud Real-Time Sync Active
                 </span>
               </div>
 
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8 relative z-10">
-                <StatCard onClick={() => setActiveOverlay('total')} title="TOTAL UNITS" count={totalUnits} subtext="Across all sports" icon={<Box className="w-6 h-6 text-slate-400" />} color="border-slate-300" />
-                <StatCard onClick={() => setActiveOverlay('available')} title="AVAILABLE ITEMS" count={availableUnits} subtext="Ready to borrow" icon={<Check className="w-6 h-6 text-emerald-500" />} color="border-emerald-500" />
-                <StatCard onClick={() => setActiveOverlay('borrowed')} title="BORROWED" count={borrowedUnits} subtext="Currently out" icon={<RefreshCw className="w-6 h-6 text-blue-500" />} color="border-blue-500" />
-                <StatCard onClick={() => setActiveOverlay('repair')} title="FOR REPAIR" count={forRepairUnits} subtext="Under maintenance" icon={<Wrench className="w-6 h-6 text-amber-500" />} color="border-amber-500" />
-                <StatCard onClick={() => setActiveOverlay('damaged')} title="DAMAGED UNITS" count={damagedUnits} subtext="Unserviceable" icon={<XCircle className="w-6 h-6 text-red-500" />} color="border-red-500" />
-                <StatCard onClick={() => setActiveOverlay('sports')} title="SPORTS TRACKS" count={sportsTracksCount} subtext="Active sports" icon={<Trophy className="w-6 h-6 text-indigo-500" />} color="border-indigo-500" />
+                <StatCard onClick={() => setActiveOverlay('total')} title="TOTAL UNITS" count={totalUnits} subtext="Across all sports" icon={<Box className="w-6 h-6 text-slate-400" />} color="border-t-yellow-400" />
+                <StatCard onClick={() => setActiveOverlay('available')} title="AVAILABLE ITEMS" count={availableUnits} subtext="Ready to borrow" icon={<Check className="w-6 h-6 text-emerald-400" />} color="border-t-emerald-400" />
+                <StatCard onClick={() => setActiveOverlay('borrowed')} title="BORROWED" count={borrowedUnits} subtext="Currently out" icon={<RefreshCw className="w-6 h-6 text-blue-400" />} color="border-t-blue-400" />
+                <StatCard onClick={() => setActiveOverlay('repair')} title="FOR REPAIR" count={forRepairUnits} subtext="Under maintenance" icon={<Wrench className="w-6 h-6 text-amber-400" />} color="border-t-amber-400" />
+                <StatCard onClick={() => setActiveOverlay('damaged')} title="DAMAGED UNITS" count={damagedUnits} subtext="Unserviceable" icon={<XCircle className="w-6 h-6 text-red-400" />} color="border-t-red-400" />
+                <StatCard onClick={() => setActiveOverlay('sports')} title="SPORTS TRACKS" count={sportsTracksCount} subtext="Active sports" icon={<Trophy className="w-6 h-6 text-yellow-400" />} color="border-t-yellow-400" />
               </div>
 
               {activeOverlay && (
-                <div className="absolute left-0 right-0 top-[180px] bg-white border border-slate-200 rounded-xl shadow-2xl z-50 p-6">
+                <div className="absolute left-0 right-0 top-[180px] bg-[#101b38] border border-blue-800 rounded-xl shadow-2xl z-50 p-6">
                   <ActiveLogsOverlay type={activeOverlay} onClose={() => setActiveOverlay(null)} equipment={equipment} requests={requests} users={users} />
                 </div>
               )}
 
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4 mt-8">
                 <div>
-                  <h2 className="text-2xl font-bold text-emerald-900">Equipment Catalog & Inventory</h2>
-                  <p className="text-sm text-slate-500 mt-1">Manage and track all sports equipment in real-time</p>
+                  <h2 className="text-2xl font-bold text-white font-display uppercase tracking-wide">Equipment Catalog &amp; Inventory</h2>
+                  <p className="text-sm text-slate-400 mt-1">Manage and track all sports equipment in real-time</p>
                 </div>
                 
                 {/* Search Bar */}
                 <div className="relative w-full md:w-72">
-                  <Search className="w-5 h-5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                  <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
                   <input
                     type="text"
                     placeholder="Search inventory..."
                     value={adminSearch}
                     onChange={e => setAdminSearch(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-300 rounded-lg text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-900 focus:border-emerald-900 transition shadow-sm"
+                    className="w-full pl-10 pr-4 py-2 bg-[#0e172e] border border-blue-900/60 rounded-lg text-sm text-slate-200 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-yellow-400/30 focus:border-yellow-400 transition"
                   />
                 </div>
               </div>
@@ -348,10 +348,10 @@ export default function AdminDashboard() {
               <div className="flex items-center gap-3 overflow-x-auto pb-4 mb-4 scrollbar-thin">
                 <button
                   onClick={() => setAdminCatFilter('All')}
-                  className={`px-4 py-2 rounded-xl text-sm font-bold whitespace-nowrap transition flex items-center space-x-2 ${
+                  className={`px-4 py-2 rounded-xl text-sm font-bold whitespace-nowrap transition flex items-center space-x-2 cursor-pointer ${
                     adminCatFilter === 'All'
-                      ? 'bg-emerald-900 text-white shadow-md'
-                      : 'bg-white text-slate-700 border border-slate-300 hover:bg-slate-50 hover:border-slate-400'
+                      ? 'bg-yellow-400 text-blue-950 shadow-md'
+                      : 'bg-[#101b38] text-slate-300 border border-blue-900/60 hover:bg-[#14234a]'
                   }`}
                 >
                   <CategoryIcon category="all" className="w-4 h-4" />
@@ -364,22 +364,22 @@ export default function AdminDashboard() {
                     <button
                       key={cat}
                       onClick={() => setAdminCatFilter(cat)}
-                      className={`px-4 py-2 rounded-xl text-sm font-bold whitespace-nowrap transition flex items-center space-x-2 ${
+                      className={`px-4 py-2 rounded-xl text-sm font-bold whitespace-nowrap transition flex items-center space-x-2 cursor-pointer ${
                         isSel
-                          ? `bg-emerald-900 text-white shadow-md border-transparent`
-                          : 'bg-white text-slate-700 border border-slate-300 hover:bg-slate-50 hover:border-slate-400'
+                          ? 'bg-yellow-400 text-blue-950 shadow-md border-transparent'
+                          : 'bg-[#101b38] text-slate-300 border border-blue-900/60 hover:bg-[#14234a]'
                       }`}
                     >
-                      <CategoryIcon category={cat} className={`w-4 h-4 ${isSel ? 'text-amber-400' : 'text-slate-500'}`} />
+                      <CategoryIcon category={cat} className={`w-4 h-4 ${isSel ? 'text-blue-950' : 'text-yellow-400'}`} />
                       <span>{cat} ({count})</span>
                     </button>
                   );
                 })}
               </div>
               
-              <div className="bg-white rounded-xl overflow-hidden overflow-x-auto border border-slate-200 shadow-xs">
+              <div className="bg-[#101b38] rounded-xl overflow-hidden overflow-x-auto border border-blue-900/60 shadow-md">
                 <table className="w-full text-left text-sm">
-                  <thead className="bg-slate-100 text-slate-700 text-xs uppercase border-b border-slate-200 tracking-wider">
+                  <thead className="bg-[#0c142a] text-slate-400 text-xs uppercase border-b border-blue-900/60 tracking-wider">
                     <tr>
                       <th className="px-6 py-4 font-semibold">Equipment Name</th>
                       <th className="px-6 py-4 font-semibold">Sport Category</th>
@@ -393,7 +393,7 @@ export default function AdminDashboard() {
                       <th className="px-6 py-4 font-semibold text-center">Actions</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-200">
+                  <tbody className="divide-y divide-blue-900/30">
                     {filteredAdminEquipment.length === 0 ? (
                       <tr>
                         <td colSpan={10} className="px-6 py-12 text-center text-slate-400 text-xs font-medium">
@@ -402,49 +402,48 @@ export default function AdminDashboard() {
                       </tr>
                     ) : (
                       filteredAdminEquipment.map((eq) => {
-                        const meta = getCategoryMeta(eq.category);
                         return (
-                          <tr key={eq.id} className="hover:bg-slate-50 transition">
+                          <tr key={eq.id} className="hover:bg-blue-900/20 transition">
                             <td className="px-6 py-4 font-medium">
-                              <span className="text-slate-900 font-bold">{eq.name}</span>
+                              <span className="text-white font-bold">{eq.name}</span>
                               {eq.description && (
-                                <div className="text-xs text-slate-500 mt-1 max-w-xs leading-relaxed line-clamp-2" title={eq.description}>
+                                <div className="text-xs text-slate-300 mt-1 max-w-xs leading-relaxed line-clamp-2" title={eq.description}>
                                   {eq.description}
                                 </div>
                               )}
                               <div className="text-[11px] text-slate-400 font-normal mt-1">{eq.location || 'Storage'}</div>
                             </td>
                             <td className="px-6 py-4">
-                              <span className={`inline-flex items-center space-x-1 text-[11px] font-bold px-2.5 py-0.5 rounded-full ${meta.badgeBg} ${meta.badgeText}`}>
-                                <CategoryIcon category={eq.category} className="w-3 h-3" />
+                              <span className="inline-flex items-center space-x-1 text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-blue-950 text-blue-300 border border-blue-800">
+                                <CategoryIcon category={eq.category} className="w-3 h-3 text-yellow-400" />
                                 <span>{eq.category}</span>
                               </span>
                             </td>
-                            <td className="px-6 py-4 text-center font-bold text-slate-800">{eq.total}</td>
-                            <td className="px-6 py-4 text-center text-emerald-600 font-bold">{eq.available} Units</td>
-                            <td className="px-6 py-4 text-center text-emerald-900 font-semibold">{eq.borrowed}</td>
-                            <td className="px-6 py-4 text-center text-amber-600 font-semibold">{eq.inRepair}</td>
-                            <td className="px-6 py-4 text-center text-red-600 font-semibold">{eq.damaged}</td>
+                            <td className="px-6 py-4 text-center font-bold text-white">{eq.total}</td>
+                            <td className="px-6 py-4 text-center text-yellow-400 font-bold">{eq.available} Units</td>
+                            <td className="px-6 py-4 text-center text-blue-300 font-semibold">{eq.borrowed}</td>
+                            <td className="px-6 py-4 text-center text-amber-400 font-semibold">{eq.inRepair}</td>
+                            <td className="px-6 py-4 text-center text-red-400 font-semibold">{eq.damaged}</td>
                             <td className="px-6 py-4 text-center">
                               {eq.available > 0 ? (
-                                <span className="text-xs font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-full">Available</span>
+                                <span className="text-xs font-bold text-yellow-300 bg-yellow-400/15 border border-yellow-400/40 px-2.5 py-1 rounded-full">Available</span>
                               ) : eq.damaged > 0 ? (
-                                <span className="text-xs font-bold text-red-700 bg-red-50 border border-red-200 px-2.5 py-1 rounded-full">Damaged</span>
+                                <span className="text-xs font-bold text-red-300 bg-red-950/70 border border-red-700/60 px-2.5 py-1 rounded-full">Damaged</span>
                               ) : eq.inRepair > 0 ? (
-                                <span className="text-xs font-bold text-amber-700 bg-amber-50 border border-amber-200 px-2.5 py-1 rounded-full">In Repair</span>
+                                <span className="text-xs font-bold text-amber-300 bg-amber-950/70 border border-amber-700/60 px-2.5 py-1 rounded-full">In Repair</span>
                               ) : eq.borrowed > 0 ? (
-                                <span className="text-xs font-bold text-emerald-900 bg-amber-100 border border-amber-300 px-2.5 py-1 rounded-full">Borrowed</span>
+                                <span className="text-xs font-bold text-blue-300 bg-blue-950/80 border border-blue-700/60 px-2.5 py-1 rounded-full">Borrowed</span>
                               ) : (
-                                <span className="text-xs font-bold text-slate-700 bg-slate-50 border border-slate-200 px-2.5 py-1 rounded-full">Out of Stock</span>
+                                <span className="text-xs font-bold text-slate-400 bg-slate-800 border border-slate-700 px-2.5 py-1 rounded-full">Out of Stock</span>
                               )}
                             </td>
-                            <td className="px-6 py-4 text-center text-slate-500 text-xs">{eq.lastChecked || 'N/A'}</td>
+                            <td className="px-6 py-4 text-center text-slate-400 text-xs">{eq.lastChecked || 'N/A'}</td>
                             <td className="px-6 py-4 text-center">
                               <div className="flex items-center justify-center gap-2">
                                 {eq.damaged > 0 && (
                                   <button 
                                     onClick={() => updateEquipment(eq.id, { damaged: 0, available: eq.available + eq.damaged })}
-                                    className="text-xs border border-emerald-400 text-emerald-800 bg-emerald-100 hover:bg-emerald-200 font-bold px-3 py-1.5 rounded-lg shadow-sm transition"
+                                    className="text-xs bg-yellow-400 hover:bg-yellow-300 text-blue-950 font-bold px-3 py-1.5 rounded-lg shadow-sm transition cursor-pointer"
                                     title="Mark as Repaired"
                                   >
                                     Repair
@@ -456,7 +455,8 @@ export default function AdminDashboard() {
                                       deleteEquipment(eq.id);
                                     }
                                   }}
-                                  className="text-red-500 hover:text-red-700 transition p-1.5 rounded-lg hover:bg-red-50"
+                                  className="text-red-400 hover:text-red-300 transition p-1.5 rounded-lg hover:bg-red-950/40 cursor-pointer"
+                                  title="Delete equipment"
                                 >
                                   <Trash2 className="w-4 h-4" />
                                 </button>
@@ -476,8 +476,8 @@ export default function AdminDashboard() {
             <div className="max-w-6xl mx-auto">
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
                 <div>
-                  <h2 className="text-2xl font-bold text-emerald-900">Borrow Requests & Log Records</h2>
-                  <p className="text-slate-500 text-sm mt-1">Accept or decline pending equipment borrow requests and manage borrow logs</p>
+                  <h2 className="text-2xl font-bold text-white font-display uppercase tracking-wide">Borrow Requests &amp; Log Records</h2>
+                  <p className="text-slate-400 text-sm mt-1">Accept or decline pending equipment borrow requests and manage borrow logs</p>
                 </div>
                 {requests.length > 0 && (
                   <button 
@@ -487,7 +487,7 @@ export default function AdminDashboard() {
                         alert('All borrow request records have been deleted.');
                       }
                     }}
-                    className="flex items-center space-x-2 px-4 py-2 bg-red-50 text-red-700 hover:bg-red-100 border border-red-200 rounded-lg text-sm font-semibold transition self-start md:self-auto shadow-xs"
+                    className="flex items-center space-x-2 px-4 py-2 bg-red-950/60 text-red-400 hover:bg-red-900/40 border border-red-800/40 rounded-lg text-sm font-semibold transition self-start md:self-auto cursor-pointer"
                   >
                     <Trash2 className="w-4 h-4" />
                     <span>Clear All Requests ({requests.length})</span>
@@ -495,23 +495,23 @@ export default function AdminDashboard() {
                 )}
               </div>
 
-              <div className="bg-white border border-slate-200 rounded-xl overflow-hidden overflow-x-auto mb-8 shadow-xs">
+              <div className="bg-[#101b38] border border-blue-900/60 rounded-xl overflow-hidden overflow-x-auto mb-8 shadow-md">
                 <table className="w-full text-left text-sm">
-                  <thead className="bg-slate-100 text-slate-700 text-xs uppercase tracking-wider border-b border-slate-200">
+                  <thead className="bg-[#0c142a] text-slate-400 text-xs uppercase tracking-wider border-b border-blue-900/60">
                     <tr>
                       <th className="px-6 py-4 font-semibold">Borrower</th>
                       <th className="px-6 py-4 font-semibold">Contact / Dept</th>
                       <th className="px-6 py-4 font-semibold">Equipment To Borrow</th>
-                      <th className="px-6 py-4 font-semibold">Requested Date & Time</th>
+                      <th className="px-6 py-4 font-semibold">Requested Date &amp; Time</th>
                       <th className="px-6 py-4 font-semibold">Status</th>
                       <th className="px-6 py-4 font-semibold text-center">Actions</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-200">
+                  <tbody className="divide-y divide-blue-900/30">
                     {requests.length === 0 ? (
                       <tr>
                         <td colSpan={6} className="px-6 py-12 text-center text-slate-400">
-                          <p className="font-medium">No borrow requests or records found.</p>
+                          <p className="font-medium text-slate-300">No borrow requests or records found.</p>
                           <p className="text-xs text-slate-400 mt-1">New requests from students and faculty will appear here.</p>
                         </td>
                       </tr>
@@ -520,39 +520,39 @@ export default function AdminDashboard() {
                         const user = users.find(u => u.id === req.userId);
                         const items = req.items && req.items.length > 0 ? req.items : [{ equipmentId: req.equipmentId || '', quantity: req.quantity || 0 }];
                         return (
-                          <tr key={req.id} className="hover:bg-slate-50 transition">
+                          <tr key={req.id} className="hover:bg-blue-900/20 transition">
                             <td className="px-6 py-4 font-medium flex items-center space-x-3">
-                              <div className="w-10 h-10 rounded-full bg-emerald-900 flex items-center justify-center text-sm font-bold text-white ring-2 ring-white shadow-sm">
+                              <div className="w-10 h-10 rounded-full bg-yellow-400 text-blue-950 flex items-center justify-center text-sm font-bold shadow-sm">
                                 {user?.name?.[0] || 'U'}
                               </div>
                               <div>
-                                <div>{user?.name || req.userId}</div>
-                                <div className="text-xs text-slate-500">{user?.role || 'Borrower'} - ID: {user?.id || req.userId}</div>
+                                <div className="text-white font-bold">{user?.name || req.userId}</div>
+                                <div className="text-xs text-slate-400">{user?.role || 'Borrower'} - ID: {user?.id || req.userId}</div>
                               </div>
                             </td>
-                            <td className="px-6 py-4 text-slate-600">
+                            <td className="px-6 py-4 text-slate-300">
                               <div>{user?.department || 'N/A'}</div>
-                              <div className="text-xs">{user?.contact || ''}</div>
+                              <div className="text-xs text-slate-400">{user?.contact || ''}</div>
                             </td>
                             <td className="px-6 py-4">
                               <div className="space-y-2">
-                                <div className="border-l-2 border-amber-400 pl-3">
+                                <div className="border-l-2 border-yellow-400 pl-3">
                                   {items.map((item, idx) => {
                                     const eq = equipment.find(e => e.id === item.equipmentId);
-                                    return <div key={idx} className="font-medium text-slate-800">{item.quantity}× {eq?.name || 'Item'}</div>
+                                    return <div key={idx} className="font-medium text-white">{item.quantity}× {eq?.name || 'Item'}</div>
                                   })}
                                 </div>
                               </div>
                             </td>
-                            <td className="px-6 py-4 text-slate-600 text-xs">
-                              <div><strong className="text-slate-700">Pickup:</strong> {new Date(req.pickupDate).toLocaleString()}</div>
-                              <div><strong className="text-slate-700">Return:</strong> {new Date(req.returnDate).toLocaleString()}</div>
-                              <div className="mt-1 text-slate-500">Req: {new Date(req.requestDate).toLocaleDateString()}</div>
+                            <td className="px-6 py-4 text-slate-300 text-xs">
+                              <div><strong className="text-slate-400">Pickup:</strong> {new Date(req.pickupDate).toLocaleString()}</div>
+                              <div><strong className="text-slate-400">Return:</strong> {new Date(req.returnDate).toLocaleString()}</div>
+                              <div className="mt-1 text-slate-400">Req: {new Date(req.requestDate).toLocaleDateString()}</div>
                             </td>
                             <td className="px-6 py-4">
                               <StatusBadge status={req.status} />
                               {req.returnCondition && req.status === 'return_pending' && (
-                                <div className={`mt-2 text-xs font-bold px-2 py-1 rounded-md ${req.returnCondition === 'Damaged' ? 'bg-red-100 text-red-700' : 'bg-emerald-100 text-emerald-700'}`}>
+                                <div className={`mt-2 text-xs font-bold px-2 py-1 rounded-md ${req.returnCondition === 'Damaged' ? 'bg-red-950 text-red-300 border border-red-800' : 'bg-emerald-950 text-emerald-300 border border-emerald-800'}`}>
                                   Condition: {req.returnCondition}
                                 </div>
                               )}
@@ -561,12 +561,12 @@ export default function AdminDashboard() {
                               <div className="flex items-center justify-center gap-2">
                                 {req.status === 'pending' && (
                                   <>
-                                    <button onClick={() => updateRequestStatus(req.id, 'approved')} className="text-xs border border-emerald-400 text-emerald-800 bg-emerald-100 hover:bg-emerald-200 font-bold px-3 py-1.5 rounded-lg shadow-sm transition">Accept</button>
-                                    <button onClick={() => updateRequestStatus(req.id, 'declined')} className="text-xs border border-red-400 text-red-800 bg-red-100 hover:bg-red-200 font-bold px-3 py-1.5 rounded-lg shadow-sm transition">Decline</button>
+                                    <button onClick={() => updateRequestStatus(req.id, 'approved')} className="text-xs bg-yellow-400 hover:bg-yellow-300 text-blue-950 font-bold px-3 py-1.5 rounded-lg shadow-sm transition cursor-pointer">Accept</button>
+                                    <button onClick={() => updateRequestStatus(req.id, 'declined')} className="text-xs bg-red-950/60 text-red-400 border border-red-800/40 hover:bg-red-900/40 font-bold px-3 py-1.5 rounded-lg shadow-sm transition cursor-pointer">Decline</button>
                                   </>
                                 )}
                                 {(req.status === 'approved' || req.status === 'overdue' || req.status === 'return_pending') && (
-                                  <button onClick={() => updateRequestStatus(req.id, 'returned')} className="text-xs bg-emerald-700 text-white border border-emerald-800 hover:bg-emerald-800 font-bold px-3 py-1.5 rounded-lg shadow-sm flex items-center space-x-1 transition">
+                                  <button onClick={() => updateRequestStatus(req.id, 'returned')} className="text-xs bg-blue-600 text-white hover:bg-blue-500 font-bold px-3 py-1.5 rounded-lg shadow-sm flex items-center space-x-1 transition cursor-pointer">
                                     <Check className="w-3 h-3" />
                                     <span>Return</span>
                                   </button>
@@ -577,7 +577,7 @@ export default function AdminDashboard() {
                                       await deleteRequest(req.id);
                                     }
                                   }}
-                                  className="text-red-500 hover:text-red-700 p-1.5 rounded-lg hover:bg-red-50 transition border border-transparent hover:border-red-200"
+                                  className="text-red-400 hover:text-red-300 p-1.5 rounded-lg hover:bg-red-950/40 transition cursor-pointer"
                                   title="Delete request record"
                                 >
                                   <Trash2 className="w-4 h-4" />
@@ -598,8 +598,8 @@ export default function AdminDashboard() {
             <div className="max-w-6xl mx-auto">
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
                 <div>
-                  <h2 className="text-2xl font-bold text-emerald-900">Manage System Accounts</h2>
-                  <p className="text-slate-500 text-sm mt-1">Review active approved website users or open pending registrations.</p>
+                  <h2 className="text-2xl font-bold text-white font-display uppercase tracking-wide">Manage System Accounts</h2>
+                  <p className="text-slate-400 text-sm mt-1">Review active approved website users or open pending registrations.</p>
                 </div>
                 {(pendingUsers.length > 0 || approvedUsers.length > 0) && (
                   <button 
@@ -609,7 +609,7 @@ export default function AdminDashboard() {
                         alert('All registered borrower user accounts have been deleted.');
                       }
                     }}
-                    className="flex items-center space-x-2 px-4 py-2 bg-red-50 text-red-700 hover:bg-red-100 border border-red-200 rounded-lg text-sm font-semibold transition self-start md:self-auto shadow-xs"
+                    className="flex items-center space-x-2 px-4 py-2 bg-red-950/60 text-red-400 hover:bg-red-900/40 border border-red-800/40 rounded-lg text-sm font-semibold transition self-start md:self-auto cursor-pointer"
                   >
                     <Trash2 className="w-4 h-4" />
                     <span>Clear All Users ({pendingUsers.length + approvedUsers.length})</span>
@@ -618,13 +618,13 @@ export default function AdminDashboard() {
               </div>
 
               {pendingUsers.length > 0 && (
-                <div className="bg-white border border-amber-300 rounded-xl overflow-hidden overflow-x-auto mb-8 shadow-xs">
-                  <div className="bg-amber-50 px-6 py-3 font-semibold text-amber-800 flex items-center space-x-2 border-b border-amber-200">
-                    <span className="w-2 h-2 rounded-full bg-amber-500"></span>
+                <div className="bg-[#101b38] border border-yellow-400/50 rounded-xl overflow-hidden overflow-x-auto mb-8 shadow-md">
+                  <div className="bg-[#0c142a] px-6 py-3 font-semibold text-yellow-400 flex items-center space-x-2 border-b border-yellow-400/30">
+                    <span className="w-2 h-2 rounded-full bg-yellow-400"></span>
                     <span>Users Pending Registration Review ({pendingUsers.length})</span>
                   </div>
                   <table className="w-full text-left text-sm">
-                    <thead className="bg-slate-100 text-slate-700 text-xs uppercase tracking-wider border-b border-slate-200">
+                    <thead className="bg-[#0a1122] text-slate-400 text-xs uppercase tracking-wider border-b border-blue-900/60">
                       <tr>
                         <th className="px-6 py-3">Full Name</th>
                         <th className="px-6 py-3">ID Number</th>
@@ -633,27 +633,27 @@ export default function AdminDashboard() {
                         <th className="px-6 py-3 text-center">Actions Decision</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-200">
+                    <tbody className="divide-y divide-blue-900/30">
                       {pendingUsers.map(u => (
-                        <tr key={u.id} className="hover:bg-slate-50 transition">
+                        <tr key={u.id} className="hover:bg-blue-900/20 transition">
                           <td className="px-6 py-4 font-medium flex items-center space-x-2">
-                             <span className="w-2.5 h-2.5 rounded-full bg-amber-500 shadow-sm"></span>
-                             <span>{u.name}</span>
+                             <span className="w-2.5 h-2.5 rounded-full bg-yellow-400 shadow-sm"></span>
+                             <span className="text-white font-bold">{u.name}</span>
                           </td>
-                          <td className="px-6 py-4">{u.id}</td>
-                          <td className="px-6 py-4 capitalize">{u.role}</td>
-                          <td className="px-6 py-4">{u.department}</td>
+                          <td className="px-6 py-4 text-slate-300">{u.id}</td>
+                          <td className="px-6 py-4 capitalize text-slate-300">{u.role}</td>
+                          <td className="px-6 py-4 text-slate-300">{u.department}</td>
                           <td className="px-6 py-4 text-center">
                             <div className="flex items-center justify-center space-x-2">
-                              <button onClick={() => updateUserStatus(u.id, 'approved')} className="text-xs border border-emerald-400 text-emerald-800 bg-emerald-100 hover:bg-emerald-200 font-bold px-3 py-1.5 rounded-lg shadow-sm transition">Accept</button>
-                              <button onClick={() => updateUserStatus(u.id, 'rejected')} className="text-xs border border-amber-400 text-amber-800 bg-amber-100 hover:bg-amber-200 font-bold px-3 py-1.5 rounded-lg shadow-sm transition">Decline</button>
+                              <button onClick={() => updateUserStatus(u.id, 'approved')} className="text-xs bg-yellow-400 hover:bg-yellow-300 text-blue-950 font-bold px-3 py-1.5 rounded-lg shadow-sm transition cursor-pointer">Accept</button>
+                              <button onClick={() => updateUserStatus(u.id, 'rejected')} className="text-xs bg-red-950/60 text-red-400 border border-red-800/40 hover:bg-red-900/40 font-bold px-3 py-1.5 rounded-lg shadow-sm transition cursor-pointer">Decline</button>
                               <button 
                                 onClick={async () => {
                                   if (window.confirm(`Delete user record for ${u.name}?`)) {
                                     await deleteUser(u.id);
                                   }
                                 }} 
-                                className="text-red-500 hover:text-red-700 p-1.5 rounded-lg hover:bg-red-50 transition border border-transparent hover:border-red-200"
+                                className="text-red-400 hover:text-red-300 p-1.5 rounded-lg hover:bg-red-950/40 transition cursor-pointer"
                                 title="Delete user"
                               >
                                 <Trash2 className="w-4 h-4" />
@@ -667,12 +667,12 @@ export default function AdminDashboard() {
                 </div>
               )}
 
-              <div className="bg-white border border-slate-200 rounded-xl overflow-hidden overflow-x-auto shadow-xs">
-                <div className="px-6 py-4 font-bold text-emerald-900 border-b border-slate-200 flex items-center justify-between">
+              <div className="bg-[#101b38] border border-blue-900/60 rounded-xl overflow-hidden overflow-x-auto shadow-md">
+                <div className="px-6 py-4 font-bold text-white border-b border-blue-900/60 flex items-center justify-between font-display uppercase tracking-wide">
                   <span>Already Approved Users ({approvedUsers.length})</span>
                 </div>
                 <table className="w-full text-left text-sm">
-                  <thead className="bg-slate-100 text-slate-700 text-xs uppercase tracking-wider border-b border-slate-200">
+                  <thead className="bg-[#0c142a] text-slate-400 text-xs uppercase tracking-wider border-b border-blue-900/60">
                     <tr>
                       <th className="px-6 py-3">Full Name</th>
                       <th className="px-6 py-3">ID Number</th>
@@ -682,26 +682,26 @@ export default function AdminDashboard() {
                       <th className="px-6 py-3 text-center">Action</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-200">
+                  <tbody className="divide-y divide-blue-900/30">
                     {approvedUsers.length === 0 ? (
                       <tr>
                         <td colSpan={6} className="px-6 py-12 text-center text-slate-400">
-                          <p className="font-medium">No approved borrower user accounts found.</p>
+                          <p className="font-medium text-slate-300">No approved borrower user accounts found.</p>
                           <p className="text-xs text-slate-400 mt-1">Users will appear here once registered and approved.</p>
                         </td>
                       </tr>
                     ) : (
                       approvedUsers.map(u => (
-                        <tr key={u.id} className="hover:bg-slate-50 transition">
+                        <tr key={u.id} className="hover:bg-blue-900/20 transition">
                           <td className="px-6 py-4 font-medium flex items-center space-x-2">
-                              <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-sm"></span>
-                              <span>{u.name}</span>
+                              <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-sm"></span>
+                              <span className="text-white font-bold">{u.name}</span>
                           </td>
-                          <td className="px-6 py-4">{u.id}</td>
-                          <td className="px-6 py-4 capitalize">{u.role}</td>
-                          <td className="px-6 py-4">{u.department}</td>
+                          <td className="px-6 py-4 text-slate-300">{u.id}</td>
+                          <td className="px-6 py-4 capitalize text-slate-300">{u.role}</td>
+                          <td className="px-6 py-4 text-slate-300">{u.department}</td>
                           <td className="px-6 py-4">
-                            <span className="text-emerald-700 bg-emerald-50 border border-emerald-200 px-3 py-1 rounded-full text-xs font-semibold">Approved Member</span>
+                            <span className="text-emerald-300 bg-emerald-950/60 border border-emerald-800/60 px-3 py-1 rounded-full text-xs font-semibold">Approved Member</span>
                           </td>
                           <td className="px-6 py-4 text-center">
                             <button
@@ -710,7 +710,7 @@ export default function AdminDashboard() {
                                   await deleteUser(u.id);
                                 }
                               }}
-                              className="text-red-500 hover:text-red-700 p-1.5 rounded-lg hover:bg-red-50 transition border border-transparent hover:border-red-200 inline-flex items-center"
+                              className="text-red-400 hover:text-red-300 p-1.5 rounded-lg hover:bg-red-950/40 transition inline-flex items-center cursor-pointer"
                               title="Delete user account"
                             >
                               <Trash2 className="w-4 h-4" />
@@ -727,34 +727,37 @@ export default function AdminDashboard() {
 
           {activeTab === 'arrivals' && (
             <div className="max-w-4xl">
-              <h2 className="text-2xl font-bold text-emerald-900 mb-2">New Equipment Arrivals</h2>
-              <p className="text-slate-500 text-sm mb-6">Encode newly arrived sports equipment to automatically update the inventory records.</p>
+              <h2 className="text-2xl font-bold text-white mb-2 font-display uppercase tracking-wide">New Equipment Arrivals</h2>
+              <p className="text-slate-400 text-sm mb-6">Encode newly arrived sports equipment to automatically update the inventory records.</p>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div className="bg-white border border-slate-200 rounded-xl p-6">
-                  <h3 className="text-lg font-bold text-emerald-900 mb-4 flex items-center space-x-2"><PackagePlus className="w-5 h-5"/> <span>Encode New Arrival</span></h3>
+                <div className="bg-[#101b38] border border-blue-900/60 rounded-xl p-6">
+                  <h3 className="text-lg font-bold text-white mb-4 flex items-center space-x-2 font-display uppercase tracking-wide">
+                    <PackagePlus className="w-5 h-5 text-yellow-400"/> 
+                    <span>Encode New Arrival</span>
+                  </h3>
                   
                   {addSuccess && (
-                    <div className="bg-green-500/20 text-green-400 p-3 rounded mb-4 text-sm flex items-center space-x-2">
+                    <div className="bg-emerald-950/70 border border-emerald-700/60 text-emerald-300 p-3 rounded mb-4 text-sm flex items-center space-x-2">
                       <Check className="w-4 h-4" /> <span>Equipment added and inventory updated!</span>
                     </div>
                   )}
 
                   <form onSubmit={handleAddEquipment} className="space-y-4">
                     <div>
-                      <label className="block text-xs text-slate-500 mb-1">Equipment Name</label>
-                      <input required type="text" value={eqName} onChange={e => setEqName(e.target.value)} className="w-full bg-slate-50 border border-slate-200 rounded px-4 py-2 text-slate-900 focus:outline-none focus:border-amber-600" />
+                      <label className="block text-xs font-bold text-slate-300 uppercase tracking-wide mb-1">Equipment Name</label>
+                      <input required type="text" value={eqName} onChange={e => setEqName(e.target.value)} className="w-full bg-[#0a1122] border border-blue-900/70 rounded px-4 py-2 text-slate-200 text-sm focus:outline-none focus:border-yellow-400" />
                     </div>
                     <div>
-                      <label className="block text-xs text-slate-500 mb-1">Product Description (Shape, Color, Physical Details)</label>
-                      <textarea placeholder="e.g. Spherical, standard orange composite leather with deep channels..." value={eqDescription} onChange={e => setEqDescription(e.target.value)} className="w-full bg-slate-50 border border-slate-200 rounded px-4 py-2 text-slate-900 focus:outline-none focus:border-amber-600 h-20 text-sm" />
+                      <label className="block text-xs font-bold text-slate-300 uppercase tracking-wide mb-1">Product Description</label>
+                      <textarea placeholder="e.g. Spherical, standard orange composite leather..." value={eqDescription} onChange={e => setEqDescription(e.target.value)} className="w-full bg-[#0a1122] border border-blue-900/70 rounded px-4 py-2 text-slate-200 placeholder-slate-500 focus:outline-none focus:border-yellow-400 h-20 text-xs" />
                     </div>
                     <div>
-                      <label className="block text-xs font-bold text-slate-600 uppercase tracking-wide mb-1">Sport Category</label>
+                      <label className="block text-xs font-bold text-slate-300 uppercase tracking-wide mb-1">Sport Category</label>
                       <select 
                         value={eqCat} 
                         onChange={e => setEqCat(e.target.value)} 
-                        className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-2 text-sm text-slate-900 focus:outline-none focus:border-amber-600"
+                        className="w-full bg-[#0a1122] border border-blue-900/70 rounded-lg px-4 py-2 text-sm text-slate-200 focus:outline-none focus:border-yellow-400"
                       >
                         <option value="Basketball">Basketball</option>
                         <option value="Volleyball">Volleyball</option>
@@ -764,7 +767,7 @@ export default function AdminDashboard() {
                         <option value="Sepak Takraw">Sepak Takraw</option>
                         <option value="Chess">Chess</option>
                         <option value="Boxing">Boxing</option>
-                        <option value="Athletics">Athletics / Track & Field</option>
+                        <option value="Athletics">Athletics / Track &amp; Field</option>
                         <option value="Baseball">Baseball / Softball</option>
                         <option value="Other">Other Equipment</option>
                         <option value="Custom">+ Create New Sport Category...</option>
@@ -772,26 +775,26 @@ export default function AdminDashboard() {
 
                       {eqCat === 'Custom' && (
                         <div className="mt-2">
-                          <label className="block text-[11px] font-bold text-amber-600 mb-1">Enter Custom Sport Name</label>
+                          <label className="block text-[11px] font-bold text-yellow-400 mb-1">Enter Custom Sport Name</label>
                           <input
                             required
                             type="text"
                             placeholder="e.g. Lawn Tennis, Swimming, Archery"
                             value={customCat}
                             onChange={e => setCustomCat(e.target.value)}
-                            className="w-full bg-emerald-50/50 border border-emerald-300 rounded-lg px-3 py-2 text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                            className="w-full bg-[#0a1122] border border-blue-900/70 rounded-lg px-3 py-2 text-xs text-slate-200 focus:outline-none focus:ring-2 focus:ring-yellow-400/30"
                           />
                         </div>
                       )}
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-xs text-slate-500 mb-1">Quantity Received</label>
-                        <input required type="number" min="1" value={eqQty} onChange={e => setEqQty(Number(e.target.value))} className="w-full bg-slate-50 border border-slate-200 rounded px-4 py-2 text-slate-900 focus:outline-none focus:border-amber-600" />
+                        <label className="block text-xs font-bold text-slate-300 uppercase tracking-wide mb-1">Quantity Received</label>
+                        <input required type="number" min="1" value={eqQty} onChange={e => setEqQty(Number(e.target.value))} className="w-full bg-[#0a1122] border border-blue-900/70 rounded px-4 py-2 text-slate-200 text-sm focus:outline-none focus:border-yellow-400" />
                       </div>
                       <div>
-                        <label className="block text-xs text-slate-500 mb-1">Condition on Arrival</label>
-                        <select value={eqCondition} onChange={e => setEqCondition(e.target.value)} className="w-full bg-slate-50 border border-slate-200 rounded px-4 py-2 text-slate-900 focus:outline-none focus:border-amber-600">
+                        <label className="block text-xs font-bold text-slate-300 uppercase tracking-wide mb-1">Condition on Arrival</label>
+                        <select value={eqCondition} onChange={e => setEqCondition(e.target.value)} className="w-full bg-[#0a1122] border border-blue-900/70 rounded px-4 py-2 text-slate-200 text-sm focus:outline-none focus:border-yellow-400">
                           <option value="Good / Available">Good / Available</option>
                           <option value="For Repair">For Repair</option>
                           <option value="Damaged">Damaged</option>
@@ -799,29 +802,25 @@ export default function AdminDashboard() {
                       </div>
                     </div>
                     <div>
-                      <label className="block text-xs text-slate-500 mb-1">Delivery Source / Supplier</label>
-                      <input type="text" value={eqSupplier} onChange={e => setEqSupplier(e.target.value)} className="w-full bg-slate-50 border border-slate-200 rounded px-4 py-2 text-slate-900 focus:outline-none focus:border-amber-600" />
+                      <label className="block text-xs font-bold text-slate-300 uppercase tracking-wide mb-1">Delivery Source / Supplier</label>
+                      <input type="text" value={eqSupplier} onChange={e => setEqSupplier(e.target.value)} className="w-full bg-[#0a1122] border border-blue-900/70 rounded px-4 py-2 text-slate-200 text-sm focus:outline-none focus:border-yellow-400" />
                     </div>
                     <div>
-                      <label className="block text-xs text-slate-500 mb-1">Facility / Exact Location</label>
-                      <input required type="text" placeholder="e.g. Gymnasium Storage Rm A" value={eqLocation} onChange={e => setEqLocation(e.target.value)} className="w-full bg-slate-50 border border-slate-200 rounded px-4 py-2 text-slate-900 focus:outline-none focus:border-amber-600" />
+                      <label className="block text-xs font-bold text-slate-300 uppercase tracking-wide mb-1">Facility / Exact Location</label>
+                      <input required type="text" placeholder="e.g. Gymnasium Storage Rm A" value={eqLocation} onChange={e => setEqLocation(e.target.value)} className="w-full bg-[#0a1122] border border-blue-900/70 rounded px-4 py-2 text-slate-200 text-sm focus:outline-none focus:border-yellow-400" />
                     </div>
                     <div>
-                      <label className="block text-xs text-slate-500 mb-1">Physical Description (Shape, Color, Characteristics)</label>
-                      <textarea placeholder="e.g., Shape: Round, Color: Orange..." value={eqDescription} onChange={e => setEqDescription(e.target.value)} className="w-full bg-slate-50 border border-slate-200 rounded px-4 py-2 text-slate-900 focus:outline-none focus:border-amber-600 h-20" />
+                      <label className="block text-xs font-bold text-slate-300 uppercase tracking-wide mb-1">Remarks / Notes (Optional)</label>
+                      <textarea value={eqNotes} onChange={e => setEqNotes(e.target.value)} className="w-full bg-[#0a1122] border border-blue-900/70 rounded px-4 py-2 text-slate-200 focus:outline-none focus:border-yellow-400 h-20 text-xs" />
                     </div>
-                    <div>
-                      <label className="block text-xs text-slate-500 mb-1">Remarks / Notes (Optional)</label>
-                      <textarea value={eqNotes} onChange={e => setEqNotes(e.target.value)} className="w-full bg-slate-50 border border-slate-200 rounded px-4 py-2 text-slate-900 focus:outline-none focus:border-amber-600 h-20" />
-                    </div>
-                    <button type="submit" className="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 rounded mt-4 flex justify-center items-center space-x-2 transition">
+                    <button type="submit" className="w-full bg-yellow-400 hover:bg-yellow-300 text-blue-950 font-bold py-3 rounded mt-4 flex justify-center items-center space-x-2 transition shadow-md cursor-pointer">
                       <PackagePlus className="w-5 h-5" />
                       <span>Save to Inventory</span>
                     </button>
                     <button 
                       type="button" 
                       onClick={() => setActiveTab('dashboard')}
-                      className="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-3 rounded mt-2 flex justify-center items-center space-x-2 transition"
+                      className="w-full bg-[#0a1122] hover:bg-blue-900/40 text-slate-300 border border-blue-900/60 font-bold py-3 rounded mt-2 flex justify-center items-center space-x-2 transition cursor-pointer"
                     >
                       <span>Cancel</span>
                     </button>
@@ -830,8 +829,8 @@ export default function AdminDashboard() {
 
                 <div className="flex flex-col h-full">
                   <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-lg font-bold text-slate-700 flex items-center space-x-2">
-                      <FileBarChart className="w-5 h-5 text-emerald-800"/> 
+                    <h3 className="text-lg font-bold text-white flex items-center space-x-2 font-display uppercase tracking-wide">
+                      <FileBarChart className="w-5 h-5 text-yellow-400"/> 
                       <span>Arrival Log Records ({arrivalRecords.length})</span>
                     </h3>
                     {arrivalRecords.length > 0 && (
@@ -842,7 +841,7 @@ export default function AdminDashboard() {
                             alert('All arrival log records have been deleted.');
                           }
                         }}
-                        className="text-xs text-red-600 hover:text-red-800 font-semibold flex items-center space-x-1 p-1.5 rounded hover:bg-red-50 transition border border-red-200"
+                        className="text-xs text-red-400 hover:text-red-300 font-semibold flex items-center space-x-1 p-1.5 rounded hover:bg-red-950/40 transition border border-red-800/40 cursor-pointer"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
                         <span>Clear All Logs</span>
@@ -852,23 +851,23 @@ export default function AdminDashboard() {
                   
                   <div className="space-y-3 overflow-y-auto max-h-[620px] pr-1">
                     {arrivalRecords.length === 0 ? (
-                      <div className="bg-slate-50 border border-slate-200 border-dashed p-8 rounded-xl text-center text-slate-500">
-                        <PackagePlus className="w-8 h-8 text-slate-400 mx-auto mb-2 opacity-50" />
-                        <p className="font-medium text-sm">No recent equipment arrivals logged.</p>
+                      <div className="bg-[#101b38] border border-blue-900/60 border-dashed p-8 rounded-xl text-center text-slate-400">
+                        <PackagePlus className="w-8 h-8 text-slate-500 mx-auto mb-2 opacity-50" />
+                        <p className="font-medium text-sm text-slate-300">No recent equipment arrivals logged.</p>
                         <p className="text-xs text-slate-400 mt-1">Encoded arrivals from the form will be recorded and displayed here.</p>
                       </div>
                     ) : (
                       arrivalRecords.map(log => (
-                        <div key={log.id} className="bg-white border border-slate-200 rounded-xl p-4 shadow-xs hover:border-emerald-300 transition relative">
+                        <div key={log.id} className="bg-[#101b38] border border-blue-900/60 rounded-xl p-4 shadow-sm hover:border-yellow-400/40 transition relative">
                           <div className="flex items-start justify-between gap-2">
                             <div>
                               <div className="flex items-center space-x-2">
-                                <span className="font-bold text-slate-900">{log.equipmentName}</span>
-                                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">
+                                <span className="font-bold text-white">{log.equipmentName}</span>
+                                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-950 text-blue-300 border border-blue-800">
                                   {log.category}
                                 </span>
                               </div>
-                              <div className="text-xs text-slate-500 mt-1">
+                              <div className="text-xs text-slate-400 mt-1">
                                 {new Date(log.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
                               </div>
                             </div>
@@ -878,20 +877,20 @@ export default function AdminDashboard() {
                                   await deleteArrivalRecord(log.id);
                                 }
                               }}
-                              className="text-red-400 hover:text-red-600 p-1.5 rounded hover:bg-red-50 transition border border-transparent hover:border-red-200"
+                              className="text-red-400 hover:text-red-300 p-1.5 rounded hover:bg-red-950/40 transition cursor-pointer"
                               title="Delete arrival record"
                             >
                               <Trash2 className="w-4 h-4" />
                             </button>
                           </div>
 
-                          <div className="grid grid-cols-2 gap-2 mt-3 text-xs text-slate-600 bg-slate-50 p-2.5 rounded-lg border border-slate-100">
-                            <div><strong>Qty Received:</strong> {log.quantity} units</div>
-                            <div><strong>Condition:</strong> {log.condition}</div>
-                            {log.supplier && <div className="col-span-2"><strong>Supplier:</strong> {log.supplier}</div>}
-                            <div className="col-span-2"><strong>Location:</strong> {log.location}</div>
-                            {log.description && <div className="col-span-2 text-slate-500"><strong>Desc:</strong> {log.description}</div>}
-                            {log.notes && <div className="col-span-2 text-slate-500"><strong>Notes:</strong> {log.notes}</div>}
+                          <div className="grid grid-cols-2 gap-2 mt-3 text-xs text-slate-300 bg-[#0a1122] p-2.5 rounded-lg border border-blue-900/40">
+                            <div><strong className="text-slate-400">Qty Received:</strong> {log.quantity} units</div>
+                            <div><strong className="text-slate-400">Condition:</strong> {log.condition}</div>
+                            {log.supplier && <div className="col-span-2"><strong className="text-slate-400">Supplier:</strong> {log.supplier}</div>}
+                            <div className="col-span-2"><strong className="text-slate-400">Location:</strong> {log.location}</div>
+                            {log.description && <div className="col-span-2 text-slate-400"><strong>Desc:</strong> {log.description}</div>}
+                            {log.notes && <div className="col-span-2 text-slate-400"><strong>Notes:</strong> {log.notes}</div>}
                           </div>
                         </div>
                       ))
@@ -906,8 +905,8 @@ export default function AdminDashboard() {
             <div className="max-w-6xl mx-auto">
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
                 <div>
-                  <h2 className="text-2xl font-bold text-emerald-900">Active Borrowers</h2>
-                  <p className="text-slate-500 text-sm mt-1">Explicitly filtered view displaying all current users holding equipment and their items.</p>
+                  <h2 className="text-2xl font-bold text-white font-display uppercase tracking-wide">Active Borrowers</h2>
+                  <p className="text-slate-400 text-sm mt-1">Explicitly filtered view displaying all current users holding equipment and their items.</p>
                 </div>
                 {users.some(u => requests.some(r => r.userId === u.id && (r.status === 'approved' || r.status === 'overdue' || r.status === 'return_pending'))) && (
                   <button
@@ -917,7 +916,7 @@ export default function AdminDashboard() {
                         alert('All active borrower records have been cleared and inventory restored.');
                       }
                     }}
-                    className="flex items-center space-x-2 px-4 py-2 bg-red-50 text-red-700 hover:bg-red-100 border border-red-200 rounded-lg text-sm font-semibold transition self-start md:self-auto shadow-xs"
+                    className="flex items-center space-x-2 px-4 py-2 bg-red-950/60 text-red-400 hover:bg-red-900/40 border border-red-800/40 rounded-lg text-sm font-semibold transition self-start md:self-auto cursor-pointer"
                   >
                     <Trash2 className="w-4 h-4" />
                     <span>Clear All Active Borrowers</span>
@@ -925,9 +924,9 @@ export default function AdminDashboard() {
                 )}
               </div>
               
-              <div className="bg-white rounded-xl overflow-hidden overflow-x-auto border border-slate-200 shadow-xs">
+              <div className="bg-[#101b38] rounded-xl overflow-hidden overflow-x-auto border border-blue-900/60 shadow-md">
                 <table className="w-full text-left text-sm">
-                  <thead className="bg-slate-100 text-slate-700 text-xs uppercase border-b border-slate-200 tracking-wider">
+                  <thead className="bg-[#0c142a] text-slate-400 text-xs uppercase border-b border-blue-900/60 tracking-wider">
                     <tr>
                       <th className="px-6 py-4 font-semibold">Borrower</th>
                       <th className="px-6 py-4 font-semibold">Contact / Dept</th>
@@ -936,11 +935,11 @@ export default function AdminDashboard() {
                       <th className="px-6 py-4 font-semibold text-center">Actions</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-200">
+                  <tbody className="divide-y divide-blue-900/30">
                     {users.filter(u => requests.some(r => r.userId === u.id && (r.status === 'approved' || r.status === 'overdue' || r.status === 'return_pending'))).length === 0 ? (
                       <tr>
                         <td colSpan={5} className="px-6 py-12 text-center text-slate-400">
-                          <p className="font-medium">No active borrowers holding equipment.</p>
+                          <p className="font-medium text-slate-300">No active borrowers holding equipment.</p>
                           <p className="text-xs text-slate-400 mt-1">Users with approved borrowed equipment will be shown here.</p>
                         </td>
                       </tr>
@@ -949,29 +948,29 @@ export default function AdminDashboard() {
                         const activeUserRequests = requests.filter(r => r.userId === user.id && (r.status === 'approved' || r.status === 'overdue' || r.status === 'return_pending'));
                         
                         return (
-                          <tr key={user.id} className="hover:bg-slate-50 transition">
+                          <tr key={user.id} className="hover:bg-blue-900/20 transition">
                             <td className="px-6 py-4 font-medium flex items-center space-x-3">
-                              <div className="w-10 h-10 rounded-full bg-emerald-900 flex items-center justify-center text-sm font-bold text-white ring-2 ring-white shadow-sm">{user.name[0]}</div>
+                              <div className="w-10 h-10 rounded-full bg-yellow-400 text-blue-950 flex items-center justify-center text-sm font-bold shadow-sm">{user.name[0]}</div>
                               <div>
-                                <div>{user.name}</div>
-                                <div className="text-xs text-slate-500">{user.role} - ID: {user.id}</div>
+                                <div className="text-white font-bold">{user.name}</div>
+                                <div className="text-xs text-slate-400">{user.role} - ID: {user.id}</div>
                               </div>
                             </td>
-                            <td className="px-6 py-4 text-slate-600">
+                            <td className="px-6 py-4 text-slate-300">
                               <div>{user.department || 'N/A'}</div>
-                              <div className="text-xs">{user.contact || ''}</div>
+                              <div className="text-xs text-slate-400">{user.contact || ''}</div>
                             </td>
                             <td className="px-6 py-4">
                               <div className="space-y-3">
                                 {activeUserRequests.map(req => {
                                   const items = req.items && req.items.length > 0 ? req.items : [{ equipmentId: req.equipmentId || '', quantity: req.quantity || 0 }];
                                   return (
-                                    <div key={req.id} className="border-l-2 border-amber-400 pl-3">
+                                    <div key={req.id} className="border-l-2 border-yellow-400 pl-3">
                                       {items.map((item, idx) => {
                                         const eq = equipment.find(e => e.id === item.equipmentId);
-                                        return <div key={idx} className="font-medium text-slate-800">{item.quantity}× {eq?.name || 'Item'}</div>
+                                        return <div key={idx} className="font-medium text-white">{item.quantity}× {eq?.name || 'Item'}</div>
                                       })}
-                                      <div className="text-xs text-slate-500">Return by: {new Date(req.returnDate).toLocaleString()}</div>
+                                      <div className="text-xs text-slate-400">Return by: {new Date(req.returnDate).toLocaleString()}</div>
                                       <div className="mt-1"><StatusBadge status={req.status} /></div>
                                     </div>
                                   );
@@ -980,9 +979,9 @@ export default function AdminDashboard() {
                             </td>
                             <td className="px-6 py-4">
                               {activeUserRequests.some(r => r.status === 'overdue') ? (
-                                <span className="bg-red-100 text-red-600 px-3 py-1 rounded-full text-xs font-semibold">Has Overdue</span>
+                                <span className="bg-red-950/70 text-red-300 border border-red-700/60 px-3 py-1 rounded-full text-xs font-semibold">Has Overdue</span>
                               ) : (
-                                <span className="bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full text-xs font-semibold">In Good Standing</span>
+                                <span className="bg-emerald-950/70 text-emerald-300 border border-emerald-700/60 px-3 py-1 rounded-full text-xs font-semibold">In Good Standing</span>
                               )}
                             </td>
                             <td className="px-6 py-4 text-center">
@@ -991,7 +990,7 @@ export default function AdminDashboard() {
                                   <div key={req.id} className="flex items-center gap-1">
                                     <button
                                       onClick={() => updateRequestStatus(req.id, 'returned')}
-                                      className="text-xs bg-emerald-700 text-white hover:bg-emerald-800 font-semibold px-2.5 py-1 rounded-md shadow-xs flex items-center space-x-1 transition"
+                                      className="text-xs bg-yellow-400 hover:bg-yellow-300 text-blue-950 font-bold px-2.5 py-1 rounded-md shadow-xs flex items-center space-x-1 transition cursor-pointer"
                                       title="Confirm return of equipment"
                                     >
                                       <Check className="w-3 h-3" />
@@ -1003,7 +1002,7 @@ export default function AdminDashboard() {
                                           await deleteRequest(req.id);
                                         }
                                       }}
-                                      className="text-red-500 hover:text-red-700 p-1 rounded hover:bg-red-50 transition border border-transparent hover:border-red-200"
+                                      className="text-red-400 hover:text-red-300 p-1 rounded hover:bg-red-950/40 transition cursor-pointer"
                                       title="Delete active loan record"
                                     >
                                       <Trash2 className="w-3.5 h-3.5" />
@@ -1024,24 +1023,24 @@ export default function AdminDashboard() {
 
           {activeTab === 'reports' && (
             <div className="max-w-6xl mx-auto print:max-w-none print:w-full">
-              <h2 className="text-3xl font-bold text-emerald-900 mb-2 print:hidden">REPORTS CENTER</h2>
-              <p className="text-slate-500 text-sm mb-6 max-w-md print:hidden">Access and generate key reports to monitor equipment availability, inventory health, and repair activity.</p>
+              <h2 className="text-3xl font-bold text-white mb-2 print:hidden font-display uppercase tracking-wide">REPORTS CENTER</h2>
+              <p className="text-slate-400 text-sm mb-6 max-w-md print:hidden">Access and generate key reports to monitor equipment availability, inventory health, and repair activity.</p>
               
-              <div id="report-content" className="bg-white border border-slate-200 rounded-xl p-8 relative print:border-none print:shadow-none print:p-0">
+              <div id="report-content" className="bg-[#101b38] border border-blue-900/60 rounded-xl p-8 relative print:border-none print:shadow-none print:p-0">
                  <div className="absolute top-8 right-8 flex space-x-4 print:hidden" data-html2canvas-ignore="true">
-                    <button onClick={() => window.print()} className="bg-amber-600 text-white px-4 py-2 rounded font-semibold text-sm hover:bg-amber-700 transition">Print Report</button>
-                    <button onClick={handleExportPDF} className="bg-emerald-700 text-white px-4 py-2 rounded font-semibold text-sm hover:bg-emerald-800 transition">Export as PDF</button>
+                    <button onClick={() => window.print()} className="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded font-semibold text-sm transition cursor-pointer">Print Report</button>
+                    <button onClick={handleExportPDF} className="bg-yellow-400 hover:bg-yellow-300 text-blue-950 px-4 py-2 rounded font-bold text-sm transition shadow-md cursor-pointer">Export as PDF</button>
                  </div>
                  
                  <div className="mb-8">
-                   <h3 className="text-xl font-bold text-slate-900 mb-2">Public Equipment Status Availability Report</h3>
-                   <div className="text-sm text-slate-500">Location: Mambusao Campus</div>
-                   <div className="text-sm text-slate-500">Report Generated: {new Date().toLocaleString()}</div>
+                   <h3 className="text-xl font-bold text-white mb-2 font-display uppercase tracking-wide">Public Equipment Status Availability Report</h3>
+                   <div className="text-sm text-slate-400">Location: Mambusao Campus</div>
+                   <div className="text-sm text-slate-400">Report Generated: {new Date().toLocaleString()}</div>
                  </div>
 
                  <div className="overflow-x-auto">
                    <table className="w-full text-left text-sm">
-                    <thead className="bg-slate-100 text-slate-700 text-xs uppercase tracking-wider border-b border-slate-200">
+                    <thead className="bg-[#0c142a] text-slate-400 text-xs uppercase tracking-wider border-b border-blue-900/60">
                       <tr>
                         <th className="px-4 py-3 font-semibold">Equipment</th>
                         <th className="px-4 py-3 font-semibold">Sports Category</th>
@@ -1052,22 +1051,22 @@ export default function AdminDashboard() {
                         <th className="px-4 py-3 font-semibold text-center">Status Badge</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-200">
+                    <tbody className="divide-y divide-blue-900/30">
                       {equipment.map((eq) => (
                         <tr key={eq.id}>
-                          <td className="px-4 py-3 font-medium">{eq.name}</td>
-                          <td className="px-4 py-3 text-slate-600">{eq.category}</td>
-                          <td className="px-4 py-3 text-center">{eq.available}</td>
-                          <td className="px-4 py-3 text-center">{eq.borrowed}</td>
-                          <td className="px-4 py-3 text-center">{eq.inRepair}</td>
-                          <td className="px-4 py-3 text-center">{eq.damaged}</td>
+                          <td className="px-4 py-3 font-medium text-white">{eq.name}</td>
+                          <td className="px-4 py-3 text-slate-300">{eq.category}</td>
+                          <td className="px-4 py-3 text-center text-yellow-400 font-bold">{eq.available}</td>
+                          <td className="px-4 py-3 text-center text-blue-300">{eq.borrowed}</td>
+                          <td className="px-4 py-3 text-center text-amber-400">{eq.inRepair}</td>
+                          <td className="px-4 py-3 text-center text-red-400">{eq.damaged}</td>
                           <td className="px-4 py-3 text-center">
                             {eq.available > 0 ? (
-                              <span className="text-xs text-green-400">Available</span>
+                              <span className="text-xs text-yellow-400 font-bold">Available</span>
                             ) : eq.inRepair > 0 ? (
-                               <span className="text-xs text-orange-400">For Repair</span>
+                               <span className="text-xs text-amber-400 font-bold">For Repair</span>
                             ) : (
-                               <span className="text-xs text-red-400">Damaged</span>
+                               <span className="text-xs text-red-400 font-bold">Damaged</span>
                             )}
                           </td>
                         </tr>
@@ -1075,7 +1074,7 @@ export default function AdminDashboard() {
                     </tbody>
                   </table>
                  </div>
-                 <div className="mt-8 text-xs text-slate-400">Printed for: CSU MSAC Administration</div>
+                 <div className="mt-8 text-xs text-slate-400">Printed for: CSU CapSu Administration</div>
               </div>
             </div>
           )}
@@ -1089,26 +1088,30 @@ function NavItem({ icon, label, active, onClick, badge }: any) {
   return (
     <div 
       onClick={onClick}
-      className={`flex items-center justify-between px-6 py-3 cursor-pointer border-l-4 transition ${active ? 'border-amber-600 bg-slate-50 text-emerald-900' : 'border-transparent text-slate-500 hover:bg-slate-100 hover:text-slate-900'}`}
+      className={`flex items-center justify-between px-6 py-3 cursor-pointer border-l-4 transition text-sm ${
+        active 
+          ? 'border-yellow-400 bg-yellow-400/10 text-yellow-400 font-bold' 
+          : 'border-transparent text-slate-400 hover:bg-blue-900/30 hover:text-slate-200 font-medium'
+      }`}
     >
       <div className="flex items-center space-x-3">
         {icon}
-        <span className="font-medium">{label}</span>
+        <span>{label}</span>
       </div>
       {badge > 0 && (
-        <span className="bg-amber-600 text-white text-xs font-bold px-2 py-0.5 rounded-full">{badge}</span>
+        <span className="bg-yellow-400 text-blue-950 text-xs font-bold px-2 py-0.5 rounded-full">{badge}</span>
       )}
     </div>
   );
 }
 
 function StatusBadge({ status }: { status: string }) {
-  if (status === 'pending') return <span className="bg-amber-50 text-amber-700 border border-amber-200 px-3 py-1.5 rounded-full shadow-sm text-xs font-bold">Pending</span>;
-  if (status === 'approved') return <span className="bg-emerald-50 text-emerald-700 border border-emerald-200 px-3 py-1.5 rounded-full shadow-sm text-xs font-bold">Approved</span>;
-  if (status === 'overdue') return <span className="bg-red-50 text-red-700 border border-red-200 px-3 py-1.5 rounded-full shadow-sm text-xs font-bold">Overdue Returns</span>;
-  if (status === 'declined') return <span className="bg-red-50 text-red-700 border border-red-200 px-3 py-1.5 rounded-full shadow-sm text-xs font-bold">Declined</span>;
-  if (status === 'returned') return <span className="bg-blue-50 text-blue-700 border border-blue-200 px-3 py-1.5 rounded-full shadow-sm text-xs font-bold">Returned</span>;
-  if (status === 'return_pending') return <span className="bg-blue-50 text-blue-700 border border-blue-200 px-3 py-1.5 rounded-full shadow-sm text-xs font-bold">Return Requested</span>;
+  if (status === 'pending') return <span className="bg-yellow-400/15 text-yellow-300 border border-yellow-400/40 px-3 py-1 rounded-full shadow-xs text-xs font-bold">Pending</span>;
+  if (status === 'approved') return <span className="bg-emerald-950/70 text-emerald-300 border border-emerald-700/60 px-3 py-1 rounded-full shadow-xs text-xs font-bold">Approved</span>;
+  if (status === 'overdue') return <span className="bg-red-950/70 text-red-300 border border-red-700/60 px-3 py-1 rounded-full shadow-xs text-xs font-bold">Overdue Returns</span>;
+  if (status === 'declined') return <span className="bg-red-950/70 text-red-300 border border-red-700/60 px-3 py-1 rounded-full shadow-xs text-xs font-bold">Declined</span>;
+  if (status === 'returned') return <span className="bg-blue-950/80 text-blue-300 border border-blue-700/60 px-3 py-1 rounded-full shadow-xs text-xs font-bold">Returned</span>;
+  if (status === 'return_pending') return <span className="bg-blue-950/80 text-blue-300 border border-blue-700/60 px-3 py-1 rounded-full shadow-xs text-xs font-bold">Return Requested</span>;
   return null;
 }
 
@@ -1116,17 +1119,17 @@ function StatCard({ title, count, subtext, icon, color, onClick }: any) {
   return (
     <div 
       onClick={onClick}
-      className={`bg-white border-t-4 ${color} p-5 rounded-xl shadow-sm flex flex-col ${onClick ? 'cursor-pointer hover:shadow-md hover:-translate-y-1 transition-all duration-200' : ''}`}
+      className={`bg-[#101b38] border-t-4 ${color} border border-blue-900/60 p-5 rounded-xl shadow-md flex flex-col ${onClick ? 'cursor-pointer hover:border-yellow-400/60 hover:-translate-y-1 transition-all duration-200' : ''}`}
     >
       <div className="flex justify-between items-start mb-3">
-        <span className="text-xs text-slate-500 font-bold tracking-widest uppercase">{title}</span>
+        <span className="text-xs text-slate-400 font-bold tracking-widest uppercase">{title}</span>
         {icon}
       </div>
-      <div className="text-4xl font-extrabold text-slate-900 mb-1">{count}</div>
-      <div className="text-sm text-slate-500 font-medium mb-4">{subtext}</div>
+      <div className="text-4xl font-extrabold text-white mb-1 font-display">{count}</div>
+      <div className="text-sm text-slate-400 font-medium mb-4">{subtext}</div>
       {onClick && (
-        <div className="mt-auto flex items-center space-x-1.5 text-xs font-bold text-emerald-700">
-          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+        <div className="mt-auto flex items-center space-x-1.5 text-xs font-bold text-yellow-400">
+          <Search className="w-3.5 h-3.5" />
           <span>View Details</span>
         </div>
       )}
@@ -1188,36 +1191,36 @@ function ActiveLogsOverlay({ type, onClose, equipment, requests, users }: any) {
   }
 
   return (
-    <div className="flex flex-col max-h-[400px]">
+    <div className="flex flex-col max-h-[400px] text-slate-300">
       <div className="flex justify-between items-center mb-4">
         <div>
-          <h3 className="text-xl font-bold text-emerald-900 flex items-center space-x-2">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+          <h3 className="text-xl font-bold text-white flex items-center space-x-2 font-display uppercase tracking-wide">
+            <Trophy className="w-5 h-5 text-yellow-400" />
             <span>{title}</span>
           </h3>
-          <p className="text-slate-500 text-xs mt-1">Displaying current itemized data matches found inside database matching criteria filter parameters.</p>
+          <p className="text-slate-400 text-xs mt-1">Displaying current itemized data matches found inside database matching criteria filter parameters.</p>
         </div>
-        <button onClick={onClose} className="text-slate-500 hover:text-slate-900 p-2">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        <button onClick={onClose} className="text-slate-400 hover:text-white p-2 bg-[#0a1122] hover:bg-blue-900/50 rounded-full transition cursor-pointer">
+          <X className="w-5 h-5" />
         </button>
       </div>
 
-      <div className="overflow-y-auto flex-1 border border-slate-200 rounded">
+      <div className="overflow-y-auto flex-1 border border-blue-900/60 rounded bg-[#0a1122]">
         <table className="w-full text-left text-sm">
-          <thead className="bg-slate-50 text-slate-700 text-xs uppercase border-b border-slate-200 tracking-wider sticky top-0">
+          <thead className="bg-[#0e172e] text-slate-400 text-xs uppercase border-b border-blue-900/50 tracking-wider sticky top-0">
             <tr>
               {columns.map(c => <th key={c} className="px-6 py-3 font-semibold">{c}</th>)}
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-200">
+          <tbody className="divide-y divide-blue-900/30 bg-[#101b38]">
             {data.map((row, i) => (
-              <tr key={i} className="hover:bg-slate-100">
-                <td className="px-6 py-3 font-medium">{row.col1}</td>
-                <td className="px-6 py-3 text-slate-600">{row.col2}</td>
-                <td className="px-6 py-3">{row.col3}</td>
+              <tr key={i} className="hover:bg-blue-900/20 transition">
+                <td className="px-6 py-3 font-medium text-white">{row.col1}</td>
+                <td className="px-6 py-3 text-slate-300">{row.col2}</td>
+                <td className="px-6 py-3 text-yellow-400 font-semibold">{row.col3}</td>
                 {columns.length > 3 && (
                   <td className="px-6 py-3">
-                    <span className={`text-xs px-3 py-1.5 rounded-full font-bold border shadow-sm ${row.isAvailable ? 'bg-emerald-100 text-emerald-800 border-emerald-200' : 'bg-red-100 text-red-800 border-red-200'}`}>{row.col4}</span>
+                    <span className={`text-xs px-3 py-1.5 rounded-full font-bold border shadow-xs ${row.isAvailable ? 'bg-yellow-400/15 text-yellow-300 border-yellow-400/40' : 'bg-red-950/70 text-red-300 border-red-700/60'}`}>{row.col4}</span>
                   </td>
                 )}
               </tr>
@@ -1230,7 +1233,7 @@ function ActiveLogsOverlay({ type, onClose, equipment, requests, users }: any) {
       </div>
 
       <div className="mt-4 flex justify-center">
-        <button onClick={onClose} className="bg-amber-600 hover:bg-amber-700 text-white font-bold px-6 py-2 rounded text-sm transition">
+        <button onClick={onClose} className="bg-yellow-400 hover:bg-yellow-300 text-blue-950 font-bold px-6 py-2 rounded text-sm transition shadow-md cursor-pointer">
           Dismiss Log Overlay
         </button>
       </div>
