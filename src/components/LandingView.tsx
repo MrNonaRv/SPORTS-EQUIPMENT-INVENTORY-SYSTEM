@@ -51,54 +51,54 @@ const LandingView: React.FC = () => {
           {/* Admin Card */}
           <div 
             onClick={() => setView('login_admin')}
-            className="bg-[#101b38]/95 backdrop-blur-md border border-blue-900/60 border-b-4 border-b-yellow-400 rounded-2xl p-8 flex flex-col items-center justify-center cursor-pointer hover:-translate-y-2 hover:shadow-2xl hover:bg-[#142246] transition-all duration-300 group shadow-xl"
+            className="bg-[#0e264c]/95 backdrop-blur-md border border-blue-600/40 border-t-4 border-t-yellow-400 rounded-2xl p-8 flex flex-col items-center justify-center cursor-pointer hover:-translate-y-2 hover:border-yellow-400 hover:shadow-[0_10px_25px_-5px_rgba(250,204,21,0.2)] transition-all duration-300 group shadow-xl"
           >
-            <div className="bg-blue-900/60 p-5 rounded-full mb-6 group-hover:scale-110 group-hover:bg-blue-800 transition-all border border-blue-700/50">
+            <div className="bg-[#07152b] border border-blue-600/50 p-5 rounded-full mb-6 group-hover:scale-110 group-hover:border-yellow-400 transition-all shadow-md">
               <Lock className="w-9 h-9 text-yellow-400" />
             </div>
             <h2 className="font-display text-white text-3xl mb-2 uppercase tracking-wide font-bold">Administrator</h2>
             <p className="text-slate-300 text-center text-sm leading-relaxed">
               System management, inventory oversight, and request approvals.
             </p>
-            <div className="mt-6 text-yellow-400 font-semibold flex items-center space-x-2 group-hover:text-yellow-300">
+            <div className="mt-6 text-yellow-400 font-bold flex items-center space-x-2 group-hover:text-yellow-300">
               <span>Admin Login</span>
-              <ArrowRight className="w-4 h-4" />
+              <ArrowRight className="w-4 h-4 text-yellow-400 group-hover:translate-x-1 transition-transform" />
             </div>
           </div>
 
           {/* Sign Up Card */}
           <div 
             onClick={() => setView('signup')}
-            className="bg-[#101b38]/95 backdrop-blur-md border border-blue-900/60 border-b-4 border-b-yellow-400 rounded-2xl p-8 flex flex-col items-center justify-center cursor-pointer hover:-translate-y-2 hover:shadow-2xl hover:bg-[#142246] transition-all duration-300 group shadow-xl"
+            className="bg-[#0e264c]/95 backdrop-blur-md border border-blue-600/40 border-t-4 border-t-yellow-400 rounded-2xl p-8 flex flex-col items-center justify-center cursor-pointer hover:-translate-y-2 hover:border-yellow-400 hover:shadow-[0_10px_25px_-5px_rgba(250,204,21,0.2)] transition-all duration-300 group shadow-xl"
           >
-            <div className="bg-blue-900/60 p-5 rounded-full mb-6 group-hover:scale-110 group-hover:bg-blue-800 transition-all border border-blue-700/50">
+            <div className="bg-[#07152b] border border-blue-600/50 p-5 rounded-full mb-6 group-hover:scale-110 group-hover:border-yellow-400 transition-all shadow-md">
               <FileText className="w-9 h-9 text-yellow-400" />
             </div>
             <h2 className="font-display text-white text-3xl mb-2 uppercase tracking-wide font-bold">Create Account</h2>
             <p className="text-slate-300 text-center text-sm leading-relaxed">
               New faculty or student borrower? Register for access here.
             </p>
-            <div className="mt-6 text-yellow-400 font-semibold flex items-center space-x-2 group-hover:text-yellow-300">
+            <div className="mt-6 text-yellow-400 font-bold flex items-center space-x-2 group-hover:text-yellow-300">
               <span>Register Now</span>
-              <ArrowRight className="w-4 h-4" />
+              <ArrowRight className="w-4 h-4 text-yellow-400 group-hover:translate-x-1 transition-transform" />
             </div>
           </div>
 
           {/* Sign In Card */}
           <div 
             onClick={() => setView('login_borrower')}
-            className="bg-[#101b38]/95 backdrop-blur-md border border-blue-900/60 border-b-4 border-b-yellow-400 rounded-2xl p-8 flex flex-col items-center justify-center cursor-pointer hover:-translate-y-2 hover:shadow-2xl hover:bg-[#142246] transition-all duration-300 group shadow-xl"
+            className="bg-[#0e264c]/95 backdrop-blur-md border border-blue-600/40 border-t-4 border-t-yellow-400 rounded-2xl p-8 flex flex-col items-center justify-center cursor-pointer hover:-translate-y-2 hover:border-yellow-400 hover:shadow-[0_10px_25px_-5px_rgba(250,204,21,0.2)] transition-all duration-300 group shadow-xl"
           >
-            <div className="bg-blue-900/60 p-5 rounded-full mb-6 group-hover:scale-110 group-hover:bg-blue-800 transition-all border border-blue-700/50">
+            <div className="bg-[#07152b] border border-blue-600/50 p-5 rounded-full mb-6 group-hover:scale-110 group-hover:border-yellow-400 transition-all shadow-md">
               <User className="w-9 h-9 text-yellow-400" />
             </div>
             <h2 className="font-display text-white text-3xl mb-2 uppercase tracking-wide font-bold">Borrower Login</h2>
             <p className="text-slate-300 text-center text-sm leading-relaxed">
               Returning students &amp; faculty. View catalog and request items.
             </p>
-            <div className="mt-6 text-yellow-400 font-semibold flex items-center space-x-2 group-hover:text-yellow-300">
+            <div className="mt-6 text-yellow-400 font-bold flex items-center space-x-2 group-hover:text-yellow-300">
               <span>Sign In</span>
-              <ArrowRight className="w-4 h-4" />
+              <ArrowRight className="w-4 h-4 text-yellow-400 group-hover:translate-x-1 transition-transform" />
             </div>
           </div>
         </div>

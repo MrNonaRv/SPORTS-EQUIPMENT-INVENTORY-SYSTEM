@@ -73,26 +73,26 @@ const AuthView: React.FC<AuthViewProps> = ({ type }) => {
 
   return (
     <div 
-      className="min-h-screen bg-[#080e1e] text-slate-300 flex flex-col font-sans relative bg-cover bg-center"
+      className="min-h-screen bg-slate-900 text-slate-800 flex flex-col font-sans relative bg-cover bg-center"
       style={{ backgroundImage: 'url("https://images.unsplash.com/photo-1517649763962-0c623066013b?q=80&w=2000&auto=format&fit=crop")' }}
     >
-      {/* Dark Navy Overlay */}
-      <div className="absolute inset-0 bg-[#070d1e]/85 backdrop-blur-sm z-0"></div>
+      {/* CapSU Blue Overlay */}
+      <div className="absolute inset-0 bg-blue-950/85 backdrop-blur-sm z-0"></div>
 
-      {/* Sporty Yellow Accent Bar */}
-      <div className="h-2 bg-yellow-400 w-full absolute top-0 left-0 z-10"></div>
+      {/* Sporty Gold Accent Bar */}
+      <div className="h-2.5 bg-yellow-400 w-full absolute top-0 left-0 z-10 shadow-sm"></div>
 
       <div className="flex-1 flex items-center justify-center p-6 relative z-10">
-        <div className="w-full max-w-md bg-[#101b38] border border-blue-900/60 rounded-2xl shadow-2xl overflow-hidden">
-          {/* Top colored banner for the card */}
-          <div className="bg-[#0b142a] p-6 flex flex-col items-center justify-center relative border-b border-blue-900/50">
+        <div className="w-full max-w-md bg-[#0e264c] border border-blue-600/40 rounded-2xl shadow-2xl overflow-hidden">
+          {/* Top CapSU Blue banner for the card */}
+          <div className="bg-[#07152b] p-6 flex flex-col items-center justify-center relative border-b-4 border-yellow-400">
             <button 
               onClick={() => setView('landing')}
-              className="absolute top-4 left-4 text-slate-400 hover:text-yellow-400 flex items-center text-sm transition-colors cursor-pointer"
+              className="absolute top-4 left-4 text-slate-300 hover:text-yellow-400 flex items-center text-sm transition-colors cursor-pointer"
             >
               <ArrowLeft className="w-4 h-4 mr-1" /> Back
             </button>
-            <div className="bg-blue-900/60 p-3 rounded-full mb-3 shadow-md mt-6 border border-blue-700/50">
+            <div className="bg-[#0e264c] border border-blue-500/50 p-3 rounded-full mb-3 shadow-md mt-6">
               {type === 'signup' ? (
                 <ClipboardList className="w-8 h-8 text-yellow-400" />
               ) : type === 'login_admin' ? (
@@ -106,7 +106,7 @@ const AuthView: React.FC<AuthViewProps> = ({ type }) => {
               {type === 'login_borrower' && 'Borrower Portal'}
               {type === 'signup' && 'Create Account'}
             </h2>
-            <p className="text-slate-400 text-xs sm:text-sm text-center mt-1.5 max-w-[280px]">
+            <p className="text-slate-300 text-xs sm:text-sm text-center mt-1.5 max-w-[280px]">
               {type === 'login_admin' && 'Enter your administrator credentials'}
               {type === 'login_borrower' && 'Enter your student or faculty ID'}
               {type === 'signup' && 'Register to borrow athletic equipment'}
@@ -123,7 +123,7 @@ const AuthView: React.FC<AuthViewProps> = ({ type }) => {
                     type="text" 
                     value={fullName}
                     onChange={e => setFullName(e.target.value)}
-                    className="w-full bg-[#0a1122] border border-blue-900/70 rounded-lg px-4 py-2.5 text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-yellow-400/30 focus:border-yellow-400 text-sm transition-all"
+                    className="w-full bg-[#07172f] border border-blue-500/40 rounded-lg px-4 py-2.5 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-yellow-400/30 focus:border-yellow-400 text-sm transition-all"
                   />
                 </div>
               )}
@@ -137,7 +137,7 @@ const AuthView: React.FC<AuthViewProps> = ({ type }) => {
                   type="text" 
                   value={idNumber}
                   onChange={e => setIdNumber(e.target.value)}
-                  className="w-full bg-[#0a1122] border border-blue-900/70 rounded-lg px-4 py-2.5 text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-yellow-400/30 focus:border-yellow-400 text-sm transition-all"
+                  className="w-full bg-[#07172f] border border-blue-500/40 rounded-lg px-4 py-2.5 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-yellow-400/30 focus:border-yellow-400 text-sm transition-all"
                 />
               </div>
 
@@ -148,7 +148,7 @@ const AuthView: React.FC<AuthViewProps> = ({ type }) => {
                   type="password" 
                   value={password}
                   onChange={e => setPassword(e.target.value)}
-                  className="w-full bg-[#0a1122] border border-blue-900/70 rounded-lg px-4 py-2.5 text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-yellow-400/30 focus:border-yellow-400 text-sm transition-all"
+                  className="w-full bg-[#07172f] border border-blue-500/40 rounded-lg px-4 py-2.5 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-yellow-400/30 focus:border-yellow-400 text-sm transition-all"
                 />
               </div>
 
@@ -159,10 +159,10 @@ const AuthView: React.FC<AuthViewProps> = ({ type }) => {
                     <select 
                       value={accountType}
                       onChange={e => setAccountType(e.target.value as 'student' | 'faculty')}
-                      className="w-full bg-[#0a1122] border border-blue-900/70 rounded-lg px-4 py-2.5 text-slate-200 focus:outline-none focus:ring-2 focus:ring-yellow-400/30 focus:border-yellow-400 text-sm transition-all"
+                      className="w-full bg-[#07172f] border border-blue-500/40 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:ring-2 focus:ring-yellow-400/30 focus:border-yellow-400 text-sm transition-all"
                     >
-                      <option value="student" className="bg-[#0a1122] text-slate-200">Student</option>
-                      <option value="faculty" className="bg-[#0a1122] text-slate-200">Faculty</option>
+                      <option value="student" className="bg-[#07172f] text-white">Student</option>
+                      <option value="faculty" className="bg-[#07172f] text-white">Faculty</option>
                     </select>
                   </div>
                   <div>
@@ -172,7 +172,7 @@ const AuthView: React.FC<AuthViewProps> = ({ type }) => {
                       type="text" 
                       value={department}
                       onChange={e => setDepartment(e.target.value)}
-                      className="w-full bg-[#0a1122] border border-blue-900/70 rounded-lg px-4 py-2.5 text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-yellow-400/30 focus:border-yellow-400 text-sm transition-all"
+                      className="w-full bg-[#07172f] border border-blue-500/40 rounded-lg px-4 py-2.5 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-yellow-400/30 focus:border-yellow-400 text-sm transition-all"
                     />
                   </div>
                   <div>
@@ -182,17 +182,17 @@ const AuthView: React.FC<AuthViewProps> = ({ type }) => {
                       type="text" 
                       value={contact}
                       onChange={e => setContact(e.target.value)}
-                      className="w-full bg-[#0a1122] border border-blue-900/70 rounded-lg px-4 py-2.5 text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-yellow-400/30 focus:border-yellow-400 text-sm transition-all"
+                      className="w-full bg-[#07172f] border border-blue-500/40 rounded-lg px-4 py-2.5 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-yellow-400/30 focus:border-yellow-400 text-sm transition-all"
                     />
                   </div>
                 </>
               )}
 
-              {error && <div className="text-red-400 text-xs font-medium bg-red-950/60 border border-red-800/60 p-3 rounded-lg">{error}</div>}
-              {success && <div className="text-yellow-300 text-xs font-medium bg-yellow-400/10 border border-yellow-400/40 p-3 rounded-lg">{success}</div>}
+              {error && <div className="text-red-300 text-xs font-medium bg-red-950/60 border border-red-700/60 p-3 rounded-lg">{error}</div>}
+              {success && <div className="text-emerald-300 text-xs font-medium bg-emerald-950/60 border border-emerald-700/60 p-3 rounded-lg">{success}</div>}
 
               {type === 'login_borrower' && idNumber && !error && (
-                <div className="text-blue-300 text-xs font-medium bg-blue-950/60 border border-blue-800/60 p-3 rounded-lg">
+                <div className="text-yellow-300 text-xs font-medium bg-yellow-400/15 border border-yellow-400/40 p-3 rounded-lg">
                   Ready to access your dashboard.
                 </div>
               )}

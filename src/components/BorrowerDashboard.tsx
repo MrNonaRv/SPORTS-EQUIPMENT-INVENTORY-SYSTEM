@@ -152,7 +152,7 @@ export default function BorrowerDashboard() {
   const activeCategoryMeta = selectedCategory !== 'All' ? getCategoryMeta(selectedCategory) : null;
 
   return (
-    <div className="min-h-screen bg-[#080e1e] text-slate-300 flex font-sans relative overflow-x-hidden">
+    <div className="min-h-screen bg-[#0a1c38] text-slate-300 flex font-sans relative overflow-x-hidden">
       {/* Mobile Backdrop */}
       {mobileMenuOpen && (
         <div 
@@ -161,25 +161,25 @@ export default function BorrowerDashboard() {
         />
       )}
 
-      {/* Sidebar Navigation (Desktop & Mobile Drawer) */}
+      {/* Sidebar Navigation: CapSU Deep Royal Blue */}
       <div className={`
-        fixed lg:sticky lg:top-0 h-screen inset-y-0 left-0 z-50 w-64 bg-[#0b142a] border-r border-blue-900/50 flex flex-col shrink-0 overflow-hidden
+        fixed lg:sticky lg:top-0 h-screen inset-y-0 left-0 z-50 w-64 bg-[#07152b] border-r border-blue-700/40 flex flex-col shrink-0 overflow-hidden
         transform transition-transform duration-300 ease-in-out shadow-2xl lg:shadow-none
         ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
       `}>
-        <div className="p-6 border-b border-blue-900/50 flex items-center justify-between shrink-0">
+        <div className="p-6 border-b border-blue-700/40 flex items-center justify-between shrink-0">
           <div>
-            <div className="w-12 h-12 bg-yellow-400 text-blue-950 rounded-full flex items-center justify-center font-bold text-xl mb-3 shadow-md">
+            <div className="w-12 h-12 bg-yellow-400 text-blue-950 rounded-full flex items-center justify-center font-bold text-xl mb-3 shadow-md border-2 border-yellow-300">
               {currentUser.name.split(' ').map(n => n[0]).join('').substring(0,2)}
             </div>
             <h3 className="font-bold text-white leading-snug">{currentUser.name}</h3>
             <p className="text-xs text-yellow-400 font-semibold uppercase tracking-wider mt-0.5">{currentUser.role} BORROWER</p>
-            <p className="text-[11px] font-medium text-slate-400 mt-1">ID: {currentUser.id}</p>
-            <p className="text-[11px] text-slate-500 mt-0.5">{currentUser.department || 'Student Portal'}</p>
+            <p className="text-[11px] font-medium text-slate-300 mt-1">ID: {currentUser.id}</p>
+            <p className="text-[11px] text-slate-400 mt-0.5">{currentUser.department || 'Student Portal'}</p>
           </div>
           <button 
             onClick={() => setMobileMenuOpen(false)}
-            className="lg:hidden text-slate-400 hover:text-white p-1 rounded-lg"
+            className="lg:hidden text-slate-300 hover:text-white p-1 rounded-lg"
           >
             <X className="w-6 h-6" />
           </button>
@@ -214,10 +214,10 @@ export default function BorrowerDashboard() {
         </nav>
 
         {/* Non-scrollable Logout Footer */}
-        <div className="p-4 border-t border-blue-900/50 shrink-0 bg-[#0b142a]">
+        <div className="p-4 border-t border-blue-700/40 shrink-0 bg-[#07152b]">
           <button 
             onClick={logout}
-            className="w-full flex items-center justify-center space-x-2 px-4 py-2.5 bg-red-950/50 text-red-400 hover:bg-red-900/40 hover:text-red-300 border border-red-800/40 rounded-lg font-medium text-sm transition cursor-pointer"
+            className="w-full flex items-center justify-center space-x-2 px-4 py-2.5 bg-red-950/40 text-red-300 hover:bg-red-900/60 hover:text-white border border-red-700/50 rounded-lg font-bold text-sm transition cursor-pointer"
           >
             <LogOut className="w-4 h-4" />
             <span>Log Out Session</span>
@@ -227,26 +227,26 @@ export default function BorrowerDashboard() {
 
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col min-h-screen overflow-x-hidden w-full">
-        {/* Header Bar */}
-        <header className="flex justify-between items-center px-4 sm:px-8 py-3.5 border-b border-blue-900/50 bg-[#0b142a]/90 backdrop-blur-md shadow-sm shrink-0">
-          <div className="flex items-center space-x-3 text-sm text-slate-300">
+        {/* Header Bar: CapSU Royal Blue with Yellow Accent */}
+        <header className="flex justify-between items-center px-4 sm:px-8 py-3.5 border-b-4 border-yellow-400 bg-[#07152b] text-white shadow-md shrink-0">
+          <div className="flex items-center space-x-3 text-sm">
             <button 
               onClick={() => setMobileMenuOpen(true)}
-              className="lg:hidden p-2 text-slate-400 hover:text-white rounded-lg hover:bg-blue-900/30 transition cursor-pointer"
+              className="lg:hidden p-2 text-slate-300 hover:text-white rounded-lg hover:bg-blue-800/40 transition cursor-pointer"
               title="Open Menu"
             >
               <Menu className="w-6 h-6" />
             </button>
             <div className="hidden sm:flex items-center space-x-2">
-              <span className="font-bold text-yellow-400 font-display tracking-wider text-base">CSU CapSu Sports Management</span>
-              <span className="text-slate-500">/</span>
-              <span className="text-slate-400">Student Borrowing Station</span>
+              <span className="font-bold text-yellow-400 font-display tracking-wider text-lg">CSU CapSu Sports Management</span>
+              <span className="text-slate-400">/</span>
+              <span className="text-slate-200">Student Borrowing Station</span>
             </div>
             <div className="sm:hidden font-bold text-yellow-400 font-display text-base">CSU CapSu Sports</div>
           </div>
           <div className="text-sm flex items-center space-x-2 sm:space-x-3">
-            <div className="flex items-center space-x-1.5 bg-blue-950/70 border border-blue-800/60 px-3 py-1.5 rounded-full text-slate-300 text-xs font-medium">
-              <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
+            <div className="flex items-center space-x-1.5 bg-blue-900/60 border border-blue-600/40 px-3 py-1.5 rounded-full text-slate-200 text-xs font-medium">
+              <span className="w-2 h-2 rounded-full bg-yellow-400 animate-pulse"></span>
               <span>Online: <strong className="text-white">{currentUser.name}</strong></span>
             </div>
           </div>
@@ -254,12 +254,12 @@ export default function BorrowerDashboard() {
 
         {/* Global Success Alert */}
         {borrowSuccessAlert && (
-          <div className="m-4 sm:mx-8 p-3.5 bg-emerald-950/80 border border-emerald-700/80 text-emerald-200 rounded-xl flex items-center justify-between text-sm font-medium shadow-lg animate-fadeIn">
+          <div className="m-4 sm:mx-8 p-3.5 bg-emerald-950/80 border border-emerald-600 text-emerald-200 rounded-xl flex items-center justify-between text-sm font-medium shadow-md animate-fadeIn">
             <div className="flex items-center space-x-2.5">
               <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
               <span>{borrowSuccessAlert}</span>
             </div>
-            <button onClick={() => setBorrowSuccessAlert(null)} className="text-emerald-400 hover:text-emerald-200 p-1">
+            <button onClick={() => setBorrowSuccessAlert(null)} className="text-emerald-300 hover:text-white p-1">
               <X className="w-4 h-4" />
             </button>
           </div>
@@ -273,7 +273,7 @@ export default function BorrowerDashboard() {
               <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
                 <div>
                   <h2 className="text-2xl font-bold text-white mb-1 font-display tracking-wide uppercase">Personal Overview Dashboard</h2>
-                  <p className="text-slate-400 text-sm">Quick look into active items and sports tracking inventory</p>
+                  <p className="text-slate-300 text-sm">Quick look into active items and sports tracking inventory</p>
                 </div>
                 <button
                   onClick={() => setActiveTab('borrow')}
@@ -284,38 +284,38 @@ export default function BorrowerDashboard() {
                 </button>
               </div>
 
-              {/* Stat Cards */}
+              {/* Stat Cards: CapSU Royal Blue Cards with Yellow Accent */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-                <StatCard title="TOTAL UNITS" count={totalUnits} subtext="Campus stock listing" icon={<Box className="w-5 h-5 text-slate-400" />} color="border-t-yellow-400" />
-                <StatCard title="AVAILABLE NOW" count={availableUnits} subtext="Ready to apply for" icon={<Check className="w-5 h-5 text-emerald-400" />} color="border-t-emerald-400" />
-                <StatCard title="MY ACTIVE BORROWS" count={activeBorrows} subtext="Items currently held" icon={<RefreshCw className="w-5 h-5 text-blue-400" />} color="border-t-blue-400" />
+                <StatCard title="TOTAL UNITS" count={totalUnits} subtext="Campus stock listing" icon={<Box className="w-5 h-5 text-slate-300" />} color="border-t-yellow-400" />
+                <StatCard title="AVAILABLE NOW" count={availableUnits} subtext="Ready to apply for" icon={<Check className="w-5 h-5 text-yellow-400" />} color="border-t-yellow-400" />
+                <StatCard title="MY ACTIVE BORROWS" count={activeBorrows} subtext="Items currently held" icon={<RefreshCw className="w-5 h-5 text-blue-300" />} color="border-t-blue-400" />
                 <StatCard title="IN MAINTENANCE" count={forRepairUnits} subtext="Temporarily stored away" icon={<Wrench className="w-5 h-5 text-amber-400" />} color="border-t-amber-400" />
               </div>
 
               {/* My Requests Ledger */}
-              <div className="bg-[#101b38] border border-blue-900/60 rounded-xl overflow-hidden shadow-md mb-8">
-                <div className="px-6 py-4 border-b border-blue-900/50 bg-[#0d162e] flex justify-between items-center">
+              <div className="bg-[#0e264c] border border-blue-600/40 rounded-xl overflow-hidden shadow-lg mb-8">
+                <div className="px-6 py-4 border-b border-blue-600/40 bg-[#07152b] flex justify-between items-center">
                   <h3 className="text-base font-bold text-white font-display tracking-wide uppercase">My Equipment Activity Logs Ledger</h3>
-                  <span className="text-xs text-slate-400 font-medium">{userRequests.length} Total Requests Recorded</span>
+                  <span className="text-xs text-slate-300 font-medium">{userRequests.length} Total Requests Recorded</span>
                 </div>
                 <div className="overflow-x-auto">
                   <table className="w-full text-left text-sm">
-                    <thead className="bg-[#0b1328] text-slate-400 text-xs uppercase font-semibold border-b border-blue-900/50">
+                    <thead className="bg-[#07152b] text-slate-300 text-xs uppercase font-bold tracking-wider border-b border-blue-600/40">
                       <tr>
                         <th className="px-6 py-3.5">Equipment Details</th>
                         <th className="px-6 py-3.5">Requested Term Dates</th>
                         <th className="px-6 py-3.5">Date Requested</th>
-                        <th className="px-6 py-3.5">Units</th>
+                        <th className="px-6 py-3.5 text-center">Units</th>
                         <th className="px-6 py-3.5">Purpose</th>
                         <th className="px-6 py-3.5 text-center">Status</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-blue-900/30">
+                    <tbody className="divide-y divide-blue-700/30">
                       {userRequests.length === 0 ? (
                         <tr>
-                          <td colSpan={6} className="px-6 py-12 text-center text-slate-400">
-                            <Box className="w-10 h-10 mx-auto mb-2 text-slate-500" />
-                            <p className="font-medium text-slate-300">No borrow requests on record</p>
+                          <td colSpan={6} className="px-6 py-12 text-center text-slate-300">
+                            <Box className="w-10 h-10 mx-auto mb-2 text-slate-400" />
+                            <p className="font-bold text-white">No borrow requests on record</p>
                             <p className="text-xs mt-1 text-slate-400">Click &quot;Borrow Equipment&quot; to pick sport items and submit a request.</p>
                           </td>
                         </tr>
@@ -325,29 +325,29 @@ export default function BorrowerDashboard() {
                             ? req.items 
                             : [{ equipmentId: req.equipmentId || '', quantity: req.quantity || 0 }];
                           return (
-                            <tr key={req.id} className="hover:bg-blue-900/20 transition">
+                            <tr key={req.id} className="hover:bg-blue-800/30 transition">
                               <td className="px-6 py-4">
                                 <div className="space-y-1.5">
                                   {items.map((item, idx) => {
                                     const eq = equipment.find(e => e.id === item.equipmentId);
                                     return (
                                       <div key={idx} className="flex items-center space-x-2">
-                                        <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-blue-950 text-blue-300 border border-blue-800">
+                                        <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-blue-950/80 text-yellow-300 border border-blue-600/50">
                                           {eq?.category || 'Sport'}
                                         </span>
-                                        <span className="font-semibold text-yellow-400">{item.quantity}×</span>
-                                        <span className="text-slate-200">{eq?.name || 'Item'}</span>
+                                        <span className="font-bold text-white">{item.quantity}×</span>
+                                        <span className="text-slate-200 font-medium">{eq?.name || 'Item'}</span>
                                       </div>
                                     );
                                   })}
                                 </div>
                               </td>
                               <td className="px-6 py-4 text-xs text-slate-300">
-                                <div><strong className="text-slate-400">Pickup:</strong> {new Date(req.pickupDate).toLocaleString()}</div>
-                                <div><strong className="text-slate-400">Return:</strong> {new Date(req.returnDate).toLocaleString()}</div>
+                                <div><strong className="text-slate-200">Pickup:</strong> {new Date(req.pickupDate).toLocaleString()}</div>
+                                <div><strong className="text-slate-200">Return:</strong> {new Date(req.returnDate).toLocaleString()}</div>
                               </td>
                               <td className="px-6 py-4 text-slate-400 text-xs">{new Date(req.requestDate).toLocaleDateString()}</td>
-                              <td className="px-6 py-4 font-bold text-white">{items.reduce((sum, item) => sum + item.quantity, 0)}</td>
+                              <td className="px-6 py-4 text-center font-bold text-white">{items.reduce((sum, item) => sum + item.quantity, 0)}</td>
                               <td className="px-6 py-4 text-slate-300 text-xs">{req.purpose}</td>
                               <td className="px-6 py-4 text-center">
                                 <StatusBadge status={req.status} />
@@ -356,14 +356,14 @@ export default function BorrowerDashboard() {
                                     <select 
                                       value={returnConditions[req.id] || 'Good'}
                                       onChange={(e) => setReturnConditions({...returnConditions, [req.id]: e.target.value as 'Good' | 'Damaged'})}
-                                      className="w-full text-xs bg-[#0a1122] text-slate-200 border border-blue-900/70 rounded p-1.5 focus:outline-none focus:border-yellow-400"
+                                      className="w-full text-xs bg-[#07172f] text-slate-200 border border-blue-500/40 rounded p-1.5 focus:outline-none focus:border-yellow-400"
                                     >
                                       <option value="Good">Condition: Good</option>
                                       <option value="Damaged">Condition: Damaged</option>
                                     </select>
                                     <button 
                                       onClick={() => updateRequestStatus(req.id, 'return_pending', returnConditions[req.id] || 'Good')}
-                                      className="block w-full text-[11px] font-bold bg-yellow-400 hover:bg-yellow-300 text-blue-950 py-1.5 px-2 rounded-md transition shadow-sm cursor-pointer"
+                                      className="block w-full text-[11px] font-bold bg-yellow-400 hover:bg-yellow-300 text-blue-950 py-1.5 px-2 rounded-md transition shadow-md cursor-pointer"
                                     >
                                       Initiate Return
                                     </button>
@@ -390,7 +390,7 @@ export default function BorrowerDashboard() {
                   <h2 className="text-2xl font-bold text-white mb-1 flex items-center gap-2 font-display uppercase tracking-wide">
                     <span>Categorized Sports Inventory</span>
                   </h2>
-                  <p className="text-slate-400 text-sm">
+                  <p className="text-slate-300 text-sm">
                     Select a sport category, review real-time stock availability, and borrow equipment directly.
                   </p>
                 </div>
@@ -403,12 +403,12 @@ export default function BorrowerDashboard() {
                     placeholder="Search equipment, net, ball..."
                     value={searchQuery}
                     onChange={e => setSearchQuery(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2 bg-[#0e172e] border border-blue-900/60 rounded-lg text-sm text-slate-200 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-yellow-400/30 focus:border-yellow-400 transition"
+                    className="w-full pl-10 pr-4 py-2 bg-[#07172f] border border-blue-500/40 rounded-lg text-sm text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-yellow-400/30 focus:border-yellow-400 transition"
                   />
                   {searchQuery && (
                     <button 
                       onClick={() => setSearchQuery('')}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-400 hover:text-white font-bold"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-yellow-400 hover:text-yellow-300 font-bold"
                     >
                       Clear
                     </button>
@@ -419,7 +419,7 @@ export default function BorrowerDashboard() {
               {/* DYNAMIC SPORT CATEGORY SELECTOR CARDS & TABS */}
               <div className="mb-6">
                 <div className="flex items-center justify-between mb-2.5">
-                  <span className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+                  <span className="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
                     <Layers className="w-3.5 h-3.5 text-yellow-400" />
                     Select Sport / Activity Category
                   </span>
@@ -434,14 +434,14 @@ export default function BorrowerDashboard() {
                     onClick={() => setSelectedCategory('All')}
                     className={`flex items-center space-x-2 px-4 py-2.5 rounded-xl border text-sm font-bold whitespace-nowrap transition shrink-0 cursor-pointer ${
                       selectedCategory === 'All'
-                        ? 'bg-yellow-400 text-blue-950 border-yellow-400 shadow-md'
-                        : 'bg-[#101b38] text-slate-300 border-blue-900/60 hover:border-yellow-400/50 hover:bg-[#14234a]'
+                        ? 'bg-yellow-400 text-blue-950 border-yellow-400 shadow-md font-extrabold'
+                        : 'bg-[#0e264c] text-slate-300 border-blue-600/40 hover:border-yellow-400 hover:bg-[#133569] hover:text-white'
                     }`}
                   >
-                    <CategoryIcon category="all" className="w-4 h-4" />
+                    <CategoryIcon category="all" className="w-4 h-4 text-blue-950" />
                     <span>All Sports</span>
                     <span className={`text-xs px-2 py-0.5 rounded-full font-bold ${
-                      selectedCategory === 'All' ? 'bg-blue-950 text-yellow-400' : 'bg-blue-950/80 text-slate-400'
+                      selectedCategory === 'All' ? 'bg-blue-950 text-yellow-400' : 'bg-blue-950/80 text-yellow-300'
                     }`}>
                       {equipment.length}
                     </span>
@@ -458,14 +458,14 @@ export default function BorrowerDashboard() {
                         onClick={() => setSelectedCategory(cat)}
                         className={`flex items-center space-x-2 px-4 py-2.5 rounded-xl border text-sm font-bold whitespace-nowrap transition shrink-0 cursor-pointer ${
                           isSelected
-                            ? 'bg-yellow-400 text-blue-950 border-yellow-400 shadow-md'
-                            : 'bg-[#101b38] text-slate-300 border-blue-900/60 hover:border-yellow-400/50 hover:bg-[#14234a]'
+                            ? 'bg-yellow-400 text-blue-950 border-yellow-400 shadow-md font-extrabold'
+                            : 'bg-[#0e264c] text-slate-300 border-blue-600/40 hover:border-yellow-400 hover:bg-[#133569] hover:text-white'
                         }`}
                       >
                         <CategoryIcon category={cat} className={`w-4 h-4 ${isSelected ? 'text-blue-950' : 'text-yellow-400'}`} />
                         <span>{cat}</span>
                         <span className={`text-xs px-2 py-0.5 rounded-full font-bold ${
-                          isSelected ? 'bg-blue-950 text-yellow-400' : 'bg-blue-950/80 text-slate-400'
+                          isSelected ? 'bg-blue-950 text-yellow-400' : 'bg-blue-950/80 text-yellow-300'
                         }`}>
                           {stats.count}
                         </span>
@@ -475,21 +475,21 @@ export default function BorrowerDashboard() {
                 </div>
               </div>
 
-              {/* Active Category Information Banner (Quick Bundle button removed) */}
+              {/* Active Category Information Banner */}
               {activeCategoryMeta && (
-                <div className="p-4 rounded-xl border border-blue-900/60 bg-[#101b38] mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-sm">
+                <div className="p-4 rounded-xl border border-blue-600/40 bg-[#0e264c] mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-md">
                   <div className="flex items-start space-x-3.5">
-                    <div className="w-10 h-10 rounded-xl bg-blue-950 border border-blue-800 flex items-center justify-center text-yellow-400 shadow-xs shrink-0">
-                      <CategoryIcon category={activeCategoryMeta.name} className="w-5 h-5" />
+                    <div className="w-10 h-10 rounded-xl bg-blue-950 border border-blue-500/50 flex items-center justify-center text-yellow-400 shadow-xs shrink-0">
+                      <CategoryIcon category={activeCategoryMeta.name} className="w-5 h-5 text-yellow-400" />
                     </div>
                     <div>
                       <div className="flex items-center space-x-2">
                         <h3 className="font-bold text-white text-base">{activeCategoryMeta.name} Equipment Set</h3>
-                        <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-blue-950 text-yellow-400 border border-yellow-400/40">
+                        <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-yellow-400/20 text-yellow-300 border border-yellow-400/40">
                           {getCategoryStats(activeCategoryMeta.name).totalAvail} units in stock
                         </span>
                       </div>
-                      <p className="text-xs text-slate-400 mt-0.5">{activeCategoryMeta.description}</p>
+                      <p className="text-xs text-slate-300 mt-0.5">{activeCategoryMeta.description}</p>
                     </div>
                   </div>
                 </div>
@@ -498,8 +498,8 @@ export default function BorrowerDashboard() {
               {/* Main Equipment Catalog: Clean Full-Width Grid */}
               <div className="w-full">
                 {filteredEquipment.length === 0 ? (
-                  <div className="bg-[#101b38] border border-blue-900/60 rounded-xl p-12 text-center text-slate-400">
-                    <Box className="w-12 h-12 mx-auto mb-3 text-slate-500" />
+                  <div className="bg-[#0e264c] border border-blue-600/40 rounded-xl p-12 text-center text-slate-300">
+                    <Box className="w-12 h-12 mx-auto mb-3 text-slate-400" />
                     <h4 className="font-bold text-white text-base">No Equipment Found</h4>
                     <p className="text-xs text-slate-400 mt-1 max-w-sm mx-auto">
                       {searchQuery 
@@ -509,7 +509,7 @@ export default function BorrowerDashboard() {
                     </p>
                     <button 
                       onClick={() => { setSelectedCategory('All'); setSearchQuery(''); }}
-                      className="mt-4 px-4 py-2 bg-yellow-400 text-blue-950 rounded-lg text-xs font-bold hover:bg-yellow-300 transition cursor-pointer"
+                      className="mt-4 px-4 py-2 bg-yellow-400 text-blue-950 rounded-lg text-xs font-bold hover:bg-yellow-300 transition cursor-pointer shadow-md"
                     >
                       View All Categories
                     </button>
@@ -522,26 +522,26 @@ export default function BorrowerDashboard() {
                       return (
                         <div 
                           key={eq.id} 
-                          className="bg-[#101b38] border border-blue-900/60 hover:border-blue-700/80 rounded-xl p-4 flex flex-col justify-between transition hover:shadow-lg"
+                          className="bg-[#0e264c] border border-blue-600/40 hover:border-yellow-400/80 rounded-xl p-4 flex flex-col justify-between transition shadow-md hover:shadow-xl"
                         >
                           <div>
                             {/* Category Badge and Available Count */}
                             <div className="flex justify-between items-start mb-2">
-                              <span className="inline-flex items-center space-x-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-950/80 text-blue-300 border border-blue-800/60">
+                              <span className="inline-flex items-center space-x-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-950/80 text-yellow-300 border border-blue-600/50">
                                 <CategoryIcon category={eq.category} className="w-3 h-3 text-yellow-400" />
                                 <span>{eq.category}</span>
                               </span>
 
                               <span className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full ${
                                 eq.available > 0 
-                                  ? 'bg-yellow-400/15 text-yellow-300 border border-yellow-400/40' 
+                                  ? 'bg-yellow-400/20 text-yellow-300 border border-yellow-400/50' 
                                   : eq.damaged > 0
-                                    ? 'bg-red-950/60 text-red-300 border border-red-800/60'
+                                    ? 'bg-red-950/70 text-red-300 border border-red-700/60'
                                     : eq.inRepair > 0
-                                      ? 'bg-amber-950/60 text-amber-300 border border-amber-800/60'
+                                      ? 'bg-amber-950/70 text-amber-300 border border-amber-700/60'
                                       : eq.borrowed > 0
-                                        ? 'bg-blue-950/90 text-blue-300 border border-blue-800/60'
-                                        : 'bg-slate-800 text-slate-400 border border-slate-700'
+                                        ? 'bg-blue-950/80 text-blue-300 border border-blue-700/60'
+                                        : 'bg-slate-800/80 text-slate-300 border border-slate-700'
                               }`}>
                                 {eq.available > 0 
                                   ? `${eq.available} Available` 
@@ -556,7 +556,7 @@ export default function BorrowerDashboard() {
                             </div>
 
                             {/* Equipment Name */}
-                            <h3 className="font-bold text-white text-sm leading-tight mb-1">
+                            <h3 className="font-bold text-white text-base leading-tight mb-1 font-display tracking-wide">
                               {eq.name}
                             </h3>
 
@@ -569,34 +569,34 @@ export default function BorrowerDashboard() {
 
                             {/* Equipment Location and Stock Breakdown */}
                             <div className="text-[11px] text-slate-300 space-y-1.5 mb-3">
-                              <div className="flex items-start space-x-1.5 bg-[#0a1122] p-1.5 rounded-md border border-blue-900/50">
+                              <div className="flex items-start space-x-1.5 bg-[#07172f] p-1.5 rounded-md border border-blue-500/40">
                                 <span className="text-yellow-400 text-xs">📍</span>
                                 <div className="flex flex-col">
                                   <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Facility / Location</span>
-                                  <span className="text-white font-semibold text-xs leading-tight">{eq.location || 'Main Sports Storage'}</span>
+                                  <span className="text-white font-bold text-xs leading-tight">{eq.location || 'Main Sports Storage'}</span>
                                 </div>
                               </div>
-                              <div className="flex items-center space-x-2 text-[10px] text-slate-400 pt-1">
-                                <span className="font-semibold text-yellow-400">Available: {eq.available}</span>
-                                <span>•</span>
-                                <span>Borrowed: {eq.borrowed}</span>
+                              <div className="flex items-center space-x-2 text-[10px] text-slate-300 pt-1">
+                                <span className="font-bold text-yellow-400">Available: {eq.available}</span>
+                                <span className="text-slate-500">•</span>
+                                <span className="text-slate-300">Borrowed: {eq.borrowed}</span>
                                 {eq.inRepair > 0 && (
                                   <>
-                                    <span>•</span>
-                                    <span className="text-amber-400">Repair: {eq.inRepair}</span>
+                                    <span className="text-slate-500">•</span>
+                                    <span className="text-amber-400 font-semibold">Repair: {eq.inRepair}</span>
                                   </>
                                 )}
                               </div>
                             </div>
                           </div>
 
-                          {/* Card Action Button */}
-                          <div className="pt-2.5 border-t border-blue-900/40">
+                          {/* Card Action Button: CapSU Yellow */}
+                          <div className="pt-2.5 border-t border-blue-700/40">
                             {isAvailable ? (
                               <button
                                 type="button"
                                 onClick={() => openBorrowModal(eq)}
-                                className="w-full py-2.5 px-3 bg-yellow-400 hover:bg-yellow-300 text-blue-950 font-bold rounded-lg text-xs flex items-center justify-center space-x-1.5 transition shadow-sm cursor-pointer"
+                                className="w-full py-2.5 px-3 bg-yellow-400 hover:bg-yellow-300 text-blue-950 font-bold rounded-lg text-xs flex items-center justify-center space-x-1.5 transition shadow-md cursor-pointer"
                               >
                                 <CalendarPlus className="w-3.5 h-3.5" />
                                 <span>Borrow Equipment</span>
@@ -605,7 +605,7 @@ export default function BorrowerDashboard() {
                               <button
                                 type="button"
                                 disabled
-                                className="w-full py-2.5 px-3 bg-[#0a1122] border border-slate-800 text-slate-500 font-semibold rounded-lg text-xs flex items-center justify-center space-x-1.5 cursor-not-allowed"
+                                className="w-full py-2.5 px-3 bg-slate-800/80 border border-slate-700 text-slate-400 font-semibold rounded-lg text-xs flex items-center justify-center space-x-1.5 cursor-not-allowed"
                               >
                                 <span>Out of Stock</span>
                               </button>
@@ -624,7 +624,7 @@ export default function BorrowerDashboard() {
           {activeTab === 'notifications' && (
             <div className="max-w-3xl mx-auto">
               <h2 className="text-2xl font-bold text-white mb-1 font-display tracking-wide uppercase">Borrow &amp; Account Notifications</h2>
-              <p className="text-slate-400 text-sm mb-6">Real-time alerts regarding registration status, request approvals, and return deadlines.</p>
+              <p className="text-slate-300 text-sm mb-6">Real-time alerts regarding registration status, request approvals, and return deadlines.</p>
 
               <div className="space-y-4">
                 {userRequests.map(req => {
@@ -639,7 +639,7 @@ export default function BorrowerDashboard() {
                   return (
                     <div 
                       key={req.id} 
-                      className={`bg-[#101b38] border-l-4 p-4 rounded-r-xl border border-blue-900/60 shadow-sm ${
+                      className={`bg-[#0e264c] border-l-4 p-4 rounded-r-xl border border-blue-600/40 shadow-md ${
                         req.status === 'approved' 
                           ? 'border-l-emerald-400' 
                           : req.status === 'pending'
@@ -651,11 +651,11 @@ export default function BorrowerDashboard() {
                     >
                       <div className="font-bold text-white text-sm mb-1 flex items-center justify-between">
                         <div>
-                          {req.status === 'pending' && <span className="text-yellow-400">Borrow Request Submitted for Review</span>}
-                          {req.status === 'approved' && <span className="text-emerald-400 flex items-center space-x-1.5"><Check className="w-4 h-4" /><span>Borrow Request Approved &amp; Ready for Pickup!</span></span>}
-                          {req.status === 'declined' && <span className="text-red-400">Borrow Request Declined</span>}
-                          {req.status === 'return_pending' && <span className="text-amber-400">Return Process Initiated</span>}
-                          {req.status === 'returned' && <span className="text-slate-400">Return Confirmed &amp; Logged by Admin</span>}
+                          {req.status === 'pending' && <span className="text-yellow-300 font-bold">Borrow Request Submitted for Review</span>}
+                          {req.status === 'approved' && <span className="text-emerald-300 font-bold flex items-center space-x-1.5"><Check className="w-4 h-4" /><span>Borrow Request Approved &amp; Ready for Pickup!</span></span>}
+                          {req.status === 'declined' && <span className="text-red-300 font-bold">Borrow Request Declined</span>}
+                          {req.status === 'return_pending' && <span className="text-amber-300 font-bold">Return Process Initiated</span>}
+                          {req.status === 'returned' && <span className="text-blue-300 font-bold">Return Confirmed &amp; Logged by Admin</span>}
                         </div>
                         <span className="text-[11px] text-slate-400 font-normal">
                           {new Date(req.requestDate).toLocaleDateString()}
@@ -668,8 +668,8 @@ export default function BorrowerDashboard() {
                   );
                 })}
 
-                <div className="bg-[#101b38] border-l-4 border-l-emerald-400 border border-blue-900/60 p-4 rounded-r-xl shadow-sm">
-                  <div className="font-bold text-emerald-300 text-sm mb-1">Account Registration Verified &amp; Active</div>
+                <div className="bg-[#0e264c] border-l-4 border-l-yellow-400 border border-blue-600/40 p-4 rounded-r-xl shadow-md">
+                  <div className="font-bold text-white text-sm mb-1">Account Registration Verified &amp; Active</div>
                   <p className="text-slate-300 text-xs">
                     Welcome to Capiz State University Sports Equipment Management System. You are authenticated to file borrow requests across all sports categories.
                   </p>
@@ -683,16 +683,16 @@ export default function BorrowerDashboard() {
       {/* DIRECT BORROW MODAL (Replaces Consolidated Voucher Cart) */}
       {borrowModalOpen && selectedEquipment && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/75 backdrop-blur-xs">
-          <div className="bg-[#101b38] border border-blue-800/80 rounded-2xl w-full max-w-lg shadow-2xl overflow-hidden animate-fadeIn text-slate-300">
-            {/* Modal Header */}
-            <div className="bg-[#0b142a] px-6 py-4 border-b border-blue-900/60 flex justify-between items-center">
+          <div className="bg-[#0e264c] border-2 border-yellow-400 rounded-2xl w-full max-w-lg shadow-2xl overflow-hidden animate-fadeIn text-slate-200">
+            {/* Modal Header: CapSU Deep Royal Blue */}
+            <div className="bg-[#07152b] px-6 py-4 border-b-2 border-yellow-400 flex justify-between items-center text-white">
               <div>
                 <span className="text-xs font-bold text-yellow-400 uppercase tracking-wider">New Borrow Request</span>
-                <h3 className="text-lg font-bold text-white leading-tight mt-0.5">{selectedEquipment.name}</h3>
+                <h3 className="text-lg font-bold text-white leading-tight mt-0.5 font-display uppercase tracking-wide">{selectedEquipment.name}</h3>
               </div>
               <button 
                 onClick={() => setBorrowModalOpen(false)}
-                className="text-slate-400 hover:text-white p-1 rounded-lg transition"
+                className="text-slate-300 hover:text-white p-1 rounded-lg transition cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -701,14 +701,14 @@ export default function BorrowerDashboard() {
             {/* Modal Form */}
             <form onSubmit={handleConfirmBorrow} className="p-6 space-y-4">
               {/* Item Info Summary */}
-              <div className="bg-[#0a1122] p-3 rounded-xl border border-blue-900/50 flex justify-between items-center text-xs">
+              <div className="bg-[#07172f] p-3 rounded-xl border border-blue-500/40 flex justify-between items-center text-xs">
                 <div>
                   <span className="text-slate-400">Sport Category:</span>
-                  <span className="text-white font-bold ml-1.5">{selectedEquipment.category}</span>
+                  <span className="text-yellow-400 font-bold ml-1.5">{selectedEquipment.category}</span>
                 </div>
                 <div>
                   <span className="text-slate-400">Currently Available:</span>
-                  <span className="text-yellow-400 font-bold ml-1.5">{selectedEquipment.available} Units</span>
+                  <span className="text-yellow-400 font-extrabold ml-1.5">{selectedEquipment.available} Units</span>
                 </div>
               </div>
 
@@ -718,23 +718,23 @@ export default function BorrowerDashboard() {
                   Quantity to Borrow
                 </label>
                 <div className="flex items-center space-x-3">
-                  <div className="flex items-center border border-blue-900/70 bg-[#0a1122] rounded-lg overflow-hidden">
+                  <div className="flex items-center border border-blue-500/50 bg-[#07172f] rounded-lg overflow-hidden">
                     <button
                       type="button"
                       disabled={borrowQuantity <= 1}
                       onClick={() => setBorrowQuantity(Math.max(1, borrowQuantity - 1))}
-                      className="p-2.5 text-slate-300 hover:text-white hover:bg-blue-900/50 disabled:opacity-30 disabled:cursor-not-allowed transition"
+                      className="p-2.5 text-slate-300 hover:text-white hover:bg-blue-800/40 disabled:opacity-30 disabled:cursor-not-allowed transition cursor-pointer"
                     >
                       <Minus className="w-4 h-4" />
                     </button>
-                    <span className="w-12 text-center text-sm font-bold text-white">
+                    <span className="w-12 text-center text-sm font-extrabold text-yellow-400">
                       {borrowQuantity}
                     </span>
                     <button
                       type="button"
                       disabled={borrowQuantity >= selectedEquipment.available}
                       onClick={() => setBorrowQuantity(Math.min(selectedEquipment.available, borrowQuantity + 1))}
-                      className="p-2.5 text-slate-300 hover:text-white hover:bg-blue-900/50 disabled:opacity-30 disabled:cursor-not-allowed transition"
+                      className="p-2.5 text-slate-300 hover:text-white hover:bg-blue-800/40 disabled:opacity-30 disabled:cursor-not-allowed transition cursor-pointer"
                     >
                       <Plus className="w-4 h-4" />
                     </button>
@@ -756,7 +756,7 @@ export default function BorrowerDashboard() {
                   placeholder="e.g. PE Class, Intramural Match, Varsity Practice"
                   value={purpose}
                   onChange={e => setPurpose(e.target.value)}
-                  className="w-full bg-[#0a1122] border border-blue-900/70 rounded-lg px-3.5 py-2 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-yellow-400/30 focus:border-yellow-400 transition"
+                  className="w-full bg-[#07172f] border border-blue-500/40 rounded-lg px-3.5 py-2 text-xs text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-yellow-400/30 focus:border-yellow-400 transition"
                 />
                 {/* Fast Purpose Tags */}
                 <div className="flex flex-wrap gap-1.5 mt-2">
@@ -768,7 +768,7 @@ export default function BorrowerDashboard() {
                       className={`text-[10px] px-2.5 py-1 rounded-md font-semibold transition cursor-pointer ${
                         purpose === tag 
                           ? 'bg-yellow-400 text-blue-950 font-bold' 
-                          : 'bg-[#0a1122] text-slate-400 hover:text-slate-200 border border-blue-900/50'
+                          : 'bg-[#07172f] text-slate-300 hover:bg-blue-800/40 border border-blue-500/40'
                       }`}
                     >
                       {tag}
@@ -780,7 +780,7 @@ export default function BorrowerDashboard() {
               {/* Quick Duration Shortcuts */}
               <div>
                 <div className="flex justify-between items-center mb-1">
-                  <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wide">
+                  <span className="text-[11px] font-bold text-slate-300 uppercase tracking-wide">
                     Quick Schedule Presets
                   </span>
                 </div>
@@ -788,28 +788,28 @@ export default function BorrowerDashboard() {
                   <button
                     type="button"
                     onClick={() => setQuickDates('2hours')}
-                    className="px-2 py-1 bg-[#0a1122] hover:bg-yellow-400/10 hover:text-yellow-400 border border-blue-900/60 rounded text-[10px] font-bold text-slate-300 transition"
+                    className="px-2 py-1 bg-[#07172f] hover:bg-yellow-400 hover:text-blue-950 text-slate-200 border border-blue-500/40 rounded text-[10px] font-bold transition cursor-pointer"
                   >
                     +2 Hours
                   </button>
                   <button
                     type="button"
                     onClick={() => setQuickDates('4hours')}
-                    className="px-2 py-1 bg-[#0a1122] hover:bg-yellow-400/10 hover:text-yellow-400 border border-blue-900/60 rounded text-[10px] font-bold text-slate-300 transition"
+                    className="px-2 py-1 bg-[#07172f] hover:bg-yellow-400 hover:text-blue-950 text-slate-200 border border-blue-500/40 rounded text-[10px] font-bold transition cursor-pointer"
                   >
                     +4 Hours
                   </button>
                   <button
                     type="button"
                     onClick={() => setQuickDates('endOfDay')}
-                    className="px-2 py-1 bg-[#0a1122] hover:bg-yellow-400/10 hover:text-yellow-400 border border-blue-900/60 rounded text-[10px] font-bold text-slate-300 transition"
+                    className="px-2 py-1 bg-[#07172f] hover:bg-yellow-400 hover:text-blue-950 text-slate-200 border border-blue-500/40 rounded text-[10px] font-bold transition cursor-pointer"
                   >
                     End of Day
                   </button>
                   <button
                     type="button"
                     onClick={() => setQuickDates('tomorrow')}
-                    className="px-2 py-1 bg-[#0a1122] hover:bg-yellow-400/10 hover:text-yellow-400 border border-blue-900/60 rounded text-[10px] font-bold text-slate-300 transition"
+                    className="px-2 py-1 bg-[#07172f] hover:bg-yellow-400 hover:text-blue-950 text-slate-200 border border-blue-500/40 rounded text-[10px] font-bold transition cursor-pointer"
                   >
                     Tomorrow
                   </button>
@@ -828,7 +828,7 @@ export default function BorrowerDashboard() {
                     type="datetime-local"
                     value={pickupDate}
                     onChange={e => setPickupDate(e.target.value)}
-                    className="w-full bg-[#0a1122] border border-blue-900/70 rounded-lg px-3 py-2 text-xs text-slate-200 focus:outline-none focus:ring-2 focus:ring-yellow-400/30 focus:border-yellow-400 transition"
+                    className="w-full bg-[#07172f] border border-blue-500/40 rounded-lg px-3 py-2 text-xs text-slate-100 focus:outline-none focus:ring-2 focus:ring-yellow-400/30 focus:border-yellow-400 transition"
                   />
                 </div>
                 <div>
@@ -841,17 +841,17 @@ export default function BorrowerDashboard() {
                     type="datetime-local"
                     value={returnDate}
                     onChange={e => setReturnDate(e.target.value)}
-                    className="w-full bg-[#0a1122] border border-blue-900/70 rounded-lg px-3 py-2 text-xs text-slate-200 focus:outline-none focus:ring-2 focus:ring-yellow-400/30 focus:border-yellow-400 transition"
+                    className="w-full bg-[#07172f] border border-blue-500/40 rounded-lg px-3 py-2 text-xs text-slate-100 focus:outline-none focus:ring-2 focus:ring-yellow-400/30 focus:border-yellow-400 transition"
                   />
                 </div>
               </div>
 
               {/* Modal Action Buttons */}
-              <div className="pt-4 border-t border-blue-900/60 flex items-center justify-end space-x-3">
+              <div className="pt-4 border-t border-blue-700/40 flex items-center justify-end space-x-3">
                 <button
                   type="button"
                   onClick={() => setBorrowModalOpen(false)}
-                  className="px-4 py-2.5 rounded-lg text-xs font-semibold text-slate-300 hover:text-white hover:bg-blue-900/40 border border-blue-900/50 transition cursor-pointer"
+                  className="px-4 py-2.5 rounded-lg text-xs font-semibold text-slate-300 hover:bg-blue-800/40 border border-blue-500/40 transition cursor-pointer"
                 >
                   Cancel
                 </button>
@@ -877,8 +877,8 @@ function NavItem({ icon, label, active, onClick, badge }: any) {
       onClick={onClick}
       className={`flex items-center justify-between px-6 py-3 cursor-pointer border-l-4 transition text-sm font-semibold ${
         active 
-          ? 'border-yellow-400 bg-yellow-400/10 text-yellow-400' 
-          : 'border-transparent text-slate-400 hover:bg-blue-900/30 hover:text-slate-200'
+          ? 'border-yellow-400 bg-yellow-400/20 text-yellow-300 font-bold' 
+          : 'border-transparent text-slate-300 hover:bg-blue-800/40 hover:text-white'
       }`}
     >
       <div className="flex items-center space-x-3">
@@ -896,23 +896,23 @@ function NavItem({ icon, label, active, onClick, badge }: any) {
 
 function StatCard({ title, count, subtext, icon, color }: any) {
   return (
-    <div className={`bg-[#101b38] border-t-4 ${color} border border-blue-900/60 p-5 rounded-xl flex flex-col shadow-md`}>
+    <div className={`bg-[#0e264c] border-t-4 ${color} border border-blue-600/40 p-5 rounded-xl flex flex-col shadow-md`}>
       <div className="flex justify-between items-start mb-2">
-        <span className="text-[11px] text-slate-400 font-bold tracking-wider uppercase">{title}</span>
+        <span className="text-[11px] text-slate-300 font-bold tracking-wider uppercase">{title}</span>
         {icon}
       </div>
-      <div className="text-3xl font-bold text-white mb-1 font-display tracking-tight">{count}</div>
-      <div className="text-xs text-slate-400">{subtext}</div>
+      <div className="text-3xl font-extrabold text-white mb-1 font-display tracking-tight">{count}</div>
+      <div className="text-xs text-slate-400 font-medium">{subtext}</div>
     </div>
   );
 }
 
 function StatusBadge({ status }: { status: string }) {
-  if (status === 'pending') return <span className="bg-yellow-400/15 text-yellow-300 border border-yellow-400/40 px-3 py-1 rounded-full shadow-xs text-xs font-bold">Pending</span>;
-  if (status === 'approved') return <span className="bg-emerald-950/70 text-emerald-300 border border-emerald-700/60 px-3 py-1 rounded-full shadow-xs text-xs font-bold">Approved</span>;
-  if (status === 'overdue') return <span className="bg-red-950/70 text-red-300 border border-red-700/60 px-3 py-1 rounded-full shadow-xs text-xs font-bold">Overdue Returns</span>;
-  if (status === 'declined') return <span className="bg-red-950/70 text-red-300 border border-red-700/60 px-3 py-1 rounded-full shadow-xs text-xs font-bold">Declined</span>;
-  if (status === 'returned') return <span className="bg-blue-950/80 text-blue-300 border border-blue-700/60 px-3 py-1 rounded-full shadow-xs text-xs font-bold">Returned</span>;
-  if (status === 'return_pending') return <span className="bg-blue-950/80 text-blue-300 border border-blue-700/60 px-3 py-1 rounded-full shadow-xs text-xs font-bold">Return Requested</span>;
+  if (status === 'pending') return <span className="bg-yellow-400/20 text-yellow-300 border border-yellow-400/50 px-3 py-1 rounded-full shadow-xs text-xs font-bold">Pending</span>;
+  if (status === 'approved') return <span className="bg-emerald-500/20 text-emerald-300 border border-emerald-500/50 px-3 py-1 rounded-full shadow-xs text-xs font-bold">Approved</span>;
+  if (status === 'overdue') return <span className="bg-red-500/20 text-red-300 border border-red-500/50 px-3 py-1 rounded-full shadow-xs text-xs font-bold">Overdue Returns</span>;
+  if (status === 'declined') return <span className="bg-red-500/20 text-red-300 border border-red-500/50 px-3 py-1 rounded-full shadow-xs text-xs font-bold">Declined</span>;
+  if (status === 'returned') return <span className="bg-blue-500/20 text-blue-300 border border-blue-500/50 px-3 py-1 rounded-full shadow-xs text-xs font-bold">Returned</span>;
+  if (status === 'return_pending') return <span className="bg-blue-500/20 text-blue-300 border border-blue-500/50 px-3 py-1 rounded-full shadow-xs text-xs font-bold">Return Requested</span>;
   return null;
 }

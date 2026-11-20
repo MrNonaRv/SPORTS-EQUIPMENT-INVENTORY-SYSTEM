@@ -42,16 +42,21 @@ export default function PublicDashboard() {
   const timeStr = now.toLocaleTimeString('en-US');
 
   return (
-    <div className="min-h-screen bg-[#080e1e] text-slate-300 font-sans flex flex-col relative">
-      {/* Top Header */}
-      <header className="flex justify-between items-center px-6 py-4 border-b border-blue-900/50 bg-[#0b142a]/95 backdrop-blur-md shadow-sm">
+    <div className="min-h-screen bg-[#0a1c38] text-slate-300 font-sans flex flex-col relative">
+      {/* Top Header: CapSU Royal Blue with Yellow Accent Border */}
+      <header className="flex justify-between items-center px-6 py-4 border-b-4 border-yellow-400 bg-[#07152b]/95 backdrop-blur-md shadow-md">
         <div className="flex items-center space-x-3 text-white font-bold text-lg">
-          <div className="bg-yellow-400 p-1.5 rounded-lg text-blue-950 shadow-sm">
+          <div className="bg-yellow-400 p-2 rounded-lg text-blue-950 shadow-sm">
             <Trophy className="w-5 h-5" />
           </div>
-          <span className="font-display tracking-wider text-xl uppercase">CSU CapSu Sports Inventory</span>
+          <div>
+            <span className="font-display tracking-wider text-xl uppercase text-white font-bold">CSU CapSu Sports Inventory</span>
+            <span className="hidden sm:inline-block ml-3 text-xs font-semibold px-2.5 py-0.5 rounded-full bg-blue-900/80 text-yellow-300 border border-yellow-400/30">
+              Capiz State University
+            </span>
+          </div>
         </div>
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center space-x-3 sm:space-x-4">
           <button 
             onClick={() => setView('login_borrower')}
             className="flex items-center space-x-2 bg-yellow-400 hover:bg-yellow-300 text-blue-950 px-5 py-2.5 rounded-lg font-bold text-sm transition shadow-md cursor-pointer"
@@ -61,38 +66,38 @@ export default function PublicDashboard() {
           </button>
           <button 
             onClick={() => setView('landing')}
-            className="text-slate-400 hover:text-white px-4 py-2.5 border border-blue-900/60 hover:border-blue-700 rounded-lg text-sm font-semibold transition cursor-pointer"
+            className="text-slate-300 hover:text-white px-4 py-2.5 border border-blue-500/40 hover:border-yellow-400 rounded-lg text-sm font-semibold transition cursor-pointer"
           >
             &larr; Home
           </button>
         </div>
       </header>
 
-      <div className="p-6 max-w-7xl mx-auto w-full">
+      <div className="p-4 sm:p-6 max-w-7xl mx-auto w-full">
         {/* Subheader Metadata */}
-        <div className="flex flex-wrap items-center justify-between gap-4 text-sm text-slate-400 mb-6 border-b border-blue-900/40 pb-4">
-          <div className="flex items-center space-x-4">
-            <span className="flex items-center"><span className="mr-1 text-yellow-400">📍</span> <strong>Location:</strong>&nbsp;CSU Mambusao Campus</span>
-            <span className="flex items-center"><span className="mr-1 text-yellow-400">🕒</span> <strong>Clock:</strong>&nbsp;{dateStr} - {timeStr}</span>
+        <div className="flex flex-wrap items-center justify-between gap-4 text-sm text-slate-300 mb-6 border-b border-blue-700/40 pb-4">
+          <div className="flex items-center space-x-4 flex-wrap gap-y-2">
+            <span className="flex items-center"><span className="mr-1 text-yellow-400">📍</span> <strong className="text-slate-200">Location:</strong>&nbsp;<span className="text-slate-300">CSU Mambusao Campus</span></span>
+            <span className="flex items-center"><span className="mr-1 text-yellow-400">🕒</span> <strong className="text-slate-200">Clock:</strong>&nbsp;<span className="text-slate-300">{dateStr} - {timeStr}</span></span>
           </div>
-          <span className="inline-flex items-center text-xs font-bold text-yellow-300 bg-yellow-400/10 px-3 py-1 rounded-full border border-yellow-400/30">
+          <span className="inline-flex items-center text-xs font-bold text-yellow-300 bg-yellow-400/15 px-3 py-1 rounded-full border border-yellow-400/40">
             <span className="w-2 h-2 rounded-full bg-yellow-400 mr-2 animate-pulse"></span>
             Cloud Real-Time Sync Active
           </span>
         </div>
 
-        {/* 6 Key KPI Cards */}
+        {/* 6 Key KPI Cards: CapSU Royal Blue with Yellow Accent */}
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8 relative z-10">
-          <StatCard onClick={() => setActiveOverlay('total')} title="TOTAL UNITS" count={totalUnits} subtext="Across all sports" icon={<Box className="w-6 h-6 text-slate-400" />} color="border-t-yellow-400" />
-          <StatCard onClick={() => setActiveOverlay('available')} title="AVAILABLE ITEMS" count={availableUnits} subtext="Ready to borrow" icon={<Check className="w-6 h-6 text-emerald-400" />} color="border-t-emerald-400" />
-          <StatCard onClick={() => setActiveOverlay('borrowed')} title="BORROWED" count={borrowedUnits} subtext="Currently out" icon={<RefreshCw className="w-6 h-6 text-blue-400" />} color="border-t-blue-400" />
+          <StatCard onClick={() => setActiveOverlay('total')} title="TOTAL UNITS" count={totalUnits} subtext="Across all sports" icon={<Box className="w-6 h-6 text-slate-300" />} color="border-t-yellow-400" />
+          <StatCard onClick={() => setActiveOverlay('available')} title="AVAILABLE ITEMS" count={availableUnits} subtext="Ready to borrow" icon={<Check className="w-6 h-6 text-yellow-400" />} color="border-t-yellow-400" />
+          <StatCard onClick={() => setActiveOverlay('borrowed')} title="BORROWED" count={borrowedUnits} subtext="Currently out" icon={<RefreshCw className="w-6 h-6 text-blue-300" />} color="border-t-blue-400" />
           <StatCard onClick={() => setActiveOverlay('repair')} title="FOR REPAIR" count={forRepairUnits} subtext="Under maintenance" icon={<Wrench className="w-6 h-6 text-amber-400" />} color="border-t-amber-400" />
           <StatCard onClick={() => setActiveOverlay('damaged')} title="DAMAGED UNITS" count={damagedUnits} subtext="Unserviceable" icon={<XCircle className="w-6 h-6 text-red-400" />} color="border-t-red-400" />
           <StatCard onClick={() => setActiveOverlay('sports')} title="SPORTS TRACKS" count={sportsTracksCount} subtext="Active sports" icon={<Trophy className="w-6 h-6 text-yellow-400" />} color="border-t-yellow-400" />
         </div>
 
         {activeOverlay && (
-          <div className="absolute left-6 right-6 top-[220px] bg-[#101b38] border border-blue-800 rounded-xl shadow-2xl z-50 p-6">
+          <div className="absolute left-4 right-4 sm:left-6 sm:right-6 top-[220px] bg-[#0e264c] border-2 border-yellow-400 rounded-xl shadow-2xl z-50 p-6">
             <ActiveLogsOverlay type={activeOverlay} onClose={() => setActiveOverlay(null)} equipment={equipment} requests={requests} users={users} />
           </div>
         )}
@@ -100,7 +105,7 @@ export default function PublicDashboard() {
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4 mt-8">
           <div>
             <h2 className="text-2xl font-bold text-white font-display uppercase tracking-wide">Categorized Sports Equipment</h2>
-            <p className="text-sm text-slate-400 mt-1">Filter sports categories to view available sets and equipment items</p>
+            <p className="text-sm text-slate-300 mt-1">Filter sports categories to view available sets and equipment items</p>
           </div>
 
           <div className="relative w-full md:w-72">
@@ -110,7 +115,7 @@ export default function PublicDashboard() {
               placeholder="Search equipment or sport..."
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 bg-[#0e172e] border border-blue-900/60 rounded-lg text-sm text-slate-200 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-yellow-400/30 focus:border-yellow-400 transition"
+              className="w-full pl-10 pr-4 py-2.5 bg-[#07172f] border border-blue-500/40 rounded-lg text-sm text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-yellow-400/30 focus:border-yellow-400 transition"
             />
           </div>
         </div>
@@ -121,8 +126,8 @@ export default function PublicDashboard() {
             onClick={() => setSelectedCategory('All')}
             className={`px-4 py-2 rounded-xl text-sm font-bold whitespace-nowrap transition flex items-center space-x-2 cursor-pointer ${
               selectedCategory === 'All'
-                ? 'bg-yellow-400 text-blue-950 shadow-md'
-                : 'bg-[#101b38] text-slate-300 border border-blue-900/60 hover:bg-[#14234a]'
+                ? 'bg-yellow-400 text-blue-950 shadow-md font-extrabold'
+                : 'bg-[#0e264c] text-slate-300 border border-blue-600/40 hover:bg-[#133569] hover:text-white'
             }`}
           >
             <CategoryIcon category="all" className="w-4 h-4" />
@@ -137,8 +142,8 @@ export default function PublicDashboard() {
                 onClick={() => setSelectedCategory(cat)}
                 className={`px-4 py-2 rounded-xl text-sm font-bold whitespace-nowrap transition flex items-center space-x-2 cursor-pointer ${
                   isSel
-                    ? 'bg-yellow-400 text-blue-950 shadow-md border-transparent'
-                    : 'bg-[#101b38] text-slate-300 border border-blue-900/60 hover:bg-[#14234a]'
+                    ? 'bg-yellow-400 text-blue-950 shadow-md border-transparent font-extrabold'
+                    : 'bg-[#0e264c] text-slate-300 border border-blue-600/40 hover:bg-[#133569] hover:text-white'
                 }`}
               >
                 <CategoryIcon category={cat} className={`w-4 h-4 ${isSel ? 'text-blue-950' : 'text-yellow-400'}`} />
@@ -148,10 +153,10 @@ export default function PublicDashboard() {
           })}
         </div>
         
-        {/* Table of Equipment */}
-        <div className="bg-[#101b38] rounded-xl overflow-hidden border border-blue-900/60 shadow-md overflow-x-auto">
+        {/* Table of Equipment: CapSU Royal Blue with Light Gray Words */}
+        <div className="bg-[#0e264c] rounded-xl overflow-hidden border border-blue-600/40 shadow-lg overflow-x-auto">
           <table className="w-full text-left text-sm">
-            <thead className="bg-[#0c142a] text-slate-400 text-xs uppercase tracking-wider border-b border-blue-900/60">
+            <thead className="bg-[#07152b] text-slate-300 text-xs uppercase tracking-wider border-b border-blue-600/40">
               <tr>
                 <th className="px-6 py-4 font-bold">Equipment Name</th>
                 <th className="px-6 py-4 font-bold">Location</th>
@@ -165,17 +170,17 @@ export default function PublicDashboard() {
                 <th className="px-6 py-4 font-bold text-center">Last Checked</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-blue-900/30">
+            <tbody className="divide-y divide-blue-700/30">
               {filteredEquipment.length === 0 ? (
                 <tr>
-                  <td colSpan={10} className="px-6 py-12 text-center text-slate-400 text-sm font-medium">
+                  <td colSpan={10} className="px-6 py-12 text-center text-slate-300 text-sm font-medium">
                     No equipment found in {selectedCategory === 'All' ? 'inventory' : selectedCategory}.
                   </td>
                 </tr>
               ) : (
                 filteredEquipment.map((eq) => {
                   return (
-                    <tr key={eq.id} className="hover:bg-blue-900/20 transition">
+                    <tr key={eq.id} className="hover:bg-blue-800/30 transition">
                       <td className="px-6 py-4 font-medium">
                         <span className="text-white font-bold text-base">{eq.name}</span>
                         {eq.description && (
@@ -186,25 +191,25 @@ export default function PublicDashboard() {
                         )}
                       </td>
                       <td className="px-6 py-4">
-                        <div className="flex items-center space-x-1.5 text-slate-200 bg-[#0a1122] px-2.5 py-1 rounded border border-blue-900/50 w-max">
+                        <div className="flex items-center space-x-1.5 text-slate-300 bg-[#07172f] px-2.5 py-1 rounded border border-blue-500/40 w-max">
                           <span className="text-xs text-yellow-400">📍</span>
                           <span className="font-bold text-xs whitespace-nowrap">{eq.location || 'Main Storage'}</span>
                         </div>
                       </td>
                       <td className="px-6 py-4">
-                        <span className="inline-flex items-center space-x-1 text-xs font-bold px-3 py-1 rounded-full bg-blue-950 text-blue-300 border border-blue-800">
+                        <span className="inline-flex items-center space-x-1 text-xs font-bold px-3 py-1 rounded-full bg-blue-950/80 text-yellow-300 border border-blue-600/50">
                           <CategoryIcon category={eq.category} className="w-3.5 h-3.5 text-yellow-400" />
                           <span>{eq.category}</span>
                         </span>
                       </td>
                       <td className="px-6 py-4 text-center font-bold text-white text-base">{eq.total}</td>
-                      <td className="px-6 py-4 text-center text-yellow-400 font-bold text-base">{eq.available}</td>
-                      <td className="px-6 py-4 text-center text-blue-300 font-semibold">{eq.borrowed}</td>
+                      <td className="px-6 py-4 text-center text-yellow-400 font-extrabold text-base">{eq.available}</td>
+                      <td className="px-6 py-4 text-center text-blue-200 font-semibold">{eq.borrowed}</td>
                       <td className="px-6 py-4 text-center text-amber-400 font-semibold">{eq.inRepair}</td>
                       <td className="px-6 py-4 text-center text-red-400 font-semibold">{eq.damaged}</td>
                       <td className="px-6 py-4 text-center">
                         {eq.available > 0 ? (
-                          <span className="text-xs font-bold text-yellow-300 bg-yellow-400/15 border border-yellow-400/40 px-3 py-1.5 rounded-full shadow-xs">Available</span>
+                          <span className="text-xs font-bold text-yellow-300 bg-yellow-400/20 border border-yellow-400/50 px-3 py-1.5 rounded-full shadow-xs">Available</span>
                         ) : eq.damaged > 0 ? (
                           <span className="text-xs font-bold text-red-300 bg-red-950/70 border border-red-700/60 px-3 py-1.5 rounded-full shadow-xs">Damaged</span>
                         ) : eq.inRepair > 0 ? (
@@ -212,10 +217,10 @@ export default function PublicDashboard() {
                         ) : eq.borrowed > 0 ? (
                           <span className="text-xs font-bold text-blue-300 bg-blue-950/80 border border-blue-700/60 px-3 py-1.5 rounded-full shadow-xs">Borrowed</span>
                         ) : (
-                          <span className="text-xs font-bold text-slate-400 bg-slate-800 border border-slate-700 px-3 py-1.5 rounded-full shadow-xs">Out of Stock</span>
+                          <span className="text-xs font-bold text-slate-300 bg-slate-800/80 border border-slate-700 px-3 py-1.5 rounded-full shadow-xs">Out of Stock</span>
                         )}
                       </td>
-                      <td className="px-6 py-4 text-center text-slate-400 text-xs font-medium">{eq.lastChecked || 'N/A'}</td>
+                      <td className="px-6 py-4 text-center text-slate-300 text-xs font-medium">{eq.lastChecked || 'N/A'}</td>
                     </tr>
                   );
                 })
@@ -232,14 +237,14 @@ function StatCard({ title, count, subtext, icon, color, onClick }: any) {
   return (
     <div 
       onClick={onClick}
-      className={`bg-[#101b38] border-t-4 ${color} border border-blue-900/60 p-5 rounded-xl shadow-md flex flex-col ${onClick ? 'cursor-pointer hover:border-yellow-400/60 hover:-translate-y-1 transition-all duration-200' : ''}`}
+      className={`bg-[#0e264c] border-t-4 ${color} border border-blue-600/30 p-5 rounded-xl shadow-md flex flex-col ${onClick ? 'cursor-pointer hover:border-yellow-400/70 hover:-translate-y-1 transition-all duration-200' : ''}`}
     >
       <div className="flex justify-between items-start mb-3">
-        <span className="text-xs text-slate-400 font-bold tracking-widest uppercase">{title}</span>
+        <span className="text-xs text-slate-300 font-bold tracking-widest uppercase">{title}</span>
         {icon}
       </div>
-      <div className="text-4xl font-extrabold text-white mb-1 font-display">{count}</div>
-      <div className="text-sm text-slate-400 font-medium mb-4">{subtext}</div>
+      <div className="text-4xl font-extrabold text-white mb-1 font-display tracking-tight">{count}</div>
+      <div className="text-sm text-slate-300 font-medium mb-4">{subtext}</div>
       {onClick && (
         <div className="mt-auto flex items-center space-x-1.5 text-xs font-bold text-yellow-400">
           <Search className="w-3.5 h-3.5" />
@@ -311,35 +316,35 @@ function ActiveLogsOverlay({ type, onClose, equipment, requests, users }: any) {
             <Trophy className="w-6 h-6 text-yellow-400" />
             <span>{title}</span>
           </h3>
-          <p className="text-slate-400 text-sm mt-1">Detailed inventory records matching current filter parameters.</p>
+          <p className="text-slate-300 text-sm mt-1">Detailed inventory records matching current filter parameters.</p>
         </div>
-        <button onClick={onClose} className="text-slate-400 hover:text-white p-2 bg-[#0a1122] hover:bg-blue-900/50 rounded-full transition cursor-pointer">
+        <button onClick={onClose} className="text-slate-300 hover:text-white p-2 bg-[#07172f] hover:bg-blue-800/50 rounded-full transition cursor-pointer">
           <X className="w-5 h-5" />
         </button>
       </div>
 
-      <div className="overflow-y-auto flex-1 border border-blue-900/60 rounded-lg shadow-inner bg-[#0a1122]">
+      <div className="overflow-y-auto flex-1 border border-blue-600/40 rounded-lg shadow-inner bg-[#07172f]">
         <table className="w-full text-left text-sm">
-          <thead className="bg-[#0e172e] text-slate-400 text-xs uppercase tracking-wider sticky top-0 z-10 border-b border-blue-900/50">
+          <thead className="bg-[#07152b] text-slate-300 text-xs uppercase tracking-wider sticky top-0 z-10 border-b border-blue-600/40">
             <tr>
               {columns.map(c => <th key={c} className="px-6 py-4 font-bold">{c}</th>)}
             </tr>
           </thead>
-          <tbody className="divide-y divide-blue-900/30 bg-[#101b38]">
+          <tbody className="divide-y divide-blue-700/30 bg-[#0e264c]">
             {data.map((row, i) => (
-              <tr key={i} className="hover:bg-blue-900/20 transition">
+              <tr key={i} className="hover:bg-blue-800/30 transition">
                 <td className="px-6 py-4 font-bold text-white">{row.col1}</td>
                 <td className="px-6 py-4 text-slate-300 font-medium">{row.col2}</td>
                 <td className="px-6 py-4 font-semibold text-yellow-400">{row.col3}</td>
                 {columns.length > 3 && (
                   <td className="px-6 py-4">
-                    <span className={`text-xs font-bold px-3 py-1.5 rounded-full ${row.isAvailable ? 'bg-yellow-400/15 text-yellow-300 border border-yellow-400/40' : 'bg-slate-800 text-slate-400 border border-slate-700'}`}>{row.col4}</span>
+                    <span className={`text-xs font-bold px-3 py-1.5 rounded-full ${row.isAvailable ? 'bg-yellow-400/20 text-yellow-300 border border-yellow-400/50' : 'bg-slate-800/80 text-slate-300 border border-slate-700'}`}>{row.col4}</span>
                   </td>
                 )}
               </tr>
             ))}
             {data.length === 0 && (
-              <tr><td colSpan={columns.length} className="px-6 py-12 text-center text-slate-400 font-medium">No records found.</td></tr>
+              <tr><td colSpan={columns.length} className="px-6 py-12 text-center text-slate-300 font-medium">No records found.</td></tr>
             )}
           </tbody>
         </table>
