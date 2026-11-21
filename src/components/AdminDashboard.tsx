@@ -244,10 +244,10 @@ export default function AdminDashboard() {
             >
               <Menu className="w-6 h-6" />
             </button>
-            <div className="bg-yellow-400 p-1.5 rounded-lg text-blue-950 hidden sm:block shadow-sm">
-              <Trophy className="w-5 h-5" />
+            <div className="hidden sm:block">
+              <img src="/capsu-logo.png" alt="CapSU Logo" className="w-8 h-8 rounded-full object-cover border-2 border-yellow-400 shadow-md" />
             </div>
-            <span className="truncate font-display uppercase tracking-wider text-lg">CSU CapSu Sports - Admin Control</span>
+            <span className="truncate font-display uppercase tracking-wider text-lg">CAPSU SPORTS INVENTORY - ADMIN CONTROL</span>
           </div>
           <div className="text-sm flex items-center space-x-2">
             <span className="w-2 h-2 rounded-full bg-yellow-400 shadow-[0_0_8px_rgba(250,204,21,0.6)]"></span>
@@ -1074,7 +1074,7 @@ export default function AdminDashboard() {
                     </tbody>
                   </table>
                  </div>
-                 <div className="mt-8 text-xs text-slate-400">Printed for: CSU CapSu Administration</div>
+                 <div className="mt-8 text-xs text-slate-400">Printed for: CapSu Administration</div>
               </div>
             </div>
           )}

@@ -46,11 +46,9 @@ export default function PublicDashboard() {
       {/* Top Header: CapSU Royal Blue with Yellow Accent Border */}
       <header className="flex justify-between items-center px-6 py-4 border-b-4 border-yellow-400 bg-[#07152b]/95 backdrop-blur-md shadow-md">
         <div className="flex items-center space-x-3 text-white font-bold text-lg">
-          <div className="bg-yellow-400 p-2 rounded-lg text-blue-950 shadow-sm">
-            <Trophy className="w-5 h-5" />
-          </div>
+          <img src="/capsu-logo.png" alt="CapSU Logo" className="w-9 h-9 rounded-full object-cover border-2 border-yellow-400 shadow-md" />
           <div>
-            <span className="font-display tracking-wider text-xl uppercase text-white font-bold">CSU CapSu Sports Inventory</span>
+            <span className="font-display tracking-wider text-xl uppercase text-white font-bold">CAPSU SPORTS INVENTORY</span>
             <span className="hidden sm:inline-block ml-3 text-xs font-semibold px-2.5 py-0.5 rounded-full bg-blue-900/80 text-yellow-300 border border-yellow-400/30">
               Capiz State University
             </span>
@@ -77,7 +75,7 @@ export default function PublicDashboard() {
         {/* Subheader Metadata */}
         <div className="flex flex-wrap items-center justify-between gap-4 text-sm text-slate-300 mb-6 border-b border-blue-700/40 pb-4">
           <div className="flex items-center space-x-4 flex-wrap gap-y-2">
-            <span className="flex items-center"><span className="mr-1 text-yellow-400">📍</span> <strong className="text-slate-200">Location:</strong>&nbsp;<span className="text-slate-300">CSU Mambusao Campus</span></span>
+            <span className="flex items-center"><span className="mr-1 text-yellow-400">📍</span> <strong className="text-slate-200">Location:</strong>&nbsp;<span className="text-slate-300">CapSu Mambusao Campus</span></span>
             <span className="flex items-center"><span className="mr-1 text-yellow-400">🕒</span> <strong className="text-slate-200">Clock:</strong>&nbsp;<span className="text-slate-300">{dateStr} - {timeStr}</span></span>
           </div>
           <span className="inline-flex items-center text-xs font-bold text-yellow-300 bg-yellow-400/15 px-3 py-1 rounded-full border border-yellow-400/40">

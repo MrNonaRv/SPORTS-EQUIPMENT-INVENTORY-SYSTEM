@@ -15,10 +15,8 @@ const LandingView: React.FC = () => {
       {/* Header */}
       <header className="flex justify-between items-center p-6 bg-[#0a1228]/80 backdrop-blur-md text-white relative z-10 shadow-md border-b border-blue-900/50">
         <div className="flex items-center space-x-3 tracking-wide">
-          <div className="bg-yellow-400 p-2 rounded-lg text-blue-950 shadow-sm">
-            <Settings className="w-6 h-6" />
-          </div>
-          <span className="font-display text-2xl sm:text-3xl font-bold tracking-wider uppercase text-white">CSU - CapSu Sports Inventory</span>
+          <img src="/capsu-logo.png" alt="CapSU Logo" className="w-10 h-10 rounded-full object-cover border-2 border-yellow-400 shadow-md" />
+          <span className="font-display text-2xl sm:text-3xl font-bold tracking-wider uppercase text-white">CAPSU SPORTS INVENTORY</span>
         </div>
         <div className="flex items-center space-x-6">
           <button 
