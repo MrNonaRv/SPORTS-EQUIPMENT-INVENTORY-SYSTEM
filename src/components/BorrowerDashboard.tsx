@@ -18,7 +18,8 @@ import {
   Minus, 
   X, 
   Menu,
-  Trophy
+  Trophy,
+  Trash2
 } from 'lucide-react';
 import { BorrowRequest, Equipment } from '../types';
 import { getCategoryMeta } from '../data/categoryData';
@@ -42,10 +43,9 @@ export default function BorrowerDashboard() {
   const [returnConditions, setReturnConditions] = useState<{ [key: string]: 'Good' | 'Damaged' }>({});
 
   // Direct Borrow Modal State (replaces Consolidated Voucher)
-  // Direct Borrow Modal State
+  // Direct Borrow Modal State (Multi-Item Cart)
   const [borrowModalOpen, setBorrowModalOpen] = useState(false);
-  const [selectedEquipment, setSelectedEquipment] = useState<Equipment | null>(null);
-  const [borrowQuantity, setBorrowQuantity] = useState(1);
+  const [borrowCart, setBorrowCart] = useState<{ equipmentId: string; quantity: number }[]>([]);
   const [purpose, setPurpose] = useState('');
   const [pickupDate, setPickupDate] = useState('');
   const [returnDate, setReturnDate] = useState('');
@@ -107,8 +107,7 @@ export default function BorrowerDashboard() {
   };
 
   const openBorrowModal = (eq: Equipment) => {
-    setSelectedEquipment(eq);
-    setBorrowQuantity(1);
+    setBorrowCart([{ equipmentId: eq.id, quantity: 1 }]);
     setPurpose('');
     setQuickDates('4hours');
     setBorrowModalOpen(true);
@@ -117,8 +116,7 @@ export default function BorrowerDashboard() {
   const openNewBorrowRequest = () => {
     const firstAvailable = equipment.find(e => e.available > 0) || equipment[0];
     if (firstAvailable) {
-      setSelectedEquipment(firstAvailable);
-      setBorrowQuantity(1);
+      setBorrowCart([{ equipmentId: firstAvailable.id, quantity: 1 }]);
       setPurpose('');
       setQuickDates('4hours');
       setBorrowModalOpen(true);
@@ -127,15 +125,23 @@ export default function BorrowerDashboard() {
 
   const handleConfirmBorrow = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!currentUser || !selectedEquipment) return;
-    if (borrowQuantity < 1 || borrowQuantity > selectedEquipment.available) return;
+    if (!currentUser || borrowCart.length === 0) return;
 
+    for (const item of borrowCart) {
+      const eq = equipment.find(e => e.id === item.equipmentId);
+      if (!eq || item.quantity < 1 || item.quantity > eq.available) {
+        alert(`Invalid quantity for ${eq?.name || 'an item'}. Please check available stock.`);
+        return;
+      }
+    }
+
+    const firstItem = borrowCart[0];
     const newReq: BorrowRequest = {
       id: `req-${Date.now()}`,
       userId: currentUser.id,
-      equipmentId: selectedEquipment.id,
-      quantity: borrowQuantity,
-      items: [{ equipmentId: selectedEquipment.id, quantity: borrowQuantity }],
+      equipmentId: firstItem.equipmentId,
+      quantity: firstItem.quantity,
+      items: borrowCart,
       purpose: purpose.trim() || 'Academic & Sports Activity',
       pickupDate: pickupDate || new Date().toISOString(),
       returnDate: returnDate || new Date(Date.now() + 4 * 3600000).toISOString(),
@@ -145,18 +151,22 @@ export default function BorrowerDashboard() {
 
     submitBorrowRequest(newReq);
 
-    // Instant real-time stock deduction
-    const updatedAvailable = Math.max(0, selectedEquipment.available - borrowQuantity);
-    const updatedBorrowed = selectedEquipment.borrowed + borrowQuantity;
-    updateEquipment(selectedEquipment.id, {
-      available: updatedAvailable,
-      borrowed: updatedBorrowed
-    });
+    // Instant real-time stock deduction for all items in cart
+    for (const item of borrowCart) {
+      const targetEq = equipment.find(e => e.id === item.equipmentId);
+      if (targetEq) {
+        const updatedAvailable = Math.max(0, targetEq.available - item.quantity);
+        const updatedBorrowed = targetEq.borrowed + item.quantity;
+        updateEquipment(targetEq.id, {
+          available: updatedAvailable,
+          borrowed: updatedBorrowed
+        });
+      }
+    }
 
-    setBorrowSuccessAlert(`Borrow request for ${borrowQuantity}x ${selectedEquipment.name} submitted successfully!`);
+    setBorrowSuccessAlert(`Borrow request with ${borrowCart.length} item(s) submitted successfully!`);
     setBorrowModalOpen(false);
-    setSelectedEquipment(null);
-    setBorrowQuantity(1);
+    setBorrowCart([]);
     setPurpose('');
     setTimeout(() => setBorrowSuccessAlert(null), 4500);
   };
@@ -695,15 +705,15 @@ export default function BorrowerDashboard() {
         </main>
       </div>
 
-      {/* DIRECT BORROW MODAL (Simple & Direct Single-Item) */}
-      {borrowModalOpen && selectedEquipment && (
+      {/* DIRECT BORROW MODAL (Multi-Item Cart) */}
+      {borrowModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/75 backdrop-blur-xs">
-          <div className="bg-[#0e264c] border-2 border-yellow-400 rounded-2xl w-full max-w-lg shadow-2xl overflow-hidden animate-fadeIn text-slate-200">
+          <div className="bg-[#0e264c] border-2 border-yellow-400 rounded-2xl w-full max-w-2xl shadow-2xl overflow-hidden animate-fadeIn text-slate-200 max-h-[90vh] flex flex-col">
             {/* Modal Header: CapSU Deep Royal Blue */}
-            <div className="bg-[#07152b] px-6 py-4 border-b-2 border-yellow-400 flex justify-between items-center text-white">
+            <div className="bg-[#07152b] px-6 py-4 border-b-2 border-yellow-400 flex justify-between items-center text-white shrink-0">
               <div>
-                <span className="text-xs font-bold text-yellow-400 uppercase tracking-wider">New Borrow Request</span>
-                <h3 className="text-lg font-bold text-white leading-tight mt-0.5 font-display uppercase tracking-wide">{selectedEquipment.name}</h3>
+                <span className="text-xs font-bold text-yellow-400 uppercase tracking-wider">Multi-Item Borrow Request</span>
+                <h3 className="text-lg font-bold text-white leading-tight mt-0.5 font-display uppercase tracking-wide">Borrow Multiple Sports Equipment</h3>
               </div>
               <button 
                 onClick={() => setBorrowModalOpen(false)}
@@ -714,60 +724,89 @@ export default function BorrowerDashboard() {
             </div>
 
             {/* Modal Form */}
-            <form onSubmit={handleConfirmBorrow} className="p-6 space-y-4">
-              {/* Equipment Drop-Down Selection */}
+            <form onSubmit={handleConfirmBorrow} className="p-6 space-y-4 overflow-y-auto flex-1">
               <div>
-                <label className="block text-xs font-bold text-slate-300 uppercase tracking-wide mb-1">
-                  Select Equipment Item (Drop-down Selection)
-                </label>
-                <select
-                  value={selectedEquipment.id}
-                  onChange={e => {
-                    const eq = equipment.find(item => item.id === e.target.value);
-                    if (eq) {
-                      setSelectedEquipment(eq);
-                      setBorrowQuantity(1);
-                    }
-                  }}
-                  className="w-full bg-[#07172f] border border-blue-500/40 rounded-lg px-3.5 py-2.5 text-xs text-white focus:outline-none focus:ring-2 focus:ring-yellow-400/30 focus:border-yellow-400 transition cursor-pointer font-semibold"
-                >
-                  {equipment.map(eq => (
-                    <option key={eq.id} value={eq.id} disabled={eq.available <= 0} className="bg-[#07172f] text-white">
-                      {eq.name} ({eq.category}) — {eq.available} available {eq.available <= 0 ? '[Out of Stock]' : ''}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Item Info Summary */}
-              <div className="bg-[#07172f] p-3.5 rounded-xl border border-blue-500/40 flex justify-between items-center text-xs">
-                <div>
-                  <span className="text-slate-400">Sport Category:</span>
-                  <span className="text-yellow-400 font-bold ml-1.5">{selectedEquipment.category}</span>
+                <div className="flex items-center justify-between mb-2">
+                  <label className="text-xs font-bold text-slate-300 uppercase tracking-wide">
+                    Equipment Cart ({borrowCart.length} item{borrowCart.length === 1 ? '' : 's'})
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const avail = equipment.filter(e => e.available > 0);
+                      const unselected = avail.find(e => !borrowCart.some(item => item.equipmentId === e.id));
+                      const target = unselected || avail[0] || equipment[0];
+                      if (target) {
+                        setBorrowCart([...borrowCart, { equipmentId: target.id, quantity: 1 }]);
+                      }
+                    }}
+                    className="text-xs font-bold text-yellow-400 hover:text-yellow-300 flex items-center space-x-1 bg-yellow-400/10 px-2.5 py-1 rounded border border-yellow-400/30 transition cursor-pointer"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    <span>+ Add Another Item</span>
+                  </button>
                 </div>
-                <div>
-                  <span className="text-slate-400">Currently Available:</span>
-                  <span className="text-yellow-400 font-extrabold ml-1.5">{selectedEquipment.available} Units</span>
-                </div>
-              </div>
 
-              {/* Quantity Drop-Down Selection */}
-              <div>
-                <label className="block text-xs font-bold text-slate-300 uppercase tracking-wide mb-1">
-                  Quantity to Borrow (Drop-down Selection)
-                </label>
-                <select
-                  value={borrowQuantity}
-                  onChange={e => setBorrowQuantity(Number(e.target.value))}
-                  disabled={selectedEquipment.available <= 0}
-                  className="w-full bg-[#07172f] border border-blue-500/40 rounded-lg px-3.5 py-2.5 text-xs text-yellow-400 font-bold focus:outline-none focus:ring-2 focus:ring-yellow-400/30 focus:border-yellow-400 transition cursor-pointer"
-                >
-                  {Array.from({ length: Math.max(1, selectedEquipment.available) }, (_, i) => i + 1).map(num => (
-                    <option key={num} value={num} className="bg-[#07172f] text-yellow-400 font-bold">
-                      {num} {num === 1 ? 'Unit' : 'Units'} (Max allowed: {selectedEquipment.available})
-                    </option>
-                  ))}
-                </select>
+                <div className="space-y-3">
+                  {borrowCart.map((cartItem, idx) => {
+                    const currentEq = equipment.find(e => e.id === cartItem.equipmentId);
+                    return (
+                      <div key={idx} className="bg-[#07172f] p-3.5 rounded-xl border border-blue-500/40 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                        <div className="flex-1 w-full sm:w-auto">
+                          <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Equipment #{idx + 1}</label>
+                          <select
+                            value={cartItem.equipmentId}
+                            onChange={e => {
+                              const newCart = [...borrowCart];
+                              newCart[idx].equipmentId = e.target.value;
+                              newCart[idx].quantity = 1;
+                              setBorrowCart(newCart);
+                            }}
+                            className="w-full bg-[#0a1c38] border border-blue-500/40 rounded-lg px-3 py-2 text-xs text-white font-semibold focus:outline-none focus:border-yellow-400 transition"
+                          >
+                            {equipment.map(eq => (
+                              <option key={eq.id} value={eq.id} disabled={eq.available <= 0} className="bg-[#0a1c38] text-white">
+                                {eq.name} ({eq.category}) — {eq.available} available {eq.available <= 0 ? '[Out]' : ''}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+
+                        <div className="w-full sm:w-36">
+                          <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Quantity</label>
+                          <select
+                            value={cartItem.quantity}
+                            onChange={e => {
+                              const newCart = [...borrowCart];
+                              newCart[idx].quantity = Number(e.target.value);
+                              setBorrowCart(newCart);
+                            }}
+                            className="w-full bg-[#0a1c38] border border-blue-500/40 rounded-lg px-3 py-2 text-xs text-yellow-400 font-bold focus:outline-none focus:border-yellow-400 transition"
+                          >
+                            {Array.from({ length: Math.max(1, currentEq?.available || 1) }, (_, i) => i + 1).map(num => (
+                              <option key={num} value={num} className="bg-[#0a1c38] text-yellow-400 font-bold">
+                                {num} {num === 1 ? 'Unit' : 'Units'}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+
+                        {borrowCart.length > 1 && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setBorrowCart(borrowCart.filter((_, i) => i !== idx));
+                            }}
+                            className="text-red-400 hover:text-red-300 p-2 rounded-lg bg-red-950/40 border border-red-700/40 transition cursor-pointer self-end sm:self-center mt-2 sm:mt-5"
+                            title="Remove Item"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
 
               {/* Intended Purpose */}
@@ -872,7 +911,7 @@ export default function BorrowerDashboard() {
               </div>
 
               {/* Modal Action Buttons */}
-              <div className="pt-4 border-t border-blue-700/40 flex items-center justify-end space-x-3">
+              <div className="pt-4 border-t border-blue-700/40 flex items-center justify-end space-x-3 shrink-0">
                 <button
                   type="button"
                   onClick={() => setBorrowModalOpen(false)}
@@ -885,7 +924,7 @@ export default function BorrowerDashboard() {
                   className="px-5 py-2.5 bg-yellow-400 hover:bg-yellow-300 text-blue-950 rounded-lg text-xs font-bold shadow-md transition flex items-center space-x-1.5 cursor-pointer"
                 >
                   <Check className="w-4 h-4" />
-                  <span>Confirm Borrow Request</span>
+                  <span>Submit Multi-Item Request</span>
                 </button>
               </div>
             </form>
