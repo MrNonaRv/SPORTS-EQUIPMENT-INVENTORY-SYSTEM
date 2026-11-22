@@ -440,56 +440,53 @@ export default function BorrowerDashboard() {
                 </div>
               </div>
 
-              {/* DYNAMIC SPORT CATEGORY SELECTOR CARDS & TABS */}
-              <div className="mb-6">
-                <div className="flex items-center justify-between mb-2.5">
-                  <span className="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
-                    <Layers className="w-3.5 h-3.5 text-yellow-400" />
-                    Select Sport / Activity Category
-                  </span>
-                  <span className="text-xs text-slate-400 font-medium">
-                    Showing {filteredEquipment.length} item{filteredEquipment.length === 1 ? '' : 's'}
-                  </span>
-                </div>
-
-                <div className="flex items-center gap-2.5 overflow-x-auto pb-2 scrollbar-thin">
-                  {/* All Sports Pill */}
+              {/* Layout with Vertical Category Sidebar on the Side */}
+              <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+                {/* Vertical Category Sidebar on the Side */}
+                <div className="lg:col-span-1 bg-[#0e264c] border border-blue-600/40 rounded-xl p-4 shadow-lg space-y-2 h-max sticky top-6">
+                  <div className="text-xs font-bold text-slate-300 uppercase tracking-wider mb-3 px-2 flex items-center gap-2">
+                    <Layers className="w-4 h-4 text-yellow-400" />
+                    <span>Sports Categories</span>
+                  </div>
+                  
                   <button
                     onClick={() => setSelectedCategory('All')}
-                    className={`flex items-center space-x-2 px-4 py-2.5 rounded-xl border text-sm font-bold whitespace-nowrap transition shrink-0 cursor-pointer ${
+                    className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-lg text-sm font-bold transition cursor-pointer ${
                       selectedCategory === 'All'
-                        ? 'bg-yellow-400 text-blue-950 border-yellow-400 shadow-md font-extrabold'
-                        : 'bg-[#0e264c] text-slate-300 border-blue-600/40 hover:border-yellow-400 hover:bg-[#133569] hover:text-white'
+                        ? 'bg-yellow-400 text-blue-950 shadow-md font-extrabold'
+                        : 'bg-[#07172f] text-slate-300 hover:bg-blue-800/40 hover:text-white border border-blue-600/30'
                     }`}
                   >
-                    <CategoryIcon category="all" className="w-4 h-4 text-blue-950" />
-                    <span>All Sports</span>
+                    <div className="flex items-center space-x-2.5">
+                      <CategoryIcon category="all" className="w-4 h-4" />
+                      <span>All Sports</span>
+                    </div>
                     <span className={`text-xs px-2 py-0.5 rounded-full font-bold ${
-                      selectedCategory === 'All' ? 'bg-blue-950 text-yellow-400' : 'bg-blue-950/80 text-yellow-300'
+                      selectedCategory === 'All' ? 'bg-blue-950 text-yellow-300' : 'bg-blue-950/60 text-yellow-400'
                     }`}>
                       {equipment.length}
                     </span>
                   </button>
 
-                  {/* Dynamic Category Pills */}
                   {distinctCategories.map(cat => {
                     const isSelected = selectedCategory.toLowerCase() === cat.toLowerCase();
                     const stats = getCategoryStats(cat);
-
                     return (
                       <button
                         key={cat}
                         onClick={() => setSelectedCategory(cat)}
-                        className={`flex items-center space-x-2 px-4 py-2.5 rounded-xl border text-sm font-bold whitespace-nowrap transition shrink-0 cursor-pointer ${
+                        className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-lg text-sm font-bold transition cursor-pointer ${
                           isSelected
-                            ? 'bg-yellow-400 text-blue-950 border-yellow-400 shadow-md font-extrabold'
-                            : 'bg-[#0e264c] text-slate-300 border-blue-600/40 hover:border-yellow-400 hover:bg-[#133569] hover:text-white'
+                            ? 'bg-yellow-400 text-blue-950 shadow-md font-extrabold'
+                            : 'bg-[#07172f] text-slate-300 hover:bg-blue-800/40 hover:text-white border border-blue-600/30'
                         }`}
                       >
-                        <CategoryIcon category={cat} className={`w-4 h-4 ${isSelected ? 'text-blue-950' : 'text-yellow-400'}`} />
-                        <span>{cat}</span>
+                        <div className="flex items-center space-x-2.5">
+                          <CategoryIcon category={cat} className={`w-4 h-4 ${isSelected ? 'text-blue-950' : 'text-yellow-400'}`} />
+                          <span className="truncate">{cat}</span>
+                        </div>
                         <span className={`text-xs px-2 py-0.5 rounded-full font-bold ${
-                          isSelected ? 'bg-blue-950 text-yellow-400' : 'bg-blue-950/80 text-yellow-300'
+                          isSelected ? 'bg-blue-950 text-yellow-300' : 'bg-blue-950/60 text-yellow-400'
                         }`}>
                           {stats.count}
                         </span>
@@ -497,31 +494,31 @@ export default function BorrowerDashboard() {
                     );
                   })}
                 </div>
-              </div>
 
-              {/* Active Category Information Banner */}
-              {activeCategoryMeta && (
-                <div className="p-4 rounded-xl border border-blue-600/40 bg-[#0e264c] mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-md">
-                  <div className="flex items-start space-x-3.5">
-                    <div className="w-10 h-10 rounded-xl bg-blue-950 border border-blue-500/50 flex items-center justify-center text-yellow-400 shadow-xs shrink-0">
-                      <CategoryIcon category={activeCategoryMeta.name} className="w-5 h-5 text-yellow-400" />
-                    </div>
-                    <div>
-                      <div className="flex items-center space-x-2">
-                        <h3 className="font-bold text-white text-base">{activeCategoryMeta.name} Equipment Set</h3>
-                        <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-yellow-400/20 text-yellow-300 border border-yellow-400/40">
-                          {getCategoryStats(activeCategoryMeta.name).totalAvail} units in stock
-                        </span>
+                {/* Main Equipment Catalog on the Right */}
+                <div className="lg:col-span-3 space-y-4">
+                  {/* Active Category Information Banner */}
+                  {activeCategoryMeta && (
+                    <div className="p-4 rounded-xl border border-blue-600/40 bg-[#0e264c] flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-md">
+                      <div className="flex items-start space-x-3.5">
+                        <div className="w-10 h-10 rounded-xl bg-blue-950 border border-blue-500/50 flex items-center justify-center text-yellow-400 shadow-xs shrink-0">
+                          <CategoryIcon category={activeCategoryMeta.name} className="w-5 h-5 text-yellow-400" />
+                        </div>
+                        <div>
+                          <div className="flex items-center space-x-2">
+                            <h3 className="font-bold text-white text-base">{activeCategoryMeta.name} Equipment Set</h3>
+                            <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-yellow-400/20 text-yellow-300 border border-yellow-400/40">
+                              {getCategoryStats(activeCategoryMeta.name).totalAvail} units in stock
+                            </span>
+                          </div>
+                          <p className="text-xs text-slate-300 mt-0.5">{activeCategoryMeta.description}</p>
+                        </div>
                       </div>
-                      <p className="text-xs text-slate-300 mt-0.5">{activeCategoryMeta.description}</p>
                     </div>
-                  </div>
-                </div>
-              )}
+                  )}
 
-              {/* Main Equipment Catalog: Clean Full-Width Grid */}
-              <div className="w-full">
-                {filteredEquipment.length === 0 ? (
+                  <div className="w-full">
+                    {filteredEquipment.length === 0 ? (
                   <div className="bg-[#0e264c] border border-blue-600/40 rounded-xl p-12 text-center text-slate-300">
                     <Box className="w-12 h-12 mx-auto mb-3 text-slate-400" />
                     <h4 className="font-bold text-white text-base">No Equipment Found</h4>
@@ -640,6 +637,8 @@ export default function BorrowerDashboard() {
                     })}
                   </div>
                 )}
+                  </div>
+                </div>
               </div>
             </div>
           )}

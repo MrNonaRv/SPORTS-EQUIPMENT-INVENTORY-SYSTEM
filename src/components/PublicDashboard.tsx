@@ -118,57 +118,80 @@ export default function PublicDashboard() {
           </div>
         </div>
 
-        {/* Dynamic Category Filter Pills */}
-        <div className="flex items-center gap-3 overflow-x-auto pb-4 mb-4 scrollbar-thin">
-          <button
-            onClick={() => setSelectedCategory('All')}
-            className={`px-4 py-2 rounded-xl text-sm font-bold whitespace-nowrap transition flex items-center space-x-2 cursor-pointer ${
-              selectedCategory === 'All'
-                ? 'bg-yellow-400 text-blue-950 shadow-md font-extrabold'
-                : 'bg-[#0e264c] text-slate-300 border border-blue-600/40 hover:bg-[#133569] hover:text-white'
-            }`}
-          >
-            <CategoryIcon category="all" className="w-4 h-4" />
-            <span>All Sports ({equipment.length})</span>
-          </button>
-          {distinctCategories.map(cat => {
-            const isSel = selectedCategory.toLowerCase() === cat.toLowerCase();
-            const count = equipment.filter(e => e.category.toLowerCase() === cat.toLowerCase()).length;
-            return (
-              <button
-                key={cat}
-                onClick={() => setSelectedCategory(cat)}
-                className={`px-4 py-2 rounded-xl text-sm font-bold whitespace-nowrap transition flex items-center space-x-2 cursor-pointer ${
-                  isSel
-                    ? 'bg-yellow-400 text-blue-950 shadow-md border-transparent font-extrabold'
-                    : 'bg-[#0e264c] text-slate-300 border border-blue-600/40 hover:bg-[#133569] hover:text-white'
-                }`}
-              >
-                <CategoryIcon category={cat} className={`w-4 h-4 ${isSel ? 'text-blue-950' : 'text-yellow-400'}`} />
-                <span>{cat} ({count})</span>
-              </button>
-            );
-          })}
-        </div>
-        
-        {/* Table of Equipment: CapSU Royal Blue with Light Gray Words */}
-        <div className="bg-[#0e264c] rounded-xl overflow-hidden border border-blue-600/40 shadow-lg overflow-x-auto">
-          <table className="w-full text-left text-sm">
-            <thead className="bg-[#07152b] text-slate-300 text-xs uppercase tracking-wider border-b border-blue-600/40">
-              <tr>
-                <th className="px-6 py-4 font-bold">Equipment Name</th>
-                <th className="px-6 py-4 font-bold">Location</th>
-                <th className="px-6 py-4 font-bold">Sport Category</th>
-                <th className="px-6 py-4 font-bold text-center">Total Units</th>
-                <th className="px-6 py-4 font-bold text-center">Available</th>
-                <th className="px-6 py-4 font-bold text-center">Borrowed</th>
-                <th className="px-6 py-4 font-bold text-center">In Repair</th>
-                <th className="px-6 py-4 font-bold text-center">Damaged</th>
-                <th className="px-6 py-4 font-bold text-center">Status</th>
-                <th className="px-6 py-4 font-bold text-center">Last Checked</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-blue-700/30">
+        {/* Layout with Vertical Category Sidebar on the Side */}
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+          {/* Vertical Category Sidebar on the Side */}
+          <div className="lg:col-span-1 bg-[#0e264c] border border-blue-600/40 rounded-xl p-4 shadow-lg space-y-2 h-max sticky top-6">
+            <div className="text-xs font-bold text-slate-300 uppercase tracking-wider mb-3 px-2 flex items-center gap-2">
+              <Layers className="w-4 h-4 text-yellow-400" />
+              <span>Sports Categories</span>
+            </div>
+            
+            <button
+              onClick={() => setSelectedCategory('All')}
+              className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-lg text-sm font-bold transition cursor-pointer ${
+                selectedCategory === 'All'
+                  ? 'bg-yellow-400 text-blue-950 shadow-md font-extrabold'
+                  : 'bg-[#07172f] text-slate-300 hover:bg-blue-800/40 hover:text-white border border-blue-600/30'
+              }`}
+            >
+              <div className="flex items-center space-x-2.5">
+                <CategoryIcon category="all" className="w-4 h-4" />
+                <span>All Sports</span>
+              </div>
+              <span className={`text-xs px-2 py-0.5 rounded-full font-bold ${
+                selectedCategory === 'All' ? 'bg-blue-950 text-yellow-300' : 'bg-blue-950/60 text-yellow-400'
+              }`}>
+                {equipment.length}
+              </span>
+            </button>
+
+            {distinctCategories.map(cat => {
+              const isSel = selectedCategory.toLowerCase() === cat.toLowerCase();
+              const count = equipment.filter(e => e.category.toLowerCase() === cat.toLowerCase()).length;
+              return (
+                <button
+                  key={cat}
+                  onClick={() => setSelectedCategory(cat)}
+                  className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-lg text-sm font-bold transition cursor-pointer ${
+                    isSel
+                      ? 'bg-yellow-400 text-blue-950 shadow-md font-extrabold'
+                      : 'bg-[#07172f] text-slate-300 hover:bg-blue-800/40 hover:text-white border border-blue-600/30'
+                  }`}
+                >
+                  <div className="flex items-center space-x-2.5">
+                    <CategoryIcon category={cat} className={`w-4 h-4 ${isSel ? 'text-blue-950' : 'text-yellow-400'}`} />
+                    <span className="truncate">{cat}</span>
+                  </div>
+                  <span className={`text-xs px-2 py-0.5 rounded-full font-bold ${
+                    isSel ? 'bg-blue-950 text-yellow-300' : 'bg-blue-950/60 text-yellow-400'
+                  }`}>
+                    {count}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Equipment Table on the Right */}
+          <div className="lg:col-span-3 space-y-4">
+            <div className="bg-[#0e264c] rounded-xl overflow-hidden border border-blue-600/40 shadow-lg overflow-x-auto">
+              <table className="w-full text-left text-sm">
+                <thead className="bg-[#07152b] text-slate-300 text-xs uppercase tracking-wider border-b border-blue-600/40">
+                  <tr>
+                    <th className="px-6 py-4 font-bold">Equipment Name</th>
+                    <th className="px-6 py-4 font-bold">Location</th>
+                    <th className="px-6 py-4 font-bold">Sport Category</th>
+                    <th className="px-6 py-4 font-bold text-center">Total Units</th>
+                    <th className="px-6 py-4 font-bold text-center">Available</th>
+                    <th className="px-6 py-4 font-bold text-center">Borrowed</th>
+                    <th className="px-6 py-4 font-bold text-center">In Repair</th>
+                    <th className="px-6 py-4 font-bold text-center">Damaged</th>
+                    <th className="px-6 py-4 font-bold text-center">Status</th>
+                    <th className="px-6 py-4 font-bold text-center">Last Checked</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-blue-700/30">
               {filteredEquipment.length === 0 ? (
                 <tr>
                   <td colSpan={10} className="px-6 py-12 text-center text-slate-300 text-sm font-medium">
@@ -223,8 +246,10 @@ export default function PublicDashboard() {
                   );
                 })
               )}
-            </tbody>
-          </table>
+                </tbody>
+              </table>
+            </div>
+          </div>
         </div>
       </div>
     </div>
