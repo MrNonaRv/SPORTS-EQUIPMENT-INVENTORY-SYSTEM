@@ -8,7 +8,8 @@ interface AuthViewProps {
 }
 
 const AuthView: React.FC<AuthViewProps> = ({ type }) => {
-  const { setView, login, users, registerUser } = useAppContext();
+  const { setView, login, users, registerUser, theme } = useAppContext();
+  const isLight = theme === 'light';
   
   const [idNumber, setIdNumber] = useState('');
   const [password, setPassword] = useState('');
@@ -73,40 +74,40 @@ const AuthView: React.FC<AuthViewProps> = ({ type }) => {
 
   return (
     <div 
-      className="min-h-screen bg-slate-900 text-slate-800 flex flex-col font-sans relative bg-cover bg-center"
-      style={{ backgroundImage: 'url("https://images.unsplash.com/photo-1517649763962-0c623066013b?q=80&w=2000&auto=format&fit=crop")' }}
+      className={`min-h-screen ${isLight ? 'bg-white text-[#0a1c38]' : 'bg-slate-900 text-slate-800'} flex flex-col font-sans relative bg-cover bg-center`}
+      style={{ backgroundImage: isLight ? 'none' : 'url("https://images.unsplash.com/photo-1517649763962-0c623066013b?q=80&w=2000&auto=format&fit=crop")' }}
     >
       {/* CapSU Blue Overlay */}
-      <div className="absolute inset-0 bg-blue-950/85 backdrop-blur-sm z-0"></div>
+      <div className={`absolute inset-0 ${isLight ? 'bg-white' : 'bg-blue-950/85'} backdrop-blur-sm z-0`}></div>
 
       {/* Sporty Gold Accent Bar */}
       <div className="h-2.5 bg-yellow-400 w-full absolute top-0 left-0 z-10 shadow-sm"></div>
 
       <div className="flex-1 flex items-center justify-center p-6 relative z-10">
-        <div className="w-full max-w-md bg-[#0e264c] border border-blue-600/40 rounded-2xl shadow-2xl overflow-hidden">
+        <div className={`w-full max-w-md ${isLight ? 'bg-white text-[#0a1c38] border border-slate-200' : 'bg-[#0e264c] border-blue-600/40 text-white'} rounded-2xl shadow-2xl overflow-hidden`}>
           {/* Top CapSU Blue banner for the card */}
-          <div className="bg-[#07152b] p-6 flex flex-col items-center justify-center relative border-b-4 border-yellow-400">
+          <div className={`${isLight ? 'bg-slate-100 text-[#0a1c38]' : 'bg-[#07152b] text-white'} p-6 flex flex-col items-center justify-center relative border-b-4 border-yellow-400`}>
             <button 
               onClick={() => setView('landing')}
-              className="absolute top-4 left-4 text-slate-300 hover:text-yellow-400 flex items-center text-sm transition-colors cursor-pointer"
+              className={`absolute top-4 left-4 ${isLight ? 'text-[#0a1c38] hover:text-yellow-600' : 'text-slate-300 hover:text-yellow-400'} flex items-center text-sm transition-colors cursor-pointer font-bold`}
             >
               <ArrowLeft className="w-4 h-4 mr-1" /> Back
             </button>
-            <div className="bg-[#0e264c] border border-blue-500/50 p-3 rounded-full mb-3 shadow-md mt-6">
+            <div className={`${isLight ? 'bg-white border-slate-200' : 'bg-[#0e264c] border-blue-500/50'} border p-3 rounded-full mb-3 shadow-md mt-6`}>
               {type === 'signup' ? (
-                <ClipboardList className="w-8 h-8 text-yellow-400" />
+                <ClipboardList className="w-8 h-8 text-yellow-500" />
               ) : type === 'login_admin' ? (
-                <Key className="w-8 h-8 text-yellow-400" />
+                <Key className="w-8 h-8 text-yellow-500" />
               ) : (
-                <UserIcon className="w-8 h-8 text-yellow-400" />
+                <UserIcon className="w-8 h-8 text-yellow-500" />
               )}
             </div>
-            <h2 className="text-2xl font-bold text-white text-center font-display tracking-wide uppercase">
+            <h2 className={`text-2xl font-bold text-center font-display tracking-wide uppercase ${isLight ? 'text-[#0a1c38]' : 'text-white'}`}>
               {type === 'login_admin' && 'Admin Login'}
               {type === 'login_borrower' && 'Borrower Portal'}
               {type === 'signup' && 'Create Account'}
             </h2>
-            <p className="text-slate-300 text-xs sm:text-sm text-center mt-1.5 max-w-[280px]">
+            <p className={`text-xs sm:text-sm text-center mt-1.5 max-w-[280px] font-medium ${isLight ? 'text-[#0a1c38]' : 'text-slate-300'}`}>
               {type === 'login_admin' && 'Enter your administrator credentials'}
               {type === 'login_borrower' && 'Enter your student or faculty ID'}
               {type === 'signup' && 'Register to borrow athletic equipment'}
@@ -117,19 +118,19 @@ const AuthView: React.FC<AuthViewProps> = ({ type }) => {
             <form onSubmit={type === 'signup' ? handleSignup : handleLogin} className="space-y-4">
               {type === 'signup' && (
                 <div>
-                  <label className="block text-xs font-bold text-slate-300 uppercase tracking-wide mb-1">Full Name</label>
+                  <label className={`block text-xs font-bold uppercase tracking-wide mb-1 ${isLight ? 'text-[#0a1c38]' : 'text-slate-300'}`}>Full Name</label>
                   <input 
                     required
                     type="text" 
                     value={fullName}
                     onChange={e => setFullName(e.target.value)}
-                    className="w-full bg-[#07172f] border border-blue-500/40 rounded-lg px-4 py-2.5 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-yellow-400/30 focus:border-yellow-400 text-sm transition-all"
+                    className={`w-full ${isLight ? 'bg-slate-50 border-slate-300 text-[#0a1c38] placeholder-slate-400' : 'bg-[#07172f] border-blue-500/40 text-white placeholder-slate-400'} border rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-yellow-400/30 focus:border-yellow-400 text-sm transition-all`}
                   />
                 </div>
               )}
 
               <div>
-                <label className="block text-xs font-bold text-slate-300 uppercase tracking-wide mb-1">
+                <label className={`block text-xs font-bold uppercase tracking-wide mb-1 ${isLight ? 'text-[#0a1c38]' : 'text-slate-300'}`}>
                   {type === 'login_admin' ? 'Username' : 'ID Number'}
                 </label>
                 <input 
@@ -137,52 +138,52 @@ const AuthView: React.FC<AuthViewProps> = ({ type }) => {
                   type="text" 
                   value={idNumber}
                   onChange={e => setIdNumber(e.target.value)}
-                  className="w-full bg-[#07172f] border border-blue-500/40 rounded-lg px-4 py-2.5 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-yellow-400/30 focus:border-yellow-400 text-sm transition-all"
+                  className={`w-full ${isLight ? 'bg-slate-50 border-slate-300 text-[#0a1c38] placeholder-slate-400' : 'bg-[#07172f] border-blue-500/40 text-white placeholder-slate-400'} border rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-yellow-400/30 focus:border-yellow-400 text-sm transition-all`}
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-300 uppercase tracking-wide mb-1">Password</label>
+                <label className={`block text-xs font-bold uppercase tracking-wide mb-1 ${isLight ? 'text-[#0a1c38]' : 'text-slate-300'}`}>Password</label>
                 <input 
                   required
                   type="password" 
                   value={password}
                   onChange={e => setPassword(e.target.value)}
-                  className="w-full bg-[#07172f] border border-blue-500/40 rounded-lg px-4 py-2.5 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-yellow-400/30 focus:border-yellow-400 text-sm transition-all"
+                  className={`w-full ${isLight ? 'bg-slate-50 border-slate-300 text-[#0a1c38] placeholder-slate-400' : 'bg-[#07172f] border-blue-500/40 text-white placeholder-slate-400'} border rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-yellow-400/30 focus:border-yellow-400 text-sm transition-all`}
                 />
               </div>
 
               {type === 'signup' && (
                 <>
                   <div>
-                    <label className="block text-xs font-bold text-slate-300 uppercase tracking-wide mb-1">Account Type</label>
+                    <label className={`block text-xs font-bold uppercase tracking-wide mb-1 ${isLight ? 'text-[#0a1c38]' : 'text-slate-300'}`}>Account Type</label>
                     <select 
                       value={accountType}
                       onChange={e => setAccountType(e.target.value as 'student' | 'faculty')}
-                      className="w-full bg-[#07172f] border border-blue-500/40 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:ring-2 focus:ring-yellow-400/30 focus:border-yellow-400 text-sm transition-all"
+                      className={`w-full ${isLight ? 'bg-slate-50 border-slate-300 text-[#0a1c38]' : 'bg-[#07172f] border-blue-500/40 text-white'} border rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-yellow-400/30 focus:border-yellow-400 text-sm transition-all`}
                     >
-                      <option value="student" className="bg-[#07172f] text-white">Student</option>
-                      <option value="faculty" className="bg-[#07172f] text-white">Faculty</option>
+                      <option value="student">Student</option>
+                      <option value="faculty">Faculty</option>
                     </select>
                   </div>
                   <div>
-                    <label className="block text-xs font-bold text-slate-300 uppercase tracking-wide mb-1">Course / Department</label>
+                    <label className={`block text-xs font-bold uppercase tracking-wide mb-1 ${isLight ? 'text-[#0a1c38]' : 'text-slate-300'}`}>Course / Department</label>
                     <input 
                       required
                       type="text" 
                       value={department}
                       onChange={e => setDepartment(e.target.value)}
-                      className="w-full bg-[#07172f] border border-blue-500/40 rounded-lg px-4 py-2.5 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-yellow-400/30 focus:border-yellow-400 text-sm transition-all"
+                      className={`w-full ${isLight ? 'bg-slate-50 border-slate-300 text-[#0a1c38] placeholder-slate-400' : 'bg-[#07172f] border-blue-500/40 text-white placeholder-slate-400'} border rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-yellow-400/30 focus:border-yellow-400 text-sm transition-all`}
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-bold text-slate-300 uppercase tracking-wide mb-1">Contact Number</label>
+                    <label className={`block text-xs font-bold uppercase tracking-wide mb-1 ${isLight ? 'text-[#0a1c38]' : 'text-slate-300'}`}>Contact Number</label>
                     <input 
                       required
                       type="text" 
                       value={contact}
                       onChange={e => setContact(e.target.value)}
-                      className="w-full bg-[#07172f] border border-blue-500/40 rounded-lg px-4 py-2.5 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-yellow-400/30 focus:border-yellow-400 text-sm transition-all"
+                      className={`w-full ${isLight ? 'bg-slate-50 border-slate-300 text-[#0a1c38] placeholder-slate-400' : 'bg-[#07172f] border-blue-500/40 text-white placeholder-slate-400'} border rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-yellow-400/30 focus:border-yellow-400 text-sm transition-all`}
                     />
                   </div>
                 </>

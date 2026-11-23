@@ -13,6 +13,7 @@ export interface User {
 
 export interface Equipment {
   id: string;
+  equipmentCode?: string; // Unique Equipment ID / Code (e.g. EQ-0001, BB-001)
   name: string;
   description?: string;
   category: string;
@@ -50,6 +51,7 @@ export interface BorrowRequest {
 
 export interface ArrivalRecord {
   id: string;
+  equipmentCode?: string;
   equipmentName: string;
   category: string;
   quantity: number;
@@ -69,4 +71,5 @@ export interface AppState {
   arrivalRecords?: ArrivalRecord[];
   currentUser: User | null;
   currentView: 'landing' | 'login_admin' | 'login_borrower' | 'signup' | 'public_dashboard' | 'borrower_dashboard' | 'admin_dashboard';
+  theme: 'dark' | 'light';
 }

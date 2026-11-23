@@ -34,6 +34,7 @@ interface AppContextType extends AppState {
   deleteArrivalRecord: (recordId: string) => Promise<void>;
   clearArrivalRecords: () => Promise<void>;
   clearData: () => Promise<boolean>;
+  toggleTheme: () => void;
   isSyncing: boolean;
 }
 
@@ -43,67 +44,67 @@ const initialUsers: User[] = [
 
 const initialEquipment: Equipment[] = [
   // Badminton
-  { id: 'eq-doc-bad-1', name: 'Shuttlecock Feathers (RSL Silver, Tube)', category: 'Badminton', total: 3, available: 3, borrowed: 0, inRepair: 0, damaged: 0, location: 'Gymnasium Storage Rm A', lastChecked: 'Aug 24', description: 'Shape: Conical with rounded cork base. Color: White feathers, tan cork.' },
-  { id: 'eq-doc-bad-2', name: 'Plastic Shuttle (Yonex Mavis 10)', category: 'Badminton', total: 0, available: 0, borrowed: 0, inRepair: 0, damaged: 0, location: 'Gymnasium Storage Rm A', lastChecked: 'Aug 24', description: 'Shape: Conical. Color: Neon Yellow. Material: Nylon plastic skirt.' },
-  { id: 'eq-doc-bad-3', name: 'Badminton Racket (28lbs max, 80g)', category: 'Badminton', total: 2, available: 2, borrowed: 0, inRepair: 0, damaged: 0, location: 'Gymnasium Storage Rm A', lastChecked: 'Aug 24' },
-  { id: 'eq-doc-bad-4', name: 'Badminton Over Grip', category: 'Badminton', total: 5, available: 5, borrowed: 0, inRepair: 0, damaged: 0, location: 'Gymnasium Storage Rm A', lastChecked: 'Aug 24' },
-  { id: 'eq-doc-bad-5', name: 'Badminton Net', category: 'Badminton', total: 2, available: 2, borrowed: 0, inRepair: 0, damaged: 0, location: 'Indoor Court Locker', lastChecked: 'Aug 24' },
+  { id: 'eq-doc-bad-1', equipmentCode: 'BAD-001', name: 'Shuttlecock Feathers (RSL Silver, Tube)', category: 'Badminton', total: 3, available: 3, borrowed: 0, inRepair: 0, damaged: 0, location: 'Gymnasium Storage Rm A', lastChecked: 'Aug 24', description: 'Shape: Conical with rounded cork base. Color: White feathers, tan cork.' },
+  { id: 'eq-doc-bad-2', equipmentCode: 'BAD-002', name: 'Plastic Shuttle (Yonex Mavis 10)', category: 'Badminton', total: 0, available: 0, borrowed: 0, inRepair: 0, damaged: 0, location: 'Gymnasium Storage Rm A', lastChecked: 'Aug 24', description: 'Shape: Conical. Color: Neon Yellow. Material: Nylon plastic skirt.' },
+  { id: 'eq-doc-bad-3', equipmentCode: 'BAD-003', name: 'Badminton Racket (28lbs max, 80g)', category: 'Badminton', total: 2, available: 2, borrowed: 0, inRepair: 0, damaged: 0, location: 'Gymnasium Storage Rm A', lastChecked: 'Aug 24' },
+  { id: 'eq-doc-bad-4', equipmentCode: 'BAD-004', name: 'Badminton Over Grip', category: 'Badminton', total: 5, available: 5, borrowed: 0, inRepair: 0, damaged: 0, location: 'Gymnasium Storage Rm A', lastChecked: 'Aug 24' },
+  { id: 'eq-doc-bad-5', equipmentCode: 'BAD-005', name: 'Badminton Net', category: 'Badminton', total: 2, available: 2, borrowed: 0, inRepair: 0, damaged: 0, location: 'Indoor Court Locker', lastChecked: 'Aug 24' },
 
   // Sepak Takraw
-  { id: 'eq-doc-st-1', name: 'Takraw Ball (Men)', category: 'Sepak Takraw', total: 1, available: 1, borrowed: 0, inRepair: 0, damaged: 0, location: 'Outdoor Court Storage', lastChecked: 'Aug 24' },
-  { id: 'eq-doc-st-2', name: 'Takraw Ball (Women)', category: 'Sepak Takraw', total: 1, available: 1, borrowed: 0, inRepair: 0, damaged: 0, location: 'Outdoor Court Storage', lastChecked: 'Aug 24' },
-  { id: 'eq-doc-st-3', name: 'Takraw Net', category: 'Sepak Takraw', total: 2, available: 2, borrowed: 0, inRepair: 0, damaged: 0, location: 'Outdoor Court Storage', lastChecked: 'Aug 24' },
+  { id: 'eq-doc-st-1', equipmentCode: 'ST-001', name: 'Takraw Ball (Men)', category: 'Sepak Takraw', total: 1, available: 1, borrowed: 0, inRepair: 0, damaged: 0, location: 'Outdoor Court Storage', lastChecked: 'Aug 24' },
+  { id: 'eq-doc-st-2', equipmentCode: 'ST-002', name: 'Takraw Ball (Women)', category: 'Sepak Takraw', total: 1, available: 1, borrowed: 0, inRepair: 0, damaged: 0, location: 'Outdoor Court Storage', lastChecked: 'Aug 24' },
+  { id: 'eq-doc-st-3', equipmentCode: 'ST-003', name: 'Takraw Net', category: 'Sepak Takraw', total: 2, available: 2, borrowed: 0, inRepair: 0, damaged: 0, location: 'Outdoor Court Storage', lastChecked: 'Aug 24' },
 
   // Volleyball
-  { id: 'eq-doc-vb-1', name: 'Volleyball Net', category: 'Volleyball', total: 2, available: 2, borrowed: 0, inRepair: 0, damaged: 0, location: 'Storage', lastChecked: 'Aug 24' },
-  { id: 'eq-doc-vb-2', name: 'Volleyball', category: 'Volleyball', total: 5, available: 5, borrowed: 0, inRepair: 0, damaged: 0, location: 'Storage', lastChecked: 'Aug 24' },
-  { id: 'eq-doc-vb-3', name: 'Kneepad & Elbow pad', category: 'Volleyball', total: 4, available: 4, borrowed: 0, inRepair: 0, damaged: 0, location: 'Storage', lastChecked: 'Aug 24' },
-  { id: 'eq-doc-vb-4', name: 'Volleyball Posts', category: 'Volleyball', total: 2, available: 2, borrowed: 0, inRepair: 0, damaged: 0, location: 'Storage', lastChecked: 'Aug 24' },
-  { id: 'eq-doc-vb-5', name: 'Volleyball Antennae', category: 'Volleyball', total: 2, available: 2, borrowed: 0, inRepair: 0, damaged: 0, location: 'Storage', lastChecked: 'Aug 24' },
+  { id: 'eq-doc-vb-1', equipmentCode: 'VB-001', name: 'Volleyball Net', category: 'Volleyball', total: 2, available: 2, borrowed: 0, inRepair: 0, damaged: 0, location: 'Storage', lastChecked: 'Aug 24' },
+  { id: 'eq-doc-vb-2', equipmentCode: 'VB-002', name: 'Volleyball', category: 'Volleyball', total: 5, available: 5, borrowed: 0, inRepair: 0, damaged: 0, location: 'Storage', lastChecked: 'Aug 24' },
+  { id: 'eq-doc-vb-3', equipmentCode: 'VB-003', name: 'Kneepad & Elbow pad', category: 'Volleyball', total: 4, available: 4, borrowed: 0, inRepair: 0, damaged: 0, location: 'Storage', lastChecked: 'Aug 24' },
+  { id: 'eq-doc-vb-4', equipmentCode: 'VB-004', name: 'Volleyball Posts', category: 'Volleyball', total: 2, available: 2, borrowed: 0, inRepair: 0, damaged: 0, location: 'Storage', lastChecked: 'Aug 24' },
+  { id: 'eq-doc-vb-5', equipmentCode: 'VB-005', name: 'Volleyball Antennae', category: 'Volleyball', total: 2, available: 2, borrowed: 0, inRepair: 0, damaged: 0, location: 'Storage', lastChecked: 'Aug 24' },
 
   // Basketball
-  { id: 'eq-doc-bb-1', name: 'Basketball', category: 'Basketball', total: 3, available: 3, borrowed: 0, inRepair: 0, damaged: 0, location: 'Main Sports Storage - Shelf 3', lastChecked: 'Aug 24', description: 'Shape: Spherical. Color: Orange with black ribs. Standard Size 7.' },
-  { id: 'eq-doc-bb-2', name: 'Basketball Ring', category: 'Basketball', total: 2, available: 2, borrowed: 0, inRepair: 0, damaged: 0, location: 'Main Sports Storage - Heavy Eq', lastChecked: 'Aug 24', description: 'Shape: Circular hoop. Color: Orange. Material: Heavy-duty steel.' },
-  { id: 'eq-doc-bb-3', name: 'Basketball Net', category: 'Basketball', total: 2, available: 2, borrowed: 0, inRepair: 0, damaged: 0, location: 'Main Sports Storage - Shelf 3', lastChecked: 'Aug 24' },
-  { id: 'eq-doc-bb-4', name: 'Basketball Ring Net', category: 'Basketball', total: 2, available: 2, borrowed: 0, inRepair: 0, damaged: 0, location: 'Main Sports Storage - Shelf 3', lastChecked: 'Aug 24' },
-  { id: 'eq-doc-bb-5', name: 'Basketball Fiberglass Board', category: 'Basketball', total: 2, available: 2, borrowed: 0, inRepair: 0, damaged: 0, location: 'Main Sports Storage - Heavy Eq', lastChecked: 'Aug 24' },
+  { id: 'eq-doc-bb-1', equipmentCode: 'BB-001', name: 'Basketball', category: 'Basketball', total: 3, available: 3, borrowed: 0, inRepair: 0, damaged: 0, location: 'Main Sports Storage - Shelf 3', lastChecked: 'Aug 24', description: 'Shape: Spherical. Color: Orange with black ribs. Standard Size 7.' },
+  { id: 'eq-doc-bb-2', equipmentCode: 'BB-002', name: 'Basketball Ring', category: 'Basketball', total: 2, available: 2, borrowed: 0, inRepair: 0, damaged: 0, location: 'Main Sports Storage - Heavy Eq', lastChecked: 'Aug 24', description: 'Shape: Circular hoop. Color: Orange. Material: Heavy-duty steel.' },
+  { id: 'eq-doc-bb-3', equipmentCode: 'BB-003', name: 'Basketball Net', category: 'Basketball', total: 2, available: 2, borrowed: 0, inRepair: 0, damaged: 0, location: 'Main Sports Storage - Shelf 3', lastChecked: 'Aug 24' },
+  { id: 'eq-doc-bb-4', equipmentCode: 'BB-004', name: 'Basketball Ring Net', category: 'Basketball', total: 2, available: 2, borrowed: 0, inRepair: 0, damaged: 0, location: 'Main Sports Storage - Shelf 3', lastChecked: 'Aug 24' },
+  { id: 'eq-doc-bb-5', equipmentCode: 'BB-005', name: 'Basketball Fiberglass Board', category: 'Basketball', total: 2, available: 2, borrowed: 0, inRepair: 0, damaged: 0, location: 'Main Sports Storage - Heavy Eq', lastChecked: 'Aug 24' },
 
   // Tournament Chess
-  { id: 'eq-doc-ch-1', name: 'Chessboard', category: 'Chess', total: 4, available: 4, borrowed: 0, inRepair: 0, damaged: 0, location: 'Student Lounge Cabinet', lastChecked: 'Aug 24' },
-  { id: 'eq-doc-ch-2', name: 'Chess Mat', category: 'Chess', total: 4, available: 4, borrowed: 0, inRepair: 0, damaged: 0, location: 'Student Lounge Cabinet', lastChecked: 'Aug 24' },
+  { id: 'eq-doc-ch-1', equipmentCode: 'CH-001', name: 'Chessboard', category: 'Chess', total: 4, available: 4, borrowed: 0, inRepair: 0, damaged: 0, location: 'Student Lounge Cabinet', lastChecked: 'Aug 24' },
+  { id: 'eq-doc-ch-2', equipmentCode: 'CH-002', name: 'Chess Mat', category: 'Chess', total: 4, available: 4, borrowed: 0, inRepair: 0, damaged: 0, location: 'Student Lounge Cabinet', lastChecked: 'Aug 24' },
 
   // Taekwondo
-  { id: 'eq-doc-tk-1', name: 'Rubber Matting', category: 'Taekwondo', total: 20, available: 20, borrowed: 0, inRepair: 0, damaged: 0, location: 'Storage', lastChecked: 'Aug 24' },
-  { id: 'eq-doc-tk-2', name: 'Head Gear', category: 'Taekwondo', total: 3, available: 3, borrowed: 0, inRepair: 0, damaged: 0, location: 'Storage', lastChecked: 'Aug 24' },
-  { id: 'eq-doc-tk-3', name: 'Body Armor', category: 'Taekwondo', total: 4, available: 4, borrowed: 0, inRepair: 0, damaged: 0, location: 'Storage', lastChecked: 'Aug 24' },
-  { id: 'eq-doc-tk-4', name: 'Arm Guard', category: 'Taekwondo', total: 4, available: 4, borrowed: 0, inRepair: 0, damaged: 0, location: 'Storage', lastChecked: 'Aug 24' },
-  { id: 'eq-doc-tk-5', name: 'Leg Guard', category: 'Taekwondo', total: 4, available: 4, borrowed: 0, inRepair: 0, damaged: 0, location: 'Storage', lastChecked: 'Aug 24' },
-  { id: 'eq-doc-tk-6', name: 'Gloves', category: 'Taekwondo', total: 8, available: 8, borrowed: 0, inRepair: 0, damaged: 0, location: 'Storage', lastChecked: 'Aug 24' },
-  { id: 'eq-doc-tk-7', name: 'Foot Gloves', category: 'Taekwondo', total: 8, available: 8, borrowed: 0, inRepair: 0, damaged: 0, location: 'Storage', lastChecked: 'Aug 24' },
-  { id: 'eq-doc-tk-8', name: 'Groin Guards (Men)', category: 'Taekwondo', total: 2, available: 2, borrowed: 0, inRepair: 0, damaged: 0, location: 'Storage', lastChecked: 'Aug 24' },
-  { id: 'eq-doc-tk-9', name: 'Groin Guards (Women)', category: 'Taekwondo', total: 2, available: 2, borrowed: 0, inRepair: 0, damaged: 0, location: 'Storage', lastChecked: 'Aug 24' },
-  { id: 'eq-doc-tk-10', name: 'Kicking Pad', category: 'Taekwondo', total: 2, available: 2, borrowed: 0, inRepair: 0, damaged: 0, location: 'Storage', lastChecked: 'Aug 24' },
-  { id: 'eq-doc-tk-11', name: 'Powder Kick Bag', category: 'Taekwondo', total: 3, available: 3, borrowed: 0, inRepair: 0, damaged: 0, location: 'Storage', lastChecked: 'Aug 24' },
+  { id: 'eq-doc-tk-1', equipmentCode: 'TK-001', name: 'Rubber Matting', category: 'Taekwondo', total: 20, available: 20, borrowed: 0, inRepair: 0, damaged: 0, location: 'Storage', lastChecked: 'Aug 24' },
+  { id: 'eq-doc-tk-2', equipmentCode: 'TK-002', name: 'Head Gear', category: 'Taekwondo', total: 3, available: 3, borrowed: 0, inRepair: 0, damaged: 0, location: 'Storage', lastChecked: 'Aug 24' },
+  { id: 'eq-doc-tk-3', equipmentCode: 'TK-003', name: 'Body Armor', category: 'Taekwondo', total: 4, available: 4, borrowed: 0, inRepair: 0, damaged: 0, location: 'Storage', lastChecked: 'Aug 24' },
+  { id: 'eq-doc-tk-4', equipmentCode: 'TK-004', name: 'Arm Guard', category: 'Taekwondo', total: 4, available: 4, borrowed: 0, inRepair: 0, damaged: 0, location: 'Storage', lastChecked: 'Aug 24' },
+  { id: 'eq-doc-tk-5', equipmentCode: 'TK-005', name: 'Leg Guard', category: 'Taekwondo', total: 4, available: 4, borrowed: 0, inRepair: 0, damaged: 0, location: 'Storage', lastChecked: 'Aug 24' },
+  { id: 'eq-doc-tk-6', equipmentCode: 'TK-006', name: 'Gloves', category: 'Taekwondo', total: 8, available: 8, borrowed: 0, inRepair: 0, damaged: 0, location: 'Storage', lastChecked: 'Aug 24' },
+  { id: 'eq-doc-tk-7', equipmentCode: 'TK-007', name: 'Foot Gloves', category: 'Taekwondo', total: 8, available: 8, borrowed: 0, inRepair: 0, damaged: 0, location: 'Storage', lastChecked: 'Aug 24' },
+  { id: 'eq-doc-tk-8', equipmentCode: 'TK-008', name: 'Groin Guards (Men)', category: 'Taekwondo', total: 2, available: 2, borrowed: 0, inRepair: 0, damaged: 0, location: 'Storage', lastChecked: 'Aug 24' },
+  { id: 'eq-doc-tk-9', equipmentCode: 'TK-009', name: 'Groin Guards (Women)', category: 'Taekwondo', total: 2, available: 2, borrowed: 0, inRepair: 0, damaged: 0, location: 'Storage', lastChecked: 'Aug 24' },
+  { id: 'eq-doc-tk-10', equipmentCode: 'TK-010', name: 'Kicking Pad', category: 'Taekwondo', total: 2, available: 2, borrowed: 0, inRepair: 0, damaged: 0, location: 'Storage', lastChecked: 'Aug 24' },
+  { id: 'eq-doc-tk-11', equipmentCode: 'TK-011', name: 'Powder Kick Bag', category: 'Taekwondo', total: 3, available: 3, borrowed: 0, inRepair: 0, damaged: 0, location: 'Storage', lastChecked: 'Aug 24' },
 
   // Table Tennis
-  { id: 'eq-doc-tt-1', name: 'Pingpong Table', category: 'Table Tennis', total: 2, available: 2, borrowed: 0, inRepair: 0, damaged: 0, location: 'Storage', lastChecked: 'Aug 24' },
-  { id: 'eq-doc-tt-2', name: 'Table Tennis Racket', category: 'Table Tennis', total: 4, available: 4, borrowed: 0, inRepair: 0, damaged: 0, location: 'Storage', lastChecked: 'Aug 24' },
-  { id: 'eq-doc-tt-3', name: 'Table Tennis Net Pole Set', category: 'Table Tennis', total: 2, available: 2, borrowed: 0, inRepair: 0, damaged: 0, location: 'Storage', lastChecked: 'Aug 24' },
-  { id: 'eq-doc-tt-4', name: 'Table Tennis Balls (Box)', category: 'Table Tennis', total: 2, available: 2, borrowed: 0, inRepair: 0, damaged: 0, location: 'Storage', lastChecked: 'Aug 24' },
+  { id: 'eq-doc-tt-1', equipmentCode: 'TT-001', name: 'Pingpong Table', category: 'Table Tennis', total: 2, available: 2, borrowed: 0, inRepair: 0, damaged: 0, location: 'Storage', lastChecked: 'Aug 24' },
+  { id: 'eq-doc-tt-2', equipmentCode: 'TT-002', name: 'Table Tennis Racket', category: 'Table Tennis', total: 4, available: 4, borrowed: 0, inRepair: 0, damaged: 0, location: 'Storage', lastChecked: 'Aug 24' },
+  { id: 'eq-doc-tt-3', equipmentCode: 'TT-003', name: 'Table Tennis Net Pole Set', category: 'Table Tennis', total: 2, available: 2, borrowed: 0, inRepair: 0, damaged: 0, location: 'Storage', lastChecked: 'Aug 24' },
+  { id: 'eq-doc-tt-4', equipmentCode: 'TT-004', name: 'Table Tennis Balls (Box)', category: 'Table Tennis', total: 2, available: 2, borrowed: 0, inRepair: 0, damaged: 0, location: 'Storage', lastChecked: 'Aug 24' },
 
   // Office supplies
-  { id: 'eq-doc-off-1', name: 'Masking Tape', category: 'Office Supplies', total: 2, available: 2, borrowed: 0, inRepair: 0, damaged: 0, location: 'Storage', lastChecked: 'Aug 24' },
-  { id: 'eq-doc-off-2', name: 'Bond Paper (Ream)', category: 'Office Supplies', total: 3, available: 3, borrowed: 0, inRepair: 0, damaged: 0, location: 'Storage', lastChecked: 'Aug 24' },
-  { id: 'eq-doc-off-3', name: 'Stapler', category: 'Office Supplies', total: 1, available: 1, borrowed: 0, inRepair: 0, damaged: 0, location: 'Storage', lastChecked: 'Aug 24' },
-  { id: 'eq-doc-off-4', name: 'Stapler Wire (Box)', category: 'Office Supplies', total: 1, available: 1, borrowed: 0, inRepair: 0, damaged: 0, location: 'Storage', lastChecked: 'Aug 24' },
+  { id: 'eq-doc-off-1', equipmentCode: 'OFF-001', name: 'Masking Tape', category: 'Office Supplies', total: 2, available: 2, borrowed: 0, inRepair: 0, damaged: 0, location: 'Storage', lastChecked: 'Aug 24' },
+  { id: 'eq-doc-off-2', equipmentCode: 'OFF-002', name: 'Bond Paper (Ream)', category: 'Office Supplies', total: 3, available: 3, borrowed: 0, inRepair: 0, damaged: 0, location: 'Storage', lastChecked: 'Aug 24' },
+  { id: 'eq-doc-off-3', equipmentCode: 'OFF-003', name: 'Stapler', category: 'Office Supplies', total: 1, available: 1, borrowed: 0, inRepair: 0, damaged: 0, location: 'Storage', lastChecked: 'Aug 24' },
+  { id: 'eq-doc-off-4', equipmentCode: 'OFF-004', name: 'Stapler Wire (Box)', category: 'Office Supplies', total: 1, available: 1, borrowed: 0, inRepair: 0, damaged: 0, location: 'Storage', lastChecked: 'Aug 24' },
 
   // Athletics
-  { id: 'eq-doc-ath-1', name: 'Spike Shoes (Pairs)', category: 'Athletics', total: 2, available: 2, borrowed: 0, inRepair: 0, damaged: 0, location: 'Storage', lastChecked: 'Aug 24' },
+  { id: 'eq-doc-ath-1', equipmentCode: 'ATH-001', name: 'Spike Shoes (Pairs)', category: 'Athletics', total: 2, available: 2, borrowed: 0, inRepair: 0, damaged: 0, location: 'Storage', lastChecked: 'Aug 24' },
 
   // Arnis
-  { id: 'eq-doc-arn-1', name: 'Head Gear', category: 'Arnis', total: 1, available: 1, borrowed: 0, inRepair: 0, damaged: 0, location: 'Storage', lastChecked: 'Aug 24' },
-  { id: 'eq-doc-arn-2', name: 'Body Gear', category: 'Arnis', total: 1, available: 1, borrowed: 0, inRepair: 0, damaged: 0, location: 'Storage', lastChecked: 'Aug 24' },
-  { id: 'eq-doc-arn-3', name: 'Arnis Stick', category: 'Arnis', total: 5, available: 5, borrowed: 0, inRepair: 0, damaged: 0, location: 'Storage', lastChecked: 'Aug 24' }
+  { id: 'eq-doc-arn-1', equipmentCode: 'ARN-001', name: 'Head Gear', category: 'Arnis', total: 1, available: 1, borrowed: 0, inRepair: 0, damaged: 0, location: 'Storage', lastChecked: 'Aug 24' },
+  { id: 'eq-doc-arn-2', equipmentCode: 'ARN-002', name: 'Body Gear', category: 'Arnis', total: 1, available: 1, borrowed: 0, inRepair: 0, damaged: 0, location: 'Storage', lastChecked: 'Aug 24' },
+  { id: 'eq-doc-arn-3', equipmentCode: 'ARN-003', name: 'Arnis Stick', category: 'Arnis', total: 5, available: 5, borrowed: 0, inRepair: 0, damaged: 0, location: 'Storage', lastChecked: 'Aug 24' }
 ];
 
 const initialRequests: BorrowRequest[] = [];
@@ -130,9 +131,33 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
   const [users, setUsers] = useState<User[]>(initialUsers);
   const [equipment, setEquipment] = useState<Equipment[]>(initialEquipment);
+
+  useEffect(() => {
+    const hasMissingCode = equipment.some(e => !e.equipmentCode || e.equipmentCode === 'EQ-0000');
+    if (hasMissingCode) {
+      const normalized = equipment.map((eq, idx) => {
+        if (!eq.equipmentCode || eq.equipmentCode === 'EQ-0000') {
+          const prefix = eq.category ? eq.category.substring(0, 3).toUpperCase() : 'EQ';
+          return { ...eq, equipmentCode: `${prefix}-${String(idx + 1).padStart(3, '0')}` };
+        }
+        return eq;
+      });
+      setEquipment(normalized);
+    }
+  }, [equipment]);
   const [requests, setRequests] = useState<BorrowRequest[]>(initialRequests);
   const [arrivalRecords, setArrivalRecords] = useState<ArrivalRecord[]>([]);
+  const [theme, setTheme] = useState<'dark' | 'light'>(() => {
+    const saved = localStorage.getItem('csu_theme') as 'dark' | 'light' | null;
+    return saved || 'dark';
+  });
   const [isSyncing, setIsSyncing] = useState<boolean>(true);
+
+  const toggleTheme = () => {
+    const next = theme === 'dark' ? 'light' : 'dark';
+    setTheme(next);
+    localStorage.setItem('csu_theme', next);
+  };
 
   const setView = (view: AppState['currentView']) => {
     setCurrentView(view);
@@ -295,6 +320,15 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   };
 
   const addEquipment = async (newEq: Equipment) => {
+    if (newEq.equipmentCode) {
+      const duplicateCode = equipment.find(
+        e => e.equipmentCode && e.equipmentCode.toLowerCase() === newEq.equipmentCode!.toLowerCase() && e.id !== newEq.id
+      );
+      if (duplicateCode) {
+        console.warn(`Equipment Code "${newEq.equipmentCode}" already exists.`);
+      }
+    }
+
     const existing = equipment.find(
       e => e.name.toLowerCase() === newEq.name.toLowerCase() && e.category.toLowerCase() === newEq.category.toLowerCase()
     );
@@ -335,6 +369,14 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   };
 
   const updateEquipment = async (equipmentId: string, updates: Partial<Equipment>) => {
+    if (updates.equipmentCode) {
+      const duplicateCode = equipment.find(
+        e => e.equipmentCode && e.equipmentCode.toLowerCase() === updates.equipmentCode!.toLowerCase() && e.id !== equipmentId
+      );
+      if (duplicateCode) {
+        console.warn(`Equipment Code "${updates.equipmentCode}" already exists.`);
+      }
+    }
     setEquipment(prev => prev.map(e => e.id === equipmentId ? { ...e, ...updates } : e));
     try {
       await updateDoc(doc(db, 'equipment', equipmentId), updates);
@@ -611,6 +653,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       requests, submitBorrowRequest, updateRequestStatus, deleteRequest, clearAllRequests, clearActiveBorrowers,
       arrivalRecords, addArrivalRecord, deleteArrivalRecord, clearArrivalRecords,
       clearData,
+      theme, toggleTheme,
       isSyncing
     }}>
       {children}

@@ -19,7 +19,9 @@ import {
   X, 
   Menu,
   Trophy,
-  Trash2
+  Trash2,
+  Sun,
+  Moon
 } from 'lucide-react';
 import { BorrowRequest, Equipment } from '../types';
 import { getCategoryMeta } from '../data/categoryData';
@@ -33,7 +35,9 @@ export default function BorrowerDashboard() {
     equipment, 
     submitBorrowRequest, 
     updateRequestStatus,
-    updateEquipment
+    updateEquipment,
+    theme,
+    toggleTheme
   } = useAppContext();
 
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
@@ -271,6 +275,14 @@ export default function BorrowerDashboard() {
             </div>
           </div>
           <div className="text-sm flex items-center space-x-2 sm:space-x-3">
+            <button 
+              onClick={toggleTheme}
+              className="p-2 rounded-lg bg-blue-900/60 text-yellow-400 hover:bg-blue-800 border border-blue-500/40 transition cursor-pointer flex items-center space-x-1.5 text-xs font-bold"
+              title={`Switch to ${theme === 'dark' ? 'Light' : 'Dark'} Mode`}
+            >
+              {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4 text-blue-200" />}
+              <span className="hidden sm:inline">{theme === 'dark' ? 'Light' : 'Dark'}</span>
+            </button>
             <div className="flex items-center space-x-1.5 bg-blue-900/60 border border-blue-600/40 px-3 py-1.5 rounded-full text-slate-200 text-xs font-medium">
               <span className="w-2 h-2 rounded-full bg-yellow-400 animate-pulse"></span>
               <span>Online: <strong className="text-white">{currentUser.name}</strong></span>

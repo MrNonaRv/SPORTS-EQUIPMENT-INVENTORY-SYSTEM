@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useAppContext } from '../context/AppContext';
-import { LogOut, LayoutDashboard, Users, Bell, UserCog, PackagePlus, FileBarChart, Check, X, RefreshCw, Box, Wrench, XCircle, Trophy, Layers, Search, UserCheck, Trash2, Menu } from 'lucide-react';
+import { LogOut, LayoutDashboard, Users, Bell, UserCog, PackagePlus, FileBarChart, Check, X, RefreshCw, Box, Wrench, XCircle, Trophy, Layers, Search, UserCheck, Trash2, Menu, Sun, Moon } from 'lucide-react';
 import { BorrowRequest, Equipment } from '../types';
 import { getCategoryMeta } from '../data/categoryData';
 import { CategoryIcon } from './CategoryIcon';
@@ -29,7 +29,9 @@ export default function AdminDashboard() {
     addArrivalRecord,
     deleteArrivalRecord,
     clearArrivalRecords,
-    clearData 
+    clearData,
+    theme,
+    toggleTheme
   } = useAppContext();
   const [activeTab, setActiveTab] = useState<'dashboard' | 'requests' | 'users' | 'arrivals' | 'reports' | 'active_borrowers'>('dashboard');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -44,6 +46,7 @@ export default function AdminDashboard() {
   const [adminSearch, setAdminSearch] = useState<string>('');
 
   // New Equipment State
+  const [eqCode, setEqCode] = useState('');
   const [eqName, setEqName] = useState('');
   const [eqDescription, setEqDescription] = useState('');
   const [eqCat, setEqCat] = useState('Basketball');
@@ -100,6 +103,7 @@ export default function AdminDashboard() {
       const matchQuery = adminSearch.trim() === '' || 
         eq.name.toLowerCase().includes(adminSearch.toLowerCase()) || 
         eq.category.toLowerCase().includes(adminSearch.toLowerCase()) ||
+        (eq.equipmentCode && eq.equipmentCode.toLowerCase().includes(adminSearch.toLowerCase())) ||
         (eq.location && eq.location.toLowerCase().includes(adminSearch.toLowerCase()));
       return matchCat && matchQuery;
     });
@@ -108,9 +112,18 @@ export default function AdminDashboard() {
   const handleAddEquipment = (e: React.FormEvent) => {
     e.preventDefault();
     const finalCategory = eqCat === 'Custom' ? (customCat.trim() || 'General') : eqCat;
+    const finalCode = eqCode.trim() || `EQ-${Math.floor(1000 + Math.random() * 9000)}`;
+
+    const duplicate = equipment.find(item => item.equipmentCode && item.equipmentCode.toLowerCase() === finalCode.toLowerCase());
+    if (duplicate) {
+      alert(`Equipment Code "${finalCode}" already exists on item "${duplicate.name}". Equipment codes must be unique.`);
+      return;
+    }
+
     const newEqId = `eq-${Date.now()}`;
     const newEq: Equipment = {
       id: newEqId,
+      equipmentCode: finalCode,
       name: eqName.trim(),
       description: eqDescription.trim(),
       category: finalCategory,
@@ -126,6 +139,7 @@ export default function AdminDashboard() {
 
     addArrivalRecord({
       id: `arr-${Date.now()}`,
+      equipmentCode: finalCode,
       equipmentName: eqName.trim(),
       category: finalCategory,
       quantity: eqQty,
@@ -139,6 +153,7 @@ export default function AdminDashboard() {
     });
 
     setAddSuccess(true);
+    setEqCode('');
     setEqName('');
     setEqDescription('');
     setCustomCat('');
@@ -249,50 +264,60 @@ export default function AdminDashboard() {
             </div>
             <span className="truncate font-display uppercase tracking-wider text-lg">CAPSU SPORTS INVENTORY - ADMIN CONTROL</span>
           </div>
-          <div className="text-sm flex items-center space-x-2">
-            <span className="w-2 h-2 rounded-full bg-yellow-400 shadow-[0_0_8px_rgba(250,204,21,0.6)]"></span>
-            <span className="text-slate-300 font-medium text-xs sm:text-sm">Admin: </span>
-            {isEditingProfile ? (
-              <div className="flex items-center space-x-2">
-                <input 
-                  type="text" 
-                  value={editProfileName} 
-                  onChange={e => setEditProfileName(e.target.value)}
-                  className="px-2 py-0.5 bg-[#07172f] border border-blue-500/40 rounded text-sm text-white focus:outline-none focus:ring-2 focus:ring-yellow-400/30 focus:border-yellow-400"
-                  autoFocus
-                />
-                <button 
-                  onClick={() => {
-                    if (editProfileName.trim() !== '') {
-                      updateUserDetails(currentUser.id, { name: editProfileName.trim() });
-                    }
-                    setIsEditingProfile(false);
-                  }}
-                  className="text-xs bg-yellow-400 hover:bg-yellow-300 text-blue-950 font-bold px-3 py-1 rounded shadow-sm cursor-pointer"
-                >
-                  Save
-                </button>
-                <button 
-                  onClick={() => setIsEditingProfile(false)}
-                  className="text-xs bg-blue-900 hover:bg-blue-800 text-white border border-blue-700 px-3 py-1 rounded shadow-sm cursor-pointer"
-                >
-                  Cancel
-                </button>
-              </div>
-            ) : (
-              <div className="flex items-center space-x-2">
-                <span className="text-white font-bold">{currentUser.name}</span>
-                <button 
-                  onClick={() => {
-                    setEditProfileName(currentUser.name);
-                    setIsEditingProfile(true);
-                  }}
-                  className="text-xs text-yellow-300 hover:text-yellow-200 underline cursor-pointer"
-                >
-                  Edit
-                </button>
-              </div>
-            )}
+          <div className="text-sm flex items-center space-x-3">
+            <button 
+              onClick={toggleTheme}
+              className="p-2 rounded-lg bg-blue-900/60 text-yellow-400 hover:bg-blue-800 border border-blue-500/40 transition cursor-pointer flex items-center space-x-1.5 text-xs font-bold"
+              title={`Switch to ${theme === 'dark' ? 'Light' : 'Dark'} Mode`}
+            >
+              {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4 text-blue-200" />}
+              <span className="hidden sm:inline">{theme === 'dark' ? 'Light' : 'Dark'}</span>
+            </button>
+            <div className="flex items-center space-x-2">
+              <span className="w-2 h-2 rounded-full bg-yellow-400 shadow-[0_0_8px_rgba(250,204,21,0.6)]"></span>
+              <span className="text-slate-300 font-medium text-xs sm:text-sm">Admin: </span>
+              {isEditingProfile ? (
+                <div className="flex items-center space-x-2">
+                  <input 
+                    type="text" 
+                    value={editProfileName} 
+                    onChange={e => setEditProfileName(e.target.value)}
+                    className="px-2 py-0.5 bg-[#07172f] border border-blue-500/40 rounded text-sm text-white focus:outline-none focus:ring-2 focus:ring-yellow-400/30 focus:border-yellow-400"
+                    autoFocus
+                  />
+                  <button 
+                    onClick={() => {
+                      if (editProfileName.trim() !== '') {
+                        updateUserDetails(currentUser.id, { name: editProfileName.trim() });
+                      }
+                      setIsEditingProfile(false);
+                    }}
+                    className="text-xs bg-yellow-400 hover:bg-yellow-300 text-blue-950 font-bold px-3 py-1 rounded shadow-sm cursor-pointer"
+                  >
+                    Save
+                  </button>
+                  <button 
+                    onClick={() => setIsEditingProfile(false)}
+                    className="text-xs bg-blue-900 hover:bg-blue-800 text-white border border-blue-700 px-3 py-1 rounded shadow-sm cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              ) : (
+                <div className="flex items-center space-x-2">
+                  <span className="text-white font-bold">{currentUser.name}</span>
+                  <button 
+                    onClick={() => {
+                      setEditProfileName(currentUser.name);
+                      setIsEditingProfile(true);
+                    }}
+                    className="text-xs text-yellow-300 hover:text-yellow-200 underline cursor-pointer"
+                  >
+                    Edit
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
         </header>
 
@@ -405,6 +430,11 @@ export default function AdminDashboard() {
                         return (
                           <tr key={eq.id} className="hover:bg-blue-800/30 transition">
                             <td className="px-6 py-4 font-medium">
+                              <div className="flex items-center space-x-2 mb-1">
+                                <span className="text-xs font-mono font-bold px-2 py-0.5 rounded bg-yellow-400/20 text-yellow-300 border border-yellow-400/40">
+                                  {eq.equipmentCode || 'EQ-0000'}
+                                </span>
+                              </div>
                               <span className="text-white font-bold text-base">{eq.name}</span>
                               {eq.description && (
                                 <div className="text-xs text-slate-300 mt-1 max-w-xs leading-relaxed line-clamp-2" title={eq.description}>
@@ -745,6 +775,25 @@ export default function AdminDashboard() {
 
                   <form onSubmit={handleAddEquipment} className="space-y-4">
                     <div>
+                      <div className="flex justify-between items-center mb-1">
+                        <label className="block text-xs font-bold text-slate-300 uppercase tracking-wide">Unique Equipment ID / Code</label>
+                        <button
+                          type="button"
+                          onClick={() => setEqCode(`EQ-${Math.floor(1000 + Math.random() * 9000)}`)}
+                          className="text-[11px] font-bold text-yellow-400 hover:text-yellow-300 underline cursor-pointer"
+                        >
+                          Auto-Generate Code
+                        </button>
+                      </div>
+                      <input 
+                        type="text" 
+                        placeholder="e.g. EQ-0001 or BB-001 (Leave blank to auto-generate)" 
+                        value={eqCode} 
+                        onChange={e => setEqCode(e.target.value)} 
+                        className="w-full bg-[#07172f] border border-blue-500/40 rounded px-4 py-2 text-slate-100 text-sm focus:outline-none focus:border-yellow-400 font-bold text-yellow-300" 
+                      />
+                    </div>
+                    <div>
                       <label className="block text-xs font-bold text-slate-300 uppercase tracking-wide mb-1">Equipment Name</label>
                       <input required type="text" value={eqName} onChange={e => setEqName(e.target.value)} className="w-full bg-[#07172f] border border-blue-500/40 rounded px-4 py-2 text-slate-100 text-sm focus:outline-none focus:border-yellow-400" />
                     </div>
@@ -861,12 +910,15 @@ export default function AdminDashboard() {
                         <div key={log.id} className="bg-[#0e264c] border border-blue-600/40 rounded-xl p-4 shadow-md hover:border-yellow-400 transition relative">
                           <div className="flex items-start justify-between gap-2">
                             <div>
-                              <div className="flex items-center space-x-2">
-                                <span className="font-bold text-white">{log.equipmentName}</span>
+                              <div className="flex items-center space-x-2 mb-1.5">
+                                <span className="text-[11px] font-mono font-bold px-2 py-0.5 rounded bg-yellow-400/20 text-yellow-300 border border-yellow-400/40">
+                                  {log.equipmentCode || 'EQ-0000'}
+                                </span>
                                 <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-yellow-400/20 text-yellow-300 border border-yellow-400/40">
                                   {log.category}
                                 </span>
                               </div>
+                              <span className="font-bold text-white text-base">{log.equipmentName}</span>
                               <div className="text-xs text-slate-300 mt-1">
                                 {new Date(log.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
                               </div>
