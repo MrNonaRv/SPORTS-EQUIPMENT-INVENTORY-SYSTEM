@@ -175,13 +175,14 @@ export default function AdminDashboard() {
   const timeStr = now.toLocaleTimeString('en-US');
 
   if (!currentUser) return null;
+  const isLight = theme === 'light';
 
   return (
     <div 
-      className="min-h-screen bg-[#0a1c38] text-slate-300 flex font-sans relative"
+      className={`min-h-screen ${isLight ? 'bg-white text-[#0a1c38]' : 'bg-[#0a1c38] text-slate-300'} flex font-sans relative`}
     >
       {/* Background Soft Overlay */}
-      <div className="absolute inset-0 bg-[#0a1c38] z-0 print:hidden"></div>
+      <div className={`absolute inset-0 ${isLight ? 'bg-white' : 'bg-[#0a1c38]'} z-0 print:hidden`}></div>
 
       {/* Mobile Backdrop */}
       {mobileMenuOpen && (
@@ -191,39 +192,39 @@ export default function AdminDashboard() {
         />
       )}
 
-      {/* Sidebar: CapSU Deep Royal Blue */}
+      {/* Sidebar */}
       <div className={`
-        fixed lg:sticky lg:top-0 h-screen inset-y-0 left-0 z-50 w-64 bg-[#07152b] border-r border-blue-700/40 
+        fixed lg:sticky lg:top-0 h-screen inset-y-0 left-0 z-50 w-64 ${isLight ? 'bg-white text-[#0a1c38] border-r border-slate-200' : 'bg-[#07152b] text-white border-blue-700/40'} 
         flex flex-col shrink-0 overflow-hidden print:hidden shadow-2xl lg:shadow-none
         transform transition-transform duration-300 ease-in-out
         ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
       `}>
-        <div className="p-6 border-b border-blue-700/40 flex items-center justify-between shrink-0">
+        <div className={`p-6 border-b ${isLight ? 'border-slate-200' : 'border-blue-700/40'} flex items-center justify-between shrink-0`}>
           <div>
             <div className="w-12 h-12 bg-yellow-400 text-blue-950 rounded-full flex items-center justify-center font-bold text-xl mb-3 shadow-md border-2 border-yellow-300">
               {currentUser.name.split(' ').map(n => n[0]).join('').substring(0,2)}
             </div>
-            <h3 className="font-bold text-white">{currentUser.name}</h3>
-            <p className="text-xs text-yellow-400 font-semibold uppercase tracking-wider mt-0.5">ADMINISTRATOR</p>
+            <h3 className={`font-bold ${isLight ? 'text-[#0a1c38]' : 'text-white'}`}>{currentUser.name}</h3>
+            <p className="text-xs text-yellow-600 font-semibold uppercase tracking-wider mt-0.5">ADMINISTRATOR</p>
           </div>
           <button 
             onClick={() => setMobileMenuOpen(false)}
-            className="lg:hidden text-slate-300 hover:text-white p-1 rounded-lg"
+            className={`lg:hidden p-1 rounded-lg ${isLight ? 'text-[#0a1c38]' : 'text-slate-300 hover:text-white'}`}
           >
             <X className="w-6 h-6" />
           </button>
         </div>
         
         <nav className="flex-1 py-4 space-y-1 overflow-y-auto scrollbar-thin">
-          <div onClick={() => setMobileMenuOpen(false)}><NavItem icon={<LayoutDashboard />} label="Dashboard" active={activeTab === 'dashboard'} onClick={() => setActiveTab('dashboard')} /></div>
-          <div onClick={() => setMobileMenuOpen(false)}><NavItem icon={<Users />} label="Active Borrowers" active={activeTab === 'active_borrowers'} onClick={() => setActiveTab('active_borrowers')} /></div>
-          <div onClick={() => setMobileMenuOpen(false)}><NavItem icon={<Bell />} label="Borrow Requests" active={activeTab === 'requests'} onClick={() => setActiveTab('requests')} badge={pendingRequests.length} /></div>
-          <div onClick={() => setMobileMenuOpen(false)}><NavItem icon={<UserCog />} label="Manage Users" active={activeTab === 'users'} onClick={() => setActiveTab('users')} badge={pendingUsers.length} /></div>
-          <div onClick={() => setMobileMenuOpen(false)}><NavItem icon={<PackagePlus />} label="New Arrivals" active={activeTab === 'arrivals'} onClick={() => setActiveTab('arrivals')} /></div>
-          <div onClick={() => setMobileMenuOpen(false)}><NavItem icon={<FileBarChart />} label="Reports Center" active={activeTab === 'reports'} onClick={() => setActiveTab('reports')} /></div>
+          <div onClick={() => setMobileMenuOpen(false)}><NavItem isLight={isLight} icon={<LayoutDashboard />} label="Dashboard" active={activeTab === 'dashboard'} onClick={() => setActiveTab('dashboard')} /></div>
+          <div onClick={() => setMobileMenuOpen(false)}><NavItem isLight={isLight} icon={<Users />} label="Active Borrowers" active={activeTab === 'active_borrowers'} onClick={() => setActiveTab('active_borrowers')} /></div>
+          <div onClick={() => setMobileMenuOpen(false)}><NavItem isLight={isLight} icon={<Bell />} label="Borrow Requests" active={activeTab === 'requests'} onClick={() => setActiveTab('requests')} badge={pendingRequests.length} /></div>
+          <div onClick={() => setMobileMenuOpen(false)}><NavItem isLight={isLight} icon={<UserCog />} label="Manage Users" active={activeTab === 'users'} onClick={() => setActiveTab('users')} badge={pendingUsers.length} /></div>
+          <div onClick={() => setMobileMenuOpen(false)}><NavItem isLight={isLight} icon={<PackagePlus />} label="New Arrivals" active={activeTab === 'arrivals'} onClick={() => setActiveTab('arrivals')} /></div>
+          <div onClick={() => setMobileMenuOpen(false)}><NavItem isLight={isLight} icon={<FileBarChart />} label="Reports Center" active={activeTab === 'reports'} onClick={() => setActiveTab('reports')} /></div>
         </nav>
 
-        <div className="p-4 border-t border-blue-700/40 space-y-2.5 shrink-0 bg-[#07152b]">
+        <div className={`p-4 border-t ${isLight ? 'border-slate-200 bg-white' : 'border-blue-700/40 bg-[#07152b]'} space-y-2.5 shrink-0`}>
           <button 
             onClick={async () => {
               if (window.confirm('Are you sure you want to delete and clear ALL records (Active Borrowers, Borrow Requests, Registered Users, and New Arrivals)? This will reset borrowed equipment and cannot be undone.')) {
@@ -250,11 +251,11 @@ export default function AdminDashboard() {
 
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col min-h-screen overflow-x-hidden print:h-auto print:overflow-visible relative z-10 w-full">
-        <header className="flex justify-between items-center px-4 sm:px-8 py-3.5 border-b-4 border-yellow-400 bg-[#07152b] text-white shadow-md relative z-20 print:hidden">
-          <div className="flex items-center space-x-3 text-white font-bold text-base sm:text-lg tracking-wide">
+        <header className={`flex justify-between items-center px-4 sm:px-8 py-3.5 border-b-4 border-yellow-400 ${isLight ? 'bg-white text-[#0a1c38] border-b border-slate-200' : 'bg-[#07152b] text-white'} shadow-md relative z-20 print:hidden`}>
+          <div className={`flex items-center space-x-3 font-bold text-base sm:text-lg tracking-wide ${isLight ? 'text-[#0a1c38]' : 'text-white'}`}>
             <button 
               onClick={() => setMobileMenuOpen(true)}
-              className="lg:hidden p-2 text-slate-300 hover:text-white rounded-lg hover:bg-blue-800/40 transition cursor-pointer"
+              className={`lg:hidden p-2 rounded-lg transition cursor-pointer ${isLight ? 'text-[#0a1c38] hover:bg-slate-100' : 'text-slate-300 hover:text-white hover:bg-blue-800/40'}`}
               title="Open Menu"
             >
               <Menu className="w-6 h-6" />
@@ -267,10 +268,10 @@ export default function AdminDashboard() {
           <div className="text-sm flex items-center space-x-3">
             <button 
               onClick={toggleTheme}
-              className="p-2 rounded-lg bg-blue-900/60 text-yellow-400 hover:bg-blue-800 border border-blue-500/40 transition cursor-pointer flex items-center space-x-1.5 text-xs font-bold"
+              className={`p-2 rounded-lg ${isLight ? 'bg-slate-100 text-[#0a1c38] border border-slate-300 hover:bg-slate-200' : 'bg-blue-900/60 text-yellow-400 border border-blue-500/40 hover:bg-blue-800'} transition cursor-pointer flex items-center space-x-1.5 text-xs font-bold`}
               title={`Switch to ${theme === 'dark' ? 'Light' : 'Dark'} Mode`}
             >
-              {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4 text-blue-200" />}
+              {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4 text-[#0a1c38]" />}
               <span className="hidden sm:inline">{theme === 'dark' ? 'Light' : 'Dark'}</span>
             </button>
             <div className="flex items-center space-x-2">
@@ -336,12 +337,12 @@ export default function AdminDashboard() {
 
               {/* Stat Cards: CapSU Royal Blue Cards with Yellow Accent */}
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8 relative z-10">
-                <StatCard onClick={() => setActiveOverlay('total')} title="TOTAL UNITS" count={totalUnits} subtext="Across all sports" icon={<Box className="w-6 h-6 text-slate-300" />} color="border-t-yellow-400" />
-                <StatCard onClick={() => setActiveOverlay('available')} title="AVAILABLE ITEMS" count={availableUnits} subtext="Ready to borrow" icon={<Check className="w-6 h-6 text-yellow-400" />} color="border-t-yellow-400" />
-                <StatCard onClick={() => setActiveOverlay('borrowed')} title="BORROWED" count={borrowedUnits} subtext="Currently out" icon={<RefreshCw className="w-6 h-6 text-blue-300" />} color="border-t-blue-400" />
-                <StatCard onClick={() => setActiveOverlay('repair')} title="FOR REPAIR" count={forRepairUnits} subtext="Under maintenance" icon={<Wrench className="w-6 h-6 text-amber-400" />} color="border-t-amber-400" />
-                <StatCard onClick={() => setActiveOverlay('damaged')} title="DAMAGED UNITS" count={damagedUnits} subtext="Unserviceable" icon={<XCircle className="w-6 h-6 text-red-400" />} color="border-t-red-400" />
-                <StatCard onClick={() => setActiveOverlay('sports')} title="SPORTS TRACKS" count={sportsTracksCount} subtext="Active sports" icon={<Trophy className="w-6 h-6 text-yellow-400" />} color="border-t-yellow-400" />
+                <StatCard isLight={isLight} onClick={() => setActiveOverlay('total')} title="TOTAL UNITS" count={totalUnits} subtext="Across all sports" icon={<Box className={`w-6 h-6 ${isLight ? 'text-[#0a1c38]' : 'text-slate-300'}`} />} color="border-t-yellow-400" />
+                <StatCard isLight={isLight} onClick={() => setActiveOverlay('available')} title="AVAILABLE ITEMS" count={availableUnits} subtext="Ready to borrow" icon={<Check className="w-6 h-6 text-yellow-500" />} color="border-t-yellow-400" />
+                <StatCard isLight={isLight} onClick={() => setActiveOverlay('borrowed')} title="BORROWED" count={borrowedUnits} subtext="Currently out" icon={<RefreshCw className={`w-6 h-6 ${isLight ? 'text-blue-700' : 'text-blue-300'}`} />} color="border-t-blue-400" />
+                <StatCard isLight={isLight} onClick={() => setActiveOverlay('repair')} title="FOR REPAIR" count={forRepairUnits} subtext="Under maintenance" icon={<Wrench className="w-6 h-6 text-amber-500" />} color="border-t-amber-400" />
+                <StatCard isLight={isLight} onClick={() => setActiveOverlay('damaged')} title="DAMAGED UNITS" count={damagedUnits} subtext="Unserviceable" icon={<XCircle className="w-6 h-6 text-red-500" />} color="border-t-red-400" />
+                <StatCard isLight={isLight} onClick={() => setActiveOverlay('sports')} title="SPORTS TRACKS" count={sportsTracksCount} subtext="Active sports" icon={<Trophy className="w-6 h-6 text-yellow-500" />} color="border-t-yellow-400" />
               </div>
 
               {activeOverlay && (
@@ -402,9 +403,9 @@ export default function AdminDashboard() {
                 })}
               </div>
               
-              <div className="bg-[#0e264c] rounded-xl overflow-hidden overflow-x-auto border border-blue-600/40 shadow-lg">
+              <div className={`rounded-xl overflow-hidden overflow-x-auto border shadow-lg ${isLight ? 'bg-white border-slate-200' : 'bg-[#0e264c] border-blue-600/40'}`}>
                 <table className="w-full text-left text-sm">
-                  <thead className="bg-[#07152b] text-slate-300 text-xs uppercase tracking-wider border-b border-blue-600/40">
+                  <thead className={`${isLight ? 'bg-slate-100 text-[#0a1c38] border-b border-slate-200' : 'bg-[#07152b] text-slate-300 border-b border-blue-600/40'} text-xs uppercase tracking-wider`}>
                     <tr>
                       <th className="px-6 py-4 font-bold">Equipment Name</th>
                       <th className="px-6 py-4 font-bold">Sport Category</th>
@@ -418,30 +419,30 @@ export default function AdminDashboard() {
                       <th className="px-6 py-4 font-bold text-center">Actions</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-blue-700/30">
+                  <tbody className={`divide-y ${isLight ? 'divide-slate-100' : 'divide-blue-700/30'}`}>
                     {filteredAdminEquipment.length === 0 ? (
                       <tr>
-                        <td colSpan={10} className="px-6 py-12 text-center text-slate-300 text-xs font-medium">
+                        <td colSpan={10} className={`px-6 py-12 text-center text-xs font-medium ${isLight ? 'text-[#0a1c38]' : 'text-slate-300'}`}>
                           No equipment matching your category or search filter.
                         </td>
                       </tr>
                     ) : (
                       filteredAdminEquipment.map((eq) => {
                         return (
-                          <tr key={eq.id} className="hover:bg-blue-800/30 transition">
+                          <tr key={eq.id} className={`transition ${isLight ? 'hover:bg-slate-50 text-[#0a1c38]' : 'hover:bg-blue-800/30 text-slate-300'}`}>
                             <td className="px-6 py-4 font-medium">
                               <div className="flex items-center space-x-2 mb-1">
-                                <span className="text-xs font-mono font-bold px-2 py-0.5 rounded bg-yellow-400/20 text-yellow-300 border border-yellow-400/40">
+                                <span className={`text-xs font-mono font-bold px-2 py-0.5 rounded border ${isLight ? 'bg-yellow-100 text-yellow-900 border-yellow-300' : 'bg-yellow-400/20 text-yellow-300 border-yellow-400/40'}`}>
                                   {eq.equipmentCode || 'EQ-0000'}
                                 </span>
                               </div>
-                              <span className="text-white font-bold text-base">{eq.name}</span>
+                              <span className={`font-bold text-base ${isLight ? 'text-[#0a1c38]' : 'text-white'}`}>{eq.name}</span>
                               {eq.description && (
-                                <div className="text-xs text-slate-300 mt-1 max-w-xs leading-relaxed line-clamp-2" title={eq.description}>
+                                <div className={`text-xs mt-1 max-w-xs leading-relaxed line-clamp-2 ${isLight ? 'text-slate-600' : 'text-slate-300'}`} title={eq.description}>
                                   {eq.description}
                                 </div>
                               )}
-                              <div className="text-[11px] text-slate-400 font-normal mt-1">{eq.location || 'Storage'}</div>
+                              <div className={`text-[11px] font-normal mt-1 ${isLight ? 'text-slate-500' : 'text-slate-400'}`}>{eq.location || 'Storage'}</div>
                             </td>
                             <td className="px-6 py-4">
                               <span className="inline-flex items-center space-x-1 text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-blue-950/80 text-yellow-300 border border-blue-600/50">
@@ -1136,14 +1137,14 @@ export default function AdminDashboard() {
   );
 }
 
-function NavItem({ icon, label, active, onClick, badge }: any) {
+function NavItem({ icon, label, active, onClick, badge, isLight }: any) {
   return (
     <div 
       onClick={onClick}
       className={`flex items-center justify-between px-6 py-3 cursor-pointer border-l-4 transition text-sm ${
         active 
-          ? 'border-yellow-400 bg-yellow-400/20 text-yellow-300 font-bold' 
-          : 'border-transparent text-slate-300 hover:bg-blue-800/40 hover:text-white font-medium'
+          ? isLight ? 'border-yellow-500 bg-yellow-100 text-blue-950 font-bold' : 'border-yellow-400 bg-yellow-400/20 text-yellow-300 font-bold' 
+          : isLight ? 'border-transparent text-slate-700 hover:bg-slate-100 font-medium' : 'border-transparent text-slate-300 hover:bg-blue-800/40 hover:text-white font-medium'
       }`}
     >
       <div className="flex items-center space-x-3">
@@ -1169,20 +1170,20 @@ function StatusBadge({ status }: { status: string }) {
   return null;
 }
 
-function StatCard({ title, count, subtext, icon, color, onClick }: any) {
+function StatCard({ title, count, subtext, icon, color, onClick, isLight }: any) {
   return (
     <div 
       onClick={onClick}
-      className={`bg-[#0e264c] border-t-4 ${color} border border-blue-600/40 p-5 rounded-xl shadow-md flex flex-col ${onClick ? 'cursor-pointer hover:border-yellow-400 hover:-translate-y-1 transition-all duration-200' : ''}`}
+      className={`${isLight ? 'bg-white text-[#0a1c38] border border-slate-200 shadow-sm' : 'bg-[#0e264c] text-white border border-blue-600/40'} border-t-4 ${color} p-5 rounded-xl shadow-md flex flex-col ${onClick ? 'cursor-pointer hover:border-yellow-400 hover:-translate-y-1 transition-all duration-200' : ''}`}
     >
       <div className="flex justify-between items-start mb-3">
-        <span className="text-[11px] text-slate-300 font-bold tracking-widest uppercase">{title}</span>
+        <span className={`text-[11px] font-bold tracking-widest uppercase ${isLight ? 'text-[#0a1c38]' : 'text-slate-300'}`}>{title}</span>
         {icon}
       </div>
-      <div className="text-4xl font-extrabold text-white mb-1 font-display tracking-tight">{count}</div>
-      <div className="text-xs text-slate-400 font-medium mb-4">{subtext}</div>
+      <div className={`text-4xl font-extrabold mb-1 font-display tracking-tight ${isLight ? 'text-[#0a1c38]' : 'text-white'}`}>{count}</div>
+      <div className={`text-sm font-medium mb-4 ${isLight ? 'text-slate-600' : 'text-slate-300'}`}>{subtext}</div>
       {onClick && (
-        <div className="mt-auto flex items-center space-x-1.5 text-xs font-bold text-yellow-400 hover:text-yellow-300">
+        <div className="mt-auto flex items-center space-x-1.5 text-xs font-bold text-yellow-600">
           <Search className="w-3.5 h-3.5" />
           <span>View Details</span>
         </div>

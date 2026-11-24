@@ -176,9 +176,10 @@ export default function BorrowerDashboard() {
   };
 
   const activeCategoryMeta = selectedCategory !== 'All' ? getCategoryMeta(selectedCategory) : null;
+  const isLight = theme === 'light';
 
   return (
-    <div className="min-h-screen bg-[#0a1c38] text-slate-300 flex font-sans relative overflow-x-hidden">
+    <div className={`min-h-screen ${isLight ? 'bg-white text-[#0a1c38]' : 'bg-[#0a1c38] text-slate-300'} flex font-sans relative overflow-x-hidden`}>
       {/* Mobile Backdrop */}
       {mobileMenuOpen && (
         <div 
@@ -324,10 +325,10 @@ export default function BorrowerDashboard() {
 
               {/* Stat Cards: CapSU Royal Blue Cards with Yellow Accent */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-                <StatCard title="TOTAL UNITS" count={totalUnits} subtext="Campus stock listing" icon={<Box className="w-5 h-5 text-slate-300" />} color="border-t-yellow-400" />
-                <StatCard title="AVAILABLE NOW" count={availableUnits} subtext="Ready to apply for" icon={<Check className="w-5 h-5 text-yellow-400" />} color="border-t-yellow-400" />
-                <StatCard title="MY ACTIVE BORROWS" count={activeBorrows} subtext="Items currently held" icon={<RefreshCw className="w-5 h-5 text-blue-300" />} color="border-t-blue-400" />
-                <StatCard title="IN MAINTENANCE" count={forRepairUnits} subtext="Temporarily stored away" icon={<Wrench className="w-5 h-5 text-amber-400" />} color="border-t-amber-400" />
+                <StatCard isLight={isLight} title="TOTAL UNITS" count={totalUnits} subtext="Campus stock listing" icon={<Box className={`w-5 h-5 ${isLight ? 'text-[#0a1c38]' : 'text-slate-300'}`} />} color="border-t-yellow-400" />
+                <StatCard isLight={isLight} title="AVAILABLE NOW" count={availableUnits} subtext="Ready to apply for" icon={<Check className={`w-5 h-5 ${isLight ? 'text-yellow-600' : 'text-yellow-400'}`} />} color="border-t-yellow-400" />
+                <StatCard isLight={isLight} title="MY ACTIVE BORROWS" count={activeBorrows} subtext="Items currently held" icon={<RefreshCw className={`w-5 h-5 ${isLight ? 'text-blue-700' : 'text-blue-300'}`} />} color="border-t-blue-400" />
+                <StatCard isLight={isLight} title="IN MAINTENANCE" count={forRepairUnits} subtext="Temporarily stored away" icon={<Wrench className={`w-5 h-5 ${isLight ? 'text-amber-600' : 'text-amber-400'}`} />} color="border-t-amber-400" />
               </div>
 
               {/* My Requests Ledger */}
@@ -970,15 +971,15 @@ function NavItem({ icon, label, active, onClick, badge }: any) {
   );
 }
 
-function StatCard({ title, count, subtext, icon, color }: any) {
+function StatCard({ title, count, subtext, icon, color, isLight }: any) {
   return (
-    <div className={`bg-[#0e264c] border-t-4 ${color} border border-blue-600/40 p-5 rounded-xl flex flex-col shadow-md`}>
+    <div className={`${isLight ? 'bg-white text-[#0a1c38] border border-slate-300 shadow-sm' : 'bg-[#0e264c] text-white border border-blue-600/40'} border-t-4 ${color} p-5 rounded-xl flex flex-col shadow-md`}>
       <div className="flex justify-between items-start mb-2">
-        <span className="text-[11px] text-slate-300 font-bold tracking-wider uppercase">{title}</span>
+        <span className={`text-[11px] font-bold tracking-wider uppercase ${isLight ? 'text-[#0a1c38]' : 'text-slate-300'}`}>{title}</span>
         {icon}
       </div>
-      <div className="text-3xl font-extrabold text-white mb-1 font-display tracking-tight">{count}</div>
-      <div className="text-xs text-slate-400 font-medium">{subtext}</div>
+      <div className={`text-3xl font-extrabold mb-1 font-display tracking-tight ${isLight ? 'text-[#0a1c38]' : 'text-white'}`}>{count}</div>
+      <div className={`text-xs font-medium ${isLight ? 'text-slate-700' : 'text-slate-400'}`}>{subtext}</div>
     </div>
   );
 }

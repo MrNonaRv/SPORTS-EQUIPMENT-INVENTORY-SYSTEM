@@ -266,20 +266,20 @@ export default function PublicDashboard() {
   );
 }
 
-function StatCard({ title, count, subtext, icon, color, onClick }: any) {
+function StatCard({ title, count, subtext, icon, color, onClick, isLight }: any) {
   return (
     <div 
       onClick={onClick}
-      className={`bg-[#0e264c] border-t-4 ${color} border border-blue-600/30 p-5 rounded-xl shadow-md flex flex-col ${onClick ? 'cursor-pointer hover:border-yellow-400/70 hover:-translate-y-1 transition-all duration-200' : ''}`}
+      className={`${isLight ? 'bg-white text-[#0a1c38] border border-slate-300 shadow-sm' : 'bg-[#0e264c] text-white border border-blue-600/30'} border-t-4 ${color} p-5 rounded-xl shadow-md flex flex-col ${onClick ? 'cursor-pointer hover:border-yellow-400/70 hover:-translate-y-1 transition-all duration-200' : ''}`}
     >
       <div className="flex justify-between items-start mb-3">
-        <span className="text-xs text-slate-300 font-bold tracking-widest uppercase">{title}</span>
+        <span className={`text-xs font-bold tracking-widest uppercase ${isLight ? 'text-[#0a1c38]' : 'text-slate-300'}`}>{title}</span>
         {icon}
       </div>
-      <div className="text-4xl font-extrabold text-white mb-1 font-display tracking-tight">{count}</div>
-      <div className="text-sm text-slate-300 font-medium mb-4">{subtext}</div>
+      <div className={`text-4xl font-extrabold mb-1 font-display tracking-tight ${isLight ? 'text-[#0a1c38]' : 'text-white'}`}>{count}</div>
+      <div className={`text-sm font-medium mb-4 ${isLight ? 'text-[#0a1c38]' : 'text-slate-300'}`}>{subtext}</div>
       {onClick && (
-        <div className="mt-auto flex items-center space-x-1.5 text-xs font-bold text-yellow-400">
+        <div className="mt-auto flex items-center space-x-1.5 text-xs font-bold text-yellow-600">
           <Search className="w-3.5 h-3.5" />
           <span>View Details</span>
         </div>
@@ -288,7 +288,7 @@ function StatCard({ title, count, subtext, icon, color, onClick }: any) {
   );
 }
 
-function ActiveLogsOverlay({ type, onClose, equipment, requests, users }: any) {
+function ActiveLogsOverlay({ type, onClose, equipment, requests, users, isLight }: any) {
   let title = '';
   let data: any[] = [];
   let columns = ['EQUIPMENT', 'SPORTS CATEGORY', 'COUNT', 'ACTIVE STATE'];
@@ -342,42 +342,42 @@ function ActiveLogsOverlay({ type, onClose, equipment, requests, users }: any) {
   }
 
   return (
-    <div className="flex flex-col max-h-[500px] text-slate-300">
+    <div className={`flex flex-col max-h-[500px] ${isLight ? 'text-[#0a1c38]' : 'text-slate-300'}`}>
       <div className="flex justify-between items-center mb-6">
         <div>
-          <h3 className="text-2xl font-bold text-white flex items-center space-x-3 font-display uppercase tracking-wide">
-            <Trophy className="w-6 h-6 text-yellow-400" />
+          <h3 className={`text-2xl font-bold ${isLight ? 'text-[#0a1c38]' : 'text-white'} flex items-center space-x-3 font-display uppercase tracking-wide`}>
+            <Trophy className="w-6 h-6 text-yellow-500" />
             <span>{title}</span>
           </h3>
-          <p className="text-slate-300 text-sm mt-1">Detailed inventory records matching current filter parameters.</p>
+          <p className={`text-sm mt-1 ${isLight ? 'text-slate-600' : 'text-slate-300'}`}>Detailed inventory records matching current filter parameters.</p>
         </div>
-        <button onClick={onClose} className="text-slate-300 hover:text-white p-2 bg-[#07172f] hover:bg-blue-800/50 rounded-full transition cursor-pointer">
+        <button onClick={onClose} className={`${isLight ? 'text-[#0a1c38] bg-slate-100 hover:bg-slate-200 border border-slate-300' : 'text-slate-300 hover:text-white bg-[#07172f] hover:bg-blue-800/50'} p-2 rounded-full transition cursor-pointer`}>
           <X className="w-5 h-5" />
         </button>
       </div>
 
-      <div className="overflow-y-auto flex-1 border border-blue-600/40 rounded-lg shadow-inner bg-[#07172f]">
+      <div className={`overflow-y-auto flex-1 border ${isLight ? 'border-slate-300 bg-white' : 'border-blue-600/40 bg-[#07172f]'} rounded-lg shadow-inner`}>
         <table className="w-full text-left text-sm">
-          <thead className="bg-[#07152b] text-slate-300 text-xs uppercase tracking-wider sticky top-0 z-10 border-b border-blue-600/40">
+          <thead className={`${isLight ? 'bg-slate-100 text-[#0a1c38] border-slate-300' : 'bg-[#07152b] text-slate-300 border-blue-600/40'} text-xs uppercase tracking-wider sticky top-0 z-10 border-b`}>
             <tr>
               {columns.map(c => <th key={c} className="px-6 py-4 font-bold">{c}</th>)}
             </tr>
           </thead>
-          <tbody className="divide-y divide-blue-700/30 bg-[#0e264c]">
+          <tbody className={`divide-y ${isLight ? 'divide-slate-200 bg-white' : 'divide-blue-700/30 bg-[#0e264c]'}`}>
             {data.map((row, i) => (
-              <tr key={i} className="hover:bg-blue-800/30 transition">
-                <td className="px-6 py-4 font-bold text-white">{row.col1}</td>
-                <td className="px-6 py-4 text-slate-300 font-medium">{row.col2}</td>
-                <td className="px-6 py-4 font-semibold text-yellow-400">{row.col3}</td>
+              <tr key={i} className={`${isLight ? 'hover:bg-slate-50' : 'hover:bg-blue-800/30'} transition`}>
+                <td className={`px-6 py-4 font-bold ${isLight ? 'text-[#0a1c38]' : 'text-white'}`}>{row.col1}</td>
+                <td className={`px-6 py-4 ${isLight ? 'text-slate-700' : 'text-slate-300'} font-medium`}>{row.col2}</td>
+                <td className={`px-6 py-4 font-semibold ${isLight ? 'text-blue-900' : 'text-yellow-400'}`}>{row.col3}</td>
                 {columns.length > 3 && (
                   <td className="px-6 py-4">
-                    <span className={`text-xs font-bold px-3 py-1.5 rounded-full ${row.isAvailable ? 'bg-yellow-400/20 text-yellow-300 border border-yellow-400/50' : 'bg-slate-800/80 text-slate-300 border border-slate-700'}`}>{row.col4}</span>
+                    <span className={`text-xs font-bold px-3 py-1.5 rounded-full ${row.isAvailable ? (isLight ? 'bg-emerald-100 text-emerald-900 border border-emerald-300' : 'bg-yellow-400/20 text-yellow-300 border border-yellow-400/50') : (isLight ? 'bg-slate-100 text-slate-800 border border-slate-300' : 'bg-slate-800/80 text-slate-300 border border-slate-700')}`}>{row.col4}</span>
                   </td>
                 )}
               </tr>
             ))}
             {data.length === 0 && (
-              <tr><td colSpan={columns.length} className="px-6 py-12 text-center text-slate-300 font-medium">No records found.</td></tr>
+              <tr><td colSpan={columns.length} className={`px-6 py-12 text-center font-medium ${isLight ? 'text-slate-500' : 'text-slate-300'}`}>No records found.</td></tr>
             )}
           </tbody>
         </table>

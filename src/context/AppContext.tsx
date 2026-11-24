@@ -167,6 +167,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   // Real-time Cloud Synchronization with Firestore
   useEffect(() => {
     let seededUsers = localStorage.getItem('csu_seeded_users') === 'true';
+    let seededEquipment = localStorage.getItem('csu_seeded_equipment') === 'true';
     let seededRequests = localStorage.getItem('csu_seeded_requests') === 'true';
 
     // 1. Listen to Users Collection
@@ -209,10 +210,28 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     // 2. Listen to Equipment Collection
     const equipmentColRef = collection(db, 'equipment');
     const unsubEquipment = onSnapshot(equipmentColRef, async (snapshot) => {
-      if (!snapshot.empty) {
+      if (snapshot.empty && !seededEquipment) {
+        seededEquipment = true;
+        localStorage.setItem('csu_seeded_equipment', 'true');
+        try {
+          const batch = writeBatch(db);
+          for (const eq of initialEquipment) {
+            batch.set(doc(db, 'equipment', eq.id), eq);
+          }
+          await batch.commit();
+          setEquipment(initialEquipment);
+        } catch (err) {
+          console.error('Error seeding initial equipment:', err);
+        }
+      } else if (!snapshot.empty) {
         const loadedEquipment: Equipment[] = [];
         snapshot.forEach((d) => {
-          loadedEquipment.push(d.data() as Equipment);
+          const eqData = d.data() as Equipment;
+          if (!eqData.equipmentCode || eqData.equipmentCode === 'EQ-0000') {
+            const prefix = eqData.category ? eqData.category.substring(0, 3).toUpperCase() : 'EQ';
+            eqData.equipmentCode = `${prefix}-${eqData.id.slice(-4).toUpperCase() || '001'}`;
+          }
+          loadedEquipment.push(eqData);
         });
         setEquipment(loadedEquipment);
       }
