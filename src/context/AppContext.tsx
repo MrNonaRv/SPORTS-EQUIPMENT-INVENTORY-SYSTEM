@@ -1,5 +1,6 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { AppState, User, Equipment, BorrowRequest, RequestStatus, ArrivalRecord } from '../types';
+import React, { createContext, useContext, useState, useEffect, useMemo, ReactNode } from 'react';
+import { AppState, User, Equipment, BorrowRequest, RequestStatus, ArrivalRecord, EquipmentConditionAction } from '../types';
+import { DEFAULT_SPORT_CATEGORIES } from '../data/categoryData';
 import { db } from '../firebase';
 import { 
   collection, 
@@ -12,8 +13,20 @@ import {
   deleteDoc
 } from 'firebase/firestore';
 
+const stripUndefined = <T extends Record<string, any>>(obj: T): T => {
+  const cleaned: Record<string, any> = {};
+  for (const [k, v] of Object.entries(obj)) {
+    if (v !== undefined) cleaned[k] = v;
+  }
+  return cleaned as T;
+};
+
 interface AppContextType extends AppState {
   arrivalRecords: ArrivalRecord[];
+  sportCategories: string[];
+  customCategories: string[];
+  addCustomCategory: (name: string) => void;
+  removeCustomCategory: (name: string) => void;
   setView: (view: AppState['currentView']) => void;
   login: (user: User) => void;
   logout: () => void;
@@ -22,8 +35,9 @@ interface AppContextType extends AppState {
   updateUserDetails: (userId: string, updates: Partial<User>) => Promise<void>;
   deleteUser: (userId: string) => Promise<void>;
   clearAllUsers: () => Promise<void>;
-  addEquipment: (equipment: Equipment) => Promise<void>;
+  addEquipment: (equipment: Equipment) => Promise<{ merged: boolean; equipmentId: string }>;
   updateEquipment: (equipmentId: string, updates: Partial<Equipment>) => Promise<void>;
+  updateEquipmentCondition: (equipmentId: string, action: EquipmentConditionAction, quantity: number) => Promise<void>;
   deleteEquipment: (equipmentId: string) => Promise<void>;
   submitBorrowRequest: (request: BorrowRequest) => Promise<void>;
   updateRequestStatus: (requestId: string, status: RequestStatus, returnCondition?: 'Good' | 'Damaged') => Promise<void>;
@@ -147,11 +161,63 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   }, [equipment]);
   const [requests, setRequests] = useState<BorrowRequest[]>(initialRequests);
   const [arrivalRecords, setArrivalRecords] = useState<ArrivalRecord[]>([]);
+  const [customCategories, setCustomCategories] = useState<string[]>(() => {
+    try {
+      const saved = localStorage.getItem('csu_custom_categories');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) return parsed.filter((c): c is string => typeof c === 'string' && c.trim().length > 0);
+      }
+    } catch {
+      // ignore storage errors
+    }
+    return [];
+  });
   const [theme, setTheme] = useState<'dark' | 'light'>(() => {
     const saved = localStorage.getItem('csu_theme') as 'dark' | 'light' | null;
     return saved || 'dark';
   });
   const [isSyncing, setIsSyncing] = useState<boolean>(true);
+
+  const sportCategories = useMemo(() => {
+    const seen = new Set<string>();
+    const result: string[] = [];
+    const addUnique = (cat: string) => {
+      const trimmed = cat.trim();
+      if (!trimmed) return;
+      const key = trimmed.toLowerCase();
+      if (!seen.has(key)) {
+        seen.add(key);
+        result.push(trimmed);
+      }
+    };
+    DEFAULT_SPORT_CATEGORIES.forEach(addUnique);
+    equipment.forEach(eq => {
+      if (eq.category) addUnique(eq.category);
+    });
+    customCategories.forEach(addUnique);
+    return result;
+  }, [equipment, customCategories]);
+
+  const addCustomCategory = (name: string) => {
+    const trimmed = name.trim();
+    if (!trimmed) return;
+    if (sportCategories.some(c => c.toLowerCase() === trimmed.toLowerCase())) return;
+    setCustomCategories(prev => {
+      const next = [...prev, trimmed];
+      localStorage.setItem('csu_custom_categories', JSON.stringify(next));
+      return next;
+    });
+  };
+
+  const removeCustomCategory = (name: string) => {
+    const trimmed = name.trim().toLowerCase();
+    setCustomCategories(prev => {
+      const next = prev.filter(c => c.trim().toLowerCase() !== trimmed);
+      localStorage.setItem('csu_custom_categories', JSON.stringify(next));
+      return next;
+    });
+  };
 
   const toggleTheme = () => {
     const next = theme === 'dark' ? 'light' : 'dark';
@@ -338,52 +404,80 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     }
   };
 
-  const addEquipment = async (newEq: Equipment) => {
-    if (newEq.equipmentCode) {
-      const duplicateCode = equipment.find(
-        e => e.equipmentCode && e.equipmentCode.toLowerCase() === newEq.equipmentCode!.toLowerCase() && e.id !== newEq.id
-      );
-      if (duplicateCode) {
-        console.warn(`Equipment Code "${newEq.equipmentCode}" already exists.`);
-      }
-    }
+  const addEquipment = async (newEq: Equipment): Promise<{ merged: boolean; equipmentId: string }> => {
+    const normalizedName = newEq.name.trim().toLowerCase();
+    const normalizedCategory = newEq.category.trim().toLowerCase();
 
     const existing = equipment.find(
-      e => e.name.toLowerCase() === newEq.name.toLowerCase() && e.category.toLowerCase() === newEq.category.toLowerCase()
+      e => e.name.trim().toLowerCase() === normalizedName && e.category.trim().toLowerCase() === normalizedCategory
     );
 
     if (existing) {
+      // Merge / Restock into existing item:
+      // Increases Total and Available (or InRepair / Damaged based on arrival condition),
+      // and appends new individual Equipment IDs / codes.
       const updatedTotal = existing.total + newEq.total;
       const updatedAvailable = existing.available + newEq.available;
       const updatedInRepair = existing.inRepair + newEq.inRepair;
       const updatedDamaged = existing.damaged + newEq.damaged;
 
-      setEquipment(prev => prev.map(e => e.id === existing.id ? {
-        ...e,
+      const priorCodes = existing.equipmentCodes && existing.equipmentCodes.length > 0
+        ? existing.equipmentCodes
+        : existing.equipmentCode
+          ? [existing.equipmentCode]
+          : [];
+      const incomingCodes = newEq.equipmentCodes && newEq.equipmentCodes.length > 0
+        ? newEq.equipmentCodes
+        : newEq.equipmentCode
+          ? [newEq.equipmentCode]
+          : [];
+
+      const mergedCodes = [...priorCodes];
+      for (const code of incomingCodes) {
+        const cleanCode = code.trim();
+        if (cleanCode && !mergedCodes.some(c => c.toLowerCase() === cleanCode.toLowerCase())) {
+          mergedCodes.push(cleanCode);
+        }
+      }
+
+      const lastChecked = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+      const mergedUpdates: Partial<Equipment> = stripUndefined({
         total: updatedTotal,
         available: updatedAvailable,
         inRepair: updatedInRepair,
         damaged: updatedDamaged,
-      } : e));
+        equipmentCodes: mergedCodes,
+        location: newEq.location?.trim() || existing.location,
+        description: newEq.description?.trim() || existing.description,
+        lastChecked
+      });
+
+      setEquipment(prev => prev.map(e => e.id === existing.id ? { ...e, ...mergedUpdates } : e));
 
       try {
-        await updateDoc(doc(db, 'equipment', existing.id), {
-          total: updatedTotal,
-          available: updatedAvailable,
-          inRepair: updatedInRepair,
-          damaged: updatedDamaged,
-          lastChecked: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })
-        });
+        await updateDoc(doc(db, 'equipment', existing.id), mergedUpdates);
       } catch (err) {
-        console.error('Failed to update equipment in Firestore:', err);
+        console.error('Failed to merge/restock equipment in Firestore:', err);
       }
+      return { merged: true, equipmentId: existing.id };
     } else {
-      setEquipment(prev => [...prev, newEq]);
+      const cleanNewEq = stripUndefined({
+        ...newEq,
+        name: newEq.name.trim(),
+        category: newEq.category.trim(),
+        equipmentCodes: newEq.equipmentCodes && newEq.equipmentCodes.length > 0
+          ? newEq.equipmentCodes.map(c => c.trim()).filter(Boolean)
+          : newEq.equipmentCode
+            ? [newEq.equipmentCode.trim()]
+            : []
+      });
+      setEquipment(prev => [...prev, cleanNewEq]);
       try {
-        await setDoc(doc(db, 'equipment', newEq.id), newEq);
+        await setDoc(doc(db, 'equipment', cleanNewEq.id), cleanNewEq);
       } catch (err) {
         console.error('Failed to add equipment to Firestore:', err);
       }
+      return { merged: false, equipmentId: cleanNewEq.id };
     }
   };
 
@@ -396,11 +490,77 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         console.warn(`Equipment Code "${updates.equipmentCode}" already exists.`);
       }
     }
+    const cleanUpdates = stripUndefined(updates);
+    setEquipment(prev => prev.map(e => e.id === equipmentId ? { ...e, ...cleanUpdates } : e));
+    try {
+      await updateDoc(doc(db, 'equipment', equipmentId), cleanUpdates);
+    } catch (err) {
+      console.error('Failed to update equipment in Firestore:', err);
+    }
+  };
+
+  /**
+   * Stock Condition Accounting Rule:
+   * Marking units as Damaged or Under Repair deducts from Available Units
+   * (and increments Damaged / In Repair counters) while keeping Total Units unchanged.
+   * Restoring/repairing units moves them back to Available Units while keeping Total Units unchanged.
+   */
+  const updateEquipmentCondition = async (
+    equipmentId: string,
+    action: EquipmentConditionAction,
+    quantity: number
+  ) => {
+    const eq = equipment.find(e => e.id === equipmentId);
+    if (!eq) return;
+
+    const requestedQty = Math.max(0, Math.floor(quantity));
+    if (requestedQty === 0) return;
+
+    let nextAvailable = eq.available;
+    let nextInRepair = eq.inRepair;
+    let nextDamaged = eq.damaged;
+
+    if (action === 'mark_damaged') {
+      const qty = Math.min(requestedQty, eq.available);
+      if (qty <= 0) return;
+      nextAvailable = eq.available - qty;
+      nextDamaged = eq.damaged + qty;
+    } else if (action === 'mark_repair') {
+      const qty = Math.min(requestedQty, eq.available);
+      if (qty <= 0) return;
+      nextAvailable = eq.available - qty;
+      nextInRepair = eq.inRepair + qty;
+    } else if (action === 'move_damaged_to_repair') {
+      const qty = Math.min(requestedQty, eq.damaged);
+      if (qty <= 0) return;
+      nextDamaged = eq.damaged - qty;
+      nextInRepair = eq.inRepair + qty;
+    } else if (action === 'restore_from_repair') {
+      const qty = Math.min(requestedQty, eq.inRepair);
+      if (qty <= 0) return;
+      nextInRepair = eq.inRepair - qty;
+      nextAvailable = eq.available + qty;
+    } else if (action === 'restore_from_damaged') {
+      const qty = Math.min(requestedQty, eq.damaged);
+      if (qty <= 0) return;
+      nextDamaged = eq.damaged - qty;
+      nextAvailable = eq.available + qty;
+    }
+
+    // Total units intentionally stays unchanged so overall campus assets remain accounted for
+    const updates: Partial<Equipment> = {
+      total: eq.total,
+      available: nextAvailable,
+      inRepair: nextInRepair,
+      damaged: nextDamaged,
+      lastChecked: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })
+    };
+
     setEquipment(prev => prev.map(e => e.id === equipmentId ? { ...e, ...updates } : e));
     try {
       await updateDoc(doc(db, 'equipment', equipmentId), updates);
     } catch (err) {
-      console.error('Failed to update equipment in Firestore:', err);
+      console.error('Failed to update equipment condition in Firestore:', err);
     }
   };
 
@@ -448,8 +608,9 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
                 borrowed: newBorrowed
               });
             } else if (status === 'returned') {
-              const isDamaged = req.returnCondition === 'Damaged';
-              const newAvail = isDamaged ? targetEq.available : targetEq.available + item.quantity;
+              const effectiveCondition = returnCondition || req.returnCondition;
+              const isDamaged = effectiveCondition === 'Damaged';
+              const newAvail = isDamaged ? targetEq.available : Math.min(targetEq.total - (targetEq.inRepair || 0) - (targetEq.damaged || 0), targetEq.available + item.quantity);
               const newDamaged = isDamaged ? targetEq.damaged + item.quantity : targetEq.damaged;
               const newBorrowed = Math.max(0, targetEq.borrowed - item.quantity);
               setEquipment(prev => prev.map(e => e.id === targetEq.id ? { ...e, available: newAvail, borrowed: newBorrowed, damaged: newDamaged } : e));
@@ -581,9 +742,10 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   };
 
   const addArrivalRecord = async (record: ArrivalRecord) => {
-    setArrivalRecords(prev => [record, ...prev]);
+    const cleanRecord = stripUndefined(record);
+    setArrivalRecords(prev => [cleanRecord, ...prev]);
     try {
-      await setDoc(doc(db, 'arrivals', record.id), record);
+      await setDoc(doc(db, 'arrivals', cleanRecord.id), cleanRecord);
     } catch (err) {
       console.error('Failed to save arrival record to Firestore:', err);
     }
@@ -668,9 +830,10 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       currentView, setView,
       currentUser, login, logout,
       users, registerUser, updateUserStatus, updateUserDetails, deleteUser, clearAllUsers,
-      equipment, addEquipment, updateEquipment, deleteEquipment,
+      equipment, addEquipment, updateEquipment, updateEquipmentCondition, deleteEquipment,
       requests, submitBorrowRequest, updateRequestStatus, deleteRequest, clearAllRequests, clearActiveBorrowers,
       arrivalRecords, addArrivalRecord, deleteArrivalRecord, clearArrivalRecords,
+      sportCategories, customCategories, addCustomCategory, removeCustomCategory,
       clearData,
       theme, toggleTheme,
       isSyncing

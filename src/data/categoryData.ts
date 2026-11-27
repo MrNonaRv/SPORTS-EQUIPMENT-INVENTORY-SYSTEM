@@ -1,3 +1,5 @@
+import type { Equipment } from '../types';
+
 export interface CategoryInfo {
   id: string;
   name: string;
@@ -292,4 +294,133 @@ export const getCategoryMeta = (categoryName: string): CategoryInfo => {
     description: `${categoryName} athletic equipment and gear collection.`,
     defaultItemsDescription: 'Sport Equipment & Accessories'
   };
+};
+
+export const DEFAULT_SPORT_CATEGORIES: string[] = [
+  'Basketball',
+  'Volleyball',
+  'Football',
+  'Badminton',
+  'Table Tennis',
+  'Sepak Takraw',
+  'Chess',
+  'Boxing',
+  'Taekwondo',
+  'Arnis',
+  'Athletics',
+  'Baseball',
+  'Office Supplies',
+  'Other'
+];
+
+const CATEGORY_CODE_PREFIXES: Record<string, string> = {
+  'basketball': 'BB',
+  'volleyball': 'VB',
+  'football': 'FB',
+  'badminton': 'BAD',
+  'table tennis': 'TT',
+  'sepak takraw': 'ST',
+  'chess': 'CH',
+  'boxing': 'BOX',
+  'taekwondo': 'TK',
+  'arnis': 'ARN',
+  'athletics': 'ATH',
+  'baseball': 'BSB',
+  'office supplies': 'OFF',
+  'other': 'OTH'
+};
+
+export const getCategoryCodePrefix = (category: string): string => {
+  const normalized = category.trim().toLowerCase();
+  if (CATEGORY_CODE_PREFIXES[normalized]) {
+    return CATEGORY_CODE_PREFIXES[normalized];
+  }
+  const letters = normalized.replace(/[^a-z0-9]/g, '').toUpperCase();
+  return letters.slice(0, 3) || 'EQ';
+};
+
+export const collectAllEquipmentCodes = (equipmentList: Equipment[]): Set<string> => {
+  const codes = new Set<string>();
+  for (const eq of equipmentList) {
+    if (eq.equipmentCode) {
+      codes.add(eq.equipmentCode.trim().toLowerCase());
+    }
+    if (eq.equipmentCodes) {
+      for (const c of eq.equipmentCodes) {
+        if (c && c.trim()) {
+          codes.add(c.trim().toLowerCase());
+        }
+      }
+    }
+  }
+  return codes;
+};
+
+export const generateNextBaseEquipmentCode = (category: string, equipmentList: Equipment[]): string => {
+  const prefix = getCategoryCodePrefix(category);
+  const existingCodes = collectAllEquipmentCodes(equipmentList);
+  const pattern = new RegExp(`^${prefix}-(\\d+)$`, 'i');
+
+  let maxNum = 0;
+  for (const eq of equipmentList) {
+    const candidates = [eq.equipmentCode, ...(eq.equipmentCodes || [])].filter(Boolean) as string[];
+    for (const code of candidates) {
+      const m = code.trim().match(pattern);
+      if (m) {
+        const n = parseInt(m[1], 10);
+        if (n > maxNum) maxNum = n;
+      }
+    }
+  }
+
+  let next = maxNum + 1;
+  let candidate = `${prefix}-${String(next).padStart(3, '0')}`;
+  while (existingCodes.has(candidate.toLowerCase())) {
+    next += 1;
+    candidate = `${prefix}-${String(next).padStart(3, '0')}`;
+  }
+  return candidate;
+};
+
+export const generateUnitEquipmentCodes = (
+  baseCode: string,
+  quantity: number,
+  equipmentList: Equipment[],
+  existingItem?: Equipment | null
+): string[] => {
+  const safeQty = Math.max(0, Math.min(200, Math.floor(quantity || 0)));
+  if (safeQty === 0) return [];
+
+  const cleanBase = (baseCode || 'EQ-001').trim().toUpperCase();
+  const usedCodes = collectAllEquipmentCodes(equipmentList);
+
+  // Determine starting unit index
+  let startIndex = 1;
+  if (existingItem) {
+    const itemCodes = [existingItem.equipmentCode, ...(existingItem.equipmentCodes || [])].filter(Boolean) as string[];
+    const suffixPattern = new RegExp(`^${cleanBase.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}-(\\d+)$`, 'i');
+    let maxSuffix = 0;
+    for (const code of itemCodes) {
+      const m = code.trim().match(suffixPattern);
+      if (m) {
+        const n = parseInt(m[1], 10);
+        if (n > maxSuffix) maxSuffix = n;
+      }
+    }
+    startIndex = Math.max(maxSuffix, existingItem.total || 0) + 1;
+  }
+
+  const generated: string[] = [];
+  let cursor = startIndex;
+
+  while (generated.length < safeQty) {
+    const candidate = `${cleanBase}-${String(cursor).padStart(2, '0')}`;
+    if (!usedCodes.has(candidate.toLowerCase())) {
+      usedCodes.add(candidate.toLowerCase());
+      generated.push(candidate);
+    }
+    cursor += 1;
+  }
+
+  return generated;
 };

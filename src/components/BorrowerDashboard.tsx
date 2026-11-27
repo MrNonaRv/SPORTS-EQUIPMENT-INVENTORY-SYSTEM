@@ -74,11 +74,14 @@ export default function BorrowerDashboard() {
   const distinctCategories = Array.from(new Set(equipment.map(e => e.category))).filter((cat): cat is string => Boolean(cat));
 
   const filteredEquipment = equipment.filter(eq => {
+    const q = searchQuery.trim().toLowerCase();
     const matchCat = selectedCategory === 'All' || eq.category.toLowerCase() === selectedCategory.toLowerCase();
-    const matchSearch = searchQuery.trim() === '' || 
-      eq.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-      eq.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (eq.location && eq.location.toLowerCase().includes(searchQuery.toLowerCase()));
+    const matchSearch = q === '' || 
+      eq.name.toLowerCase().includes(q) || 
+      eq.category.toLowerCase().includes(q) ||
+      (eq.equipmentCode && eq.equipmentCode.toLowerCase().includes(q)) ||
+      (eq.equipmentCodes && eq.equipmentCodes.some(c => c.toLowerCase().includes(q))) ||
+      (eq.location && eq.location.toLowerCase().includes(q));
     return matchCat && matchSearch;
   });
 

@@ -1,8 +1,14 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useAppContext } from '../context/AppContext';
-import { LogOut, LayoutDashboard, Users, Bell, UserCog, PackagePlus, FileBarChart, Check, X, RefreshCw, Box, Wrench, XCircle, Trophy, Layers, Search, UserCheck, Trash2, Menu, Sun, Moon } from 'lucide-react';
-import { BorrowRequest, Equipment } from '../types';
-import { getCategoryMeta } from '../data/categoryData';
+import { LogOut, LayoutDashboard, Users, Bell, UserCog, PackagePlus, FileBarChart, Check, X, RefreshCw, Box, Wrench, XCircle, Trophy, Layers, Search, UserCheck, Trash2, Menu, Sun, Moon, AlertTriangle, Plus, Tag, ArrowRight } from 'lucide-react';
+import { BorrowRequest, Equipment, EquipmentConditionAction } from '../types';
+import {
+  getCategoryMeta,
+  DEFAULT_SPORT_CATEGORIES,
+  collectAllEquipmentCodes,
+  generateNextBaseEquipmentCode,
+  generateUnitEquipmentCodes
+} from '../data/categoryData';
 import { CategoryIcon } from './CategoryIcon';
 import jsPDF from 'jspdf';
 import { toPng } from 'html-to-image';
@@ -20,6 +26,7 @@ export default function AdminDashboard() {
     updateUserDetails, 
     deleteEquipment, 
     updateEquipment,
+    updateEquipmentCondition,
     deleteUser,
     clearAllUsers,
     deleteRequest,
@@ -29,6 +36,10 @@ export default function AdminDashboard() {
     addArrivalRecord,
     deleteArrivalRecord,
     clearArrivalRecords,
+    sportCategories,
+    customCategories,
+    addCustomCategory,
+    removeCustomCategory,
     clearData,
     theme,
     toggleTheme
@@ -44,19 +55,30 @@ export default function AdminDashboard() {
   // Inventory Filter State
   const [adminCatFilter, setAdminCatFilter] = useState<string>('All');
   const [adminSearch, setAdminSearch] = useState<string>('');
+  const [expandedCodesId, setExpandedCodesId] = useState<string | null>(null);
 
-  // New Equipment State
+  // Stock Condition Update Modal State (Mark Damaged / Under Repair / Restore)
+  const [conditionModal, setConditionModal] = useState<{
+    equipmentId: string;
+    action: EquipmentConditionAction;
+    quantity: number;
+  } | null>(null);
+
+  // New Equipment / Restock Arrival State
   const [eqCode, setEqCode] = useState('');
   const [eqName, setEqName] = useState('');
   const [eqDescription, setEqDescription] = useState('');
   const [eqCat, setEqCat] = useState('Basketball');
   const [customCat, setCustomCat] = useState('');
-  const [eqQty, setEqQty] = useState(0);
+  const [eqQty, setEqQty] = useState(1);
+  const [unitCodes, setUnitCodes] = useState<string[]>([]);
   const [eqCondition, setEqCondition] = useState('Good / Available');
   const [eqSupplier, setEqSupplier] = useState('');
   const [eqNotes, setEqNotes] = useState('');
   const [eqLocation, setEqLocation] = useState('');
-  const [addSuccess, setAddSuccess] = useState(false);
+  const [addSuccessMessage, setAddSuccessMessage] = useState<string | null>(null);
+  const [showCategoryManager, setShowCategoryManager] = useState(false);
+  const [newCategoryName, setNewCategoryName] = useState('');
   const [now, setNow] = useState(new Date());
 
   useEffect(() => {
@@ -92,7 +114,7 @@ export default function AdminDashboard() {
   const pendingUsers = users.filter(u => u.status === 'pending');
   const approvedUsers = users.filter(u => u.status === 'approved' && u.role !== 'admin');
 
-  // Categories list
+  // Categories list for inventory filter pills
   const allCategories = useMemo(() => {
     return Array.from(new Set(equipment.map(e => e.category))).filter((cat): cat is string => Boolean(cat));
   }, [equipment]);
@@ -100,49 +122,177 @@ export default function AdminDashboard() {
   const filteredAdminEquipment = useMemo(() => {
     return equipment.filter(eq => {
       const matchCat = adminCatFilter === 'All' || eq.category.toLowerCase() === adminCatFilter.toLowerCase();
-      const matchQuery = adminSearch.trim() === '' || 
-        eq.name.toLowerCase().includes(adminSearch.toLowerCase()) || 
-        eq.category.toLowerCase().includes(adminSearch.toLowerCase()) ||
-        (eq.equipmentCode && eq.equipmentCode.toLowerCase().includes(adminSearch.toLowerCase())) ||
-        (eq.location && eq.location.toLowerCase().includes(adminSearch.toLowerCase()));
+      const q = adminSearch.trim().toLowerCase();
+      const matchQuery = q === '' || 
+        eq.name.toLowerCase().includes(q) || 
+        eq.category.toLowerCase().includes(q) ||
+        (eq.equipmentCode && eq.equipmentCode.toLowerCase().includes(q)) ||
+        (eq.equipmentCodes && eq.equipmentCodes.some(c => c.toLowerCase().includes(q))) ||
+        (eq.location && eq.location.toLowerCase().includes(q));
       return matchCat && matchQuery;
     });
   }, [equipment, adminCatFilter, adminSearch]);
 
-  const handleAddEquipment = (e: React.FormEvent) => {
-    e.preventDefault();
-    const finalCategory = eqCat === 'Custom' ? (customCat.trim() || 'General') : eqCat;
-    const finalCode = eqCode.trim() || `EQ-${Math.floor(1000 + Math.random() * 9000)}`;
+  // Effective category selected in the New Arrival form
+  const effectiveArrivalCategory = eqCat === 'Custom' ? customCat.trim() : eqCat;
 
-    const duplicate = equipment.find(item => item.equipmentCode && item.equipmentCode.toLowerCase() === finalCode.toLowerCase());
-    if (duplicate) {
-      alert(`Equipment Code "${finalCode}" already exists on item "${duplicate.name}". Equipment codes must be unique.`);
+  // Detect existing equipment match by Name + Category (case-insensitive) for Merge / Restock
+  const matchedExistingEquipment = useMemo(() => {
+    const trimmedName = eqName.trim().toLowerCase();
+    const trimmedCat = effectiveArrivalCategory.toLowerCase();
+    if (!trimmedName || !trimmedCat) return null;
+    return equipment.find(
+      e => e.name.trim().toLowerCase() === trimmedName && e.category.trim().toLowerCase() === trimmedCat
+    ) || null;
+  }, [equipment, eqName, effectiveArrivalCategory]);
+
+  // Hint if the same item name exists under a different sport category
+  const sameNameOtherCategories = useMemo(() => {
+    const trimmedName = eqName.trim().toLowerCase();
+    const trimmedCat = effectiveArrivalCategory.toLowerCase();
+    if (!trimmedName) return [];
+    return equipment.filter(
+      e => e.name.trim().toLowerCase() === trimmedName && e.category.trim().toLowerCase() !== trimmedCat
+    );
+  }, [equipment, eqName, effectiveArrivalCategory]);
+
+  // Suggested base equipment code for new items
+  const suggestedBaseCode = useMemo(() => {
+    if (matchedExistingEquipment) {
+      return matchedExistingEquipment.equipmentCode || generateNextBaseEquipmentCode(matchedExistingEquipment.category, equipment);
+    }
+    return generateNextBaseEquipmentCode(effectiveArrivalCategory || 'General', equipment);
+  }, [matchedExistingEquipment, effectiveArrivalCategory, equipment]);
+
+  // Auto-generate individual unit Equipment IDs/codes whenever quantity, matched item, category, or base code changes
+  useEffect(() => {
+    const base = matchedExistingEquipment
+      ? (matchedExistingEquipment.equipmentCode || generateNextBaseEquipmentCode(matchedExistingEquipment.category, equipment))
+      : (eqCode.trim() || suggestedBaseCode);
+    const generated = generateUnitEquipmentCodes(base, eqQty, equipment, matchedExistingEquipment);
+    setUnitCodes(generated);
+  }, [eqQty, matchedExistingEquipment, eqCode, suggestedBaseCode, equipment]);
+
+  // Auto-fill location & description when matching an existing item if currently empty
+  useEffect(() => {
+    if (matchedExistingEquipment) {
+      if (!eqLocation.trim() && matchedExistingEquipment.location) {
+        setEqLocation(matchedExistingEquipment.location);
+      }
+      if (!eqDescription.trim() && matchedExistingEquipment.description) {
+        setEqDescription(matchedExistingEquipment.description);
+      }
+    }
+  }, [matchedExistingEquipment]);
+
+  const handleSelectExistingForRestock = (equipmentId: string) => {
+    if (!equipmentId) {
+      setEqName('');
+      setEqCode('');
+      setEqLocation('');
+      setEqDescription('');
+      return;
+    }
+    const target = equipment.find(e => e.id === equipmentId);
+    if (!target) return;
+    setEqCat(target.category);
+    setCustomCat('');
+    setEqName(target.name);
+    setEqCode(target.equipmentCode || '');
+    setEqLocation(target.location || 'Main Sports Storage');
+    setEqDescription(target.description || '');
+    if (eqQty < 1) setEqQty(1);
+  };
+
+  const handleRegenerateUnitCodes = () => {
+    const base = matchedExistingEquipment
+      ? (matchedExistingEquipment.equipmentCode || generateNextBaseEquipmentCode(matchedExistingEquipment.category, equipment))
+      : (eqCode.trim() || suggestedBaseCode);
+    setUnitCodes(generateUnitEquipmentCodes(base, eqQty, equipment, matchedExistingEquipment));
+  };
+
+  const handleAddEquipment = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!currentUser) return;
+    const finalCategory = eqCat === 'Custom' ? (customCat.trim() || 'General') : eqCat;
+    const safeQty = Math.max(1, Math.floor(eqQty || 0));
+
+    if (!eqName.trim()) {
+      alert('Please enter an Equipment Name.');
       return;
     }
 
-    const newEqId = `eq-${Date.now()}`;
+    // Persist newly created custom category dynamically
+    if (eqCat === 'Custom' && customCat.trim()) {
+      addCustomCategory(customCat.trim());
+    }
+
+    const existingAllCodes = collectAllEquipmentCodes(equipment);
+
+    // Prepare & validate individual unit codes
+    const cleanedUnitCodes = unitCodes.slice(0, safeQty).map(c => c.trim());
+    if (cleanedUnitCodes.length < safeQty || cleanedUnitCodes.some(c => !c)) {
+      alert('Please ensure every incoming unit has an assigned Equipment ID / Code.');
+      return;
+    }
+
+    // Check duplicates within this incoming batch
+    const batchSeen = new Set<string>();
+    for (const code of cleanedUnitCodes) {
+      const lower = code.toLowerCase();
+      if (batchSeen.has(lower)) {
+        alert(`Duplicate Equipment ID "${code}" found within this batch. Each unit must have a unique code.`);
+        return;
+      }
+      batchSeen.add(lower);
+    }
+
+    // Check collisions against existing inventory codes
+    for (const code of cleanedUnitCodes) {
+      const lower = code.toLowerCase();
+      if (existingAllCodes.has(lower)) {
+        alert(`Equipment ID "${code}" is already assigned in inventory. Please use unique Equipment IDs.`);
+        return;
+      }
+    }
+
+    const isRestock = Boolean(matchedExistingEquipment);
+    const primaryCode = isRestock
+      ? (matchedExistingEquipment!.equipmentCode || suggestedBaseCode)
+      : (eqCode.trim() || suggestedBaseCode);
+
+    if (!isRestock && existingAllCodes.has(primaryCode.toLowerCase())) {
+      alert(`Base Equipment Code "${primaryCode}" already exists in inventory. Equipment codes must be unique.`);
+      return;
+    }
+
+    const newEqId = isRestock ? matchedExistingEquipment!.id : `eq-${Date.now()}`;
     const newEq: Equipment = {
       id: newEqId,
-      equipmentCode: finalCode,
+      equipmentCode: primaryCode,
+      equipmentCodes: cleanedUnitCodes,
       name: eqName.trim(),
       description: eqDescription.trim(),
       category: finalCategory,
-      total: eqQty,
-      available: eqCondition === 'Good / Available' ? eqQty : 0,
+      total: safeQty,
+      available: eqCondition === 'Good / Available' ? safeQty : 0,
       borrowed: 0,
-      inRepair: eqCondition === 'For Repair' ? eqQty : 0,
-      damaged: eqCondition === 'Damaged' ? eqQty : 0,
+      inRepair: eqCondition === 'For Repair' ? safeQty : 0,
+      damaged: eqCondition === 'Damaged' ? safeQty : 0,
       location: eqLocation.trim() || 'Main Sports Storage',
       lastChecked: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
     };
-    addEquipment(newEq);
 
-    addArrivalRecord({
+    const result = await addEquipment(newEq);
+
+    await addArrivalRecord({
       id: `arr-${Date.now()}`,
-      equipmentCode: finalCode,
+      equipmentCode: primaryCode,
+      equipmentCodes: cleanedUnitCodes,
+      arrivalType: result.merged ? 'restock' : 'new',
       equipmentName: eqName.trim(),
       category: finalCategory,
-      quantity: eqQty,
+      quantity: safeQty,
       condition: eqCondition,
       supplier: eqSupplier.trim() || undefined,
       location: eqLocation.trim() || 'Main Sports Storage',
@@ -152,16 +302,21 @@ export default function AdminDashboard() {
       receivedBy: currentUser.name
     });
 
-    setAddSuccess(true);
+    setAddSuccessMessage(
+      result.merged
+        ? `Restocked & merged +${safeQty} unit(s) into "${eqName.trim()}" (${finalCategory}) with ${cleanedUnitCodes.length} new Equipment ID(s).`
+        : `Added "${eqName.trim()}" (${safeQty} unit(s)) to ${finalCategory} inventory!`
+    );
     setEqCode('');
     setEqName('');
     setEqDescription('');
     setCustomCat('');
-    setEqQty(0);
+    if (eqCat === 'Custom') setEqCat(finalCategory);
+    setEqQty(1);
     setEqSupplier('');
     setEqNotes('');
     setEqLocation('');
-    setTimeout(() => setAddSuccess(false), 3000);
+    setTimeout(() => setAddSuccessMessage(null), 5000);
   };
 
   const totalUnits = filteredAdminEquipment.reduce((acc, eq) => acc + eq.total, 0);
@@ -428,14 +583,48 @@ export default function AdminDashboard() {
                       </tr>
                     ) : (
                       filteredAdminEquipment.map((eq) => {
+                        const extraUnitCodes = (eq.equipmentCodes || []).filter(
+                          c => c && c.toLowerCase() !== (eq.equipmentCode || '').toLowerCase()
+                        );
+                        const isCodesExpanded = expandedCodesId === eq.id;
                         return (
                           <tr key={eq.id} className={`transition ${isLight ? 'hover:bg-slate-50 text-[#0a1c38]' : 'hover:bg-blue-800/30 text-slate-300'}`}>
                             <td className="px-6 py-4 font-medium">
-                              <div className="flex items-center space-x-2 mb-1">
+                              <div className="flex flex-wrap items-center gap-1.5 mb-1">
                                 <span className={`text-xs font-mono font-bold px-2 py-0.5 rounded border ${isLight ? 'bg-yellow-100 text-yellow-900 border-yellow-300' : 'bg-yellow-400/20 text-yellow-300 border-yellow-400/40'}`}>
                                   {eq.equipmentCode || 'EQ-0000'}
                                 </span>
+                                {extraUnitCodes.length > 0 && (
+                                  <button
+                                    type="button"
+                                    onClick={() => setExpandedCodesId(isCodesExpanded ? null : eq.id)}
+                                    className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded border transition cursor-pointer ${
+                                      isLight
+                                        ? 'bg-blue-50 text-blue-800 border-blue-200 hover:bg-blue-100'
+                                        : 'bg-blue-900/60 text-blue-200 border-blue-500/40 hover:bg-blue-800'
+                                    }`}
+                                    title="Click to view individual unit Equipment IDs"
+                                  >
+                                    {isCodesExpanded ? 'Hide' : `+${extraUnitCodes.length} Unit ID${extraUnitCodes.length === 1 ? '' : 's'}`}
+                                  </button>
+                                )}
                               </div>
+                              {isCodesExpanded && extraUnitCodes.length > 0 && (
+                                <div className="flex flex-wrap gap-1 mb-1.5 max-w-xs">
+                                  {extraUnitCodes.map((code, idx) => (
+                                    <span
+                                      key={idx}
+                                      className={`text-[10px] font-mono px-1.5 py-0.5 rounded border ${
+                                        isLight
+                                          ? 'bg-slate-100 text-slate-700 border-slate-300'
+                                          : 'bg-[#07172f] text-slate-200 border-blue-500/40'
+                                      }`}
+                                    >
+                                      {code}
+                                    </span>
+                                  ))}
+                                </div>
+                              )}
                               <span className={`font-bold text-base ${isLight ? 'text-[#0a1c38]' : 'text-white'}`}>{eq.name}</span>
                               {eq.description && (
                                 <div className={`text-xs mt-1 max-w-xs leading-relaxed line-clamp-2 ${isLight ? 'text-slate-600' : 'text-slate-300'}`} title={eq.description}>
@@ -450,11 +639,11 @@ export default function AdminDashboard() {
                                 <span>{eq.category}</span>
                               </span>
                             </td>
-                            <td className="px-6 py-4 text-center font-bold text-white text-base">{eq.total}</td>
-                            <td className="px-6 py-4 text-center text-yellow-400 font-extrabold text-base">{eq.available} Units</td>
-                            <td className="px-6 py-4 text-center text-blue-200 font-semibold">{eq.borrowed}</td>
-                            <td className="px-6 py-4 text-center text-amber-400 font-semibold">{eq.inRepair}</td>
-                            <td className="px-6 py-4 text-center text-red-400 font-semibold">{eq.damaged}</td>
+                            <td className={`px-6 py-4 text-center font-bold text-base ${isLight ? 'text-[#0a1c38]' : 'text-white'}`}>{eq.total}</td>
+                            <td className={`px-6 py-4 text-center font-extrabold text-base ${isLight ? 'text-yellow-700' : 'text-yellow-400'}`}>{eq.available} Units</td>
+                            <td className={`px-6 py-4 text-center font-semibold ${isLight ? 'text-blue-800' : 'text-blue-200'}`}>{eq.borrowed}</td>
+                            <td className={`px-6 py-4 text-center font-semibold ${isLight ? 'text-amber-600' : 'text-amber-400'}`}>{eq.inRepair}</td>
+                            <td className={`px-6 py-4 text-center font-semibold ${isLight ? 'text-red-600' : 'text-red-400'}`}>{eq.damaged}</td>
                             <td className="px-6 py-4 text-center">
                               {eq.available > 0 ? (
                                 <span className="text-xs font-bold text-yellow-300 bg-yellow-400/20 border border-yellow-400/50 px-2.5 py-1 rounded-full shadow-xs">Available</span>
@@ -468,16 +657,61 @@ export default function AdminDashboard() {
                                 <span className="text-xs font-bold text-slate-300 bg-slate-800/80 border border-slate-700 px-2.5 py-1 rounded-full shadow-xs">Out of Stock</span>
                               )}
                             </td>
-                            <td className="px-6 py-4 text-center text-slate-300 text-xs">{eq.lastChecked || 'N/A'}</td>
+                            <td className={`px-6 py-4 text-center text-xs ${isLight ? 'text-slate-600' : 'text-slate-300'}`}>{eq.lastChecked || 'N/A'}</td>
                             <td className="px-6 py-4 text-center">
-                              <div className="flex items-center justify-center gap-2">
-                                {eq.damaged > 0 && (
+                              <div className="flex items-center justify-center gap-1.5">
+                                <button
+                                  type="button"
+                                  disabled={eq.available === 0 && eq.damaged === 0}
+                                  onClick={() =>
+                                    setConditionModal({
+                                      equipmentId: eq.id,
+                                      action: eq.available > 0 ? 'mark_repair' : 'move_damaged_to_repair',
+                                      quantity: 1
+                                    })
+                                  }
+                                  className={`p-1.5 rounded-lg border transition ${
+                                    eq.available === 0 && eq.damaged === 0
+                                      ? 'opacity-30 cursor-not-allowed border-slate-600 text-slate-500'
+                                      : 'text-amber-400 hover:text-amber-200 border-amber-500/40 bg-amber-950/40 hover:bg-amber-900/60 cursor-pointer'
+                                  }`}
+                                  title="Mark Under Repair (deducts from Available, keeps Total unchanged)"
+                                >
+                                  <Wrench className="w-4 h-4" />
+                                </button>
+                                <button
+                                  type="button"
+                                  disabled={eq.available === 0}
+                                  onClick={() =>
+                                    setConditionModal({
+                                      equipmentId: eq.id,
+                                      action: 'mark_damaged',
+                                      quantity: 1
+                                    })
+                                  }
+                                  className={`p-1.5 rounded-lg border transition ${
+                                    eq.available === 0
+                                      ? 'opacity-30 cursor-not-allowed border-slate-600 text-slate-500'
+                                      : 'text-red-400 hover:text-red-200 border-red-500/40 bg-red-950/40 hover:bg-red-900/60 cursor-pointer'
+                                  }`}
+                                  title="Mark as Damaged (deducts from Available, keeps Total unchanged)"
+                                >
+                                  <XCircle className="w-4 h-4" />
+                                </button>
+                                {(eq.damaged > 0 || eq.inRepair > 0) && (
                                   <button 
-                                    onClick={() => updateEquipment(eq.id, { damaged: 0, available: eq.available + eq.damaged })}
-                                    className="text-xs bg-yellow-400 hover:bg-yellow-300 text-blue-950 font-bold px-3 py-1.5 rounded-lg shadow-md transition cursor-pointer"
-                                    title="Mark as Repaired"
+                                    type="button"
+                                    onClick={() =>
+                                      setConditionModal({
+                                        equipmentId: eq.id,
+                                        action: eq.inRepair > 0 ? 'restore_from_repair' : 'restore_from_damaged',
+                                        quantity: 1
+                                      })
+                                    }
+                                    className="text-xs bg-yellow-400 hover:bg-yellow-300 text-blue-950 font-bold px-2.5 py-1.5 rounded-lg shadow-md transition cursor-pointer whitespace-nowrap"
+                                    title="Restore repaired units back to Available"
                                   >
-                                    Repair
+                                    Restore
                                   </button>
                                 )}
                                 <button 
@@ -757,69 +991,139 @@ export default function AdminDashboard() {
           )}
 
           {activeTab === 'arrivals' && (
-            <div className="max-w-4xl">
-              <h2 className="text-2xl font-bold text-white mb-2 font-display uppercase tracking-wide">New Equipment Arrivals</h2>
-              <p className="text-slate-300 text-sm mb-6">Encode newly arrived sports equipment to automatically update the inventory records.</p>
+            <div className="max-w-5xl mx-auto">
+              <h2 className={`text-2xl font-bold mb-2 font-display uppercase tracking-wide ${isLight ? 'text-[#0a1c38]' : 'text-white'}`}>New Equipment Arrivals &amp; Stock Restock</h2>
+              <p className={`text-sm mb-6 ${isLight ? 'text-slate-600' : 'text-slate-300'}`}>
+                Encode newly arrived sports equipment or restock existing items to automatically increment stock totals and assign individual Equipment IDs.
+              </p>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div className="bg-[#0e264c] border border-blue-600/40 rounded-xl p-6 shadow-lg">
-                  <h3 className="text-lg font-bold text-white mb-4 flex items-center space-x-2 font-display uppercase tracking-wide">
-                    <PackagePlus className="w-5 h-5 text-yellow-400"/> 
-                    <span>Encode New Arrival</span>
-                  </h3>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div className="bg-[#0e264c] border border-blue-600/40 rounded-xl p-6 shadow-lg text-slate-200">
+                  <div className="flex items-center justify-between gap-2 mb-4">
+                    <h3 className="text-lg font-bold text-white flex items-center space-x-2 font-display uppercase tracking-wide">
+                      <PackagePlus className="w-5 h-5 text-yellow-400"/> 
+                      <span>{matchedExistingEquipment ? 'Restock & Merge Existing Item' : 'Encode New Arrival'}</span>
+                    </h3>
+                    {matchedExistingEquipment && (
+                      <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
+                        Merge Mode
+                      </span>
+                    )}
+                  </div>
                   
-                  {addSuccess && (
-                    <div className="bg-emerald-950/80 text-emerald-200 border border-emerald-600 p-3 rounded mb-4 text-sm flex items-center space-x-2">
-                      <Check className="w-4 h-4" /> <span>Equipment added and inventory updated!</span>
+                  {addSuccessMessage && (
+                    <div className="bg-emerald-950/80 text-emerald-200 border border-emerald-600 p-3 rounded-lg mb-4 text-sm flex items-start space-x-2">
+                      <Check className="w-4 h-4 mt-0.5 shrink-0" />
+                      <span>{addSuccessMessage}</span>
+                    </div>
+                  )}
+
+                  {/* Quick-Pick Existing Item to Restock */}
+                  <div className="mb-4 p-3 rounded-lg bg-[#07172f] border border-blue-500/40">
+                    <div className="flex items-center justify-between mb-1.5">
+                      <label className="block text-[11px] font-bold text-yellow-400 uppercase tracking-wide">
+                        Quick-Select Existing Item to Restock (Optional)
+                      </label>
+                      {matchedExistingEquipment && (
+                        <button
+                          type="button"
+                          onClick={() => handleSelectExistingForRestock('')}
+                          className="text-[11px] text-slate-300 hover:text-white underline cursor-pointer"
+                        >
+                          Clear / New Item
+                        </button>
+                      )}
+                    </div>
+                    <select
+                      value={matchedExistingEquipment?.id || ''}
+                      onChange={e => handleSelectExistingForRestock(e.target.value)}
+                      className="w-full bg-[#0a1c38] border border-blue-500/40 rounded-lg px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-yellow-400"
+                    >
+                      <option value="">-- Create New Item (or type below to auto-detect existing) --</option>
+                      {[...equipment]
+                        .sort((a, b) => a.category.localeCompare(b.category) || a.name.localeCompare(b.name))
+                        .map(item => (
+                          <option key={item.id} value={item.id}>
+                            [{item.category}] {item.name} ({item.equipmentCode || 'EQ'} — Avail: {item.available} / Total: {item.total})
+                          </option>
+                        ))}
+                    </select>
+                  </div>
+
+                  {/* Live Existing Item Match / Merge Banner */}
+                  {matchedExistingEquipment && (
+                    <div className="mb-4 p-3.5 rounded-xl bg-emerald-950/50 border border-emerald-500/50 text-xs space-y-2">
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="font-bold text-emerald-300 flex items-center gap-1.5">
+                          <RefreshCw className="w-3.5 h-3.5" />
+                          Existing Item Found — Stock Will Be Merged (No Duplicate)
+                        </span>
+                        <span className="font-mono font-bold text-[11px] px-2 py-0.5 rounded bg-yellow-400/20 text-yellow-300 border border-yellow-400/40">
+                          {matchedExistingEquipment.equipmentCode}
+                        </span>
+                      </div>
+                      <div className="grid grid-cols-2 gap-2 pt-1">
+                        <div className="bg-[#07172f]/80 rounded-lg p-2 border border-emerald-700/40">
+                          <div className="text-[10px] text-slate-400 uppercase font-bold">Total Units</div>
+                          <div className="text-sm font-bold text-white flex items-center gap-1.5 mt-0.5">
+                            <span>{matchedExistingEquipment.total}</span>
+                            <ArrowRight className="w-3.5 h-3.5 text-emerald-400" />
+                            <span className="text-emerald-300">{matchedExistingEquipment.total + Math.max(0, eqQty)}</span>
+                          </div>
+                        </div>
+                        <div className="bg-[#07172f]/80 rounded-lg p-2 border border-emerald-700/40">
+                          <div className="text-[10px] text-slate-400 uppercase font-bold">
+                            {eqCondition === 'Good / Available' ? 'Available Units' : eqCondition === 'For Repair' ? 'In Repair Units' : 'Damaged Units'}
+                          </div>
+                          <div className="text-sm font-bold text-white flex items-center gap-1.5 mt-0.5">
+                            <span>
+                              {eqCondition === 'Good / Available'
+                                ? matchedExistingEquipment.available
+                                : eqCondition === 'For Repair'
+                                  ? matchedExistingEquipment.inRepair
+                                  : matchedExistingEquipment.damaged}
+                            </span>
+                            <ArrowRight className="w-3.5 h-3.5 text-yellow-400" />
+                            <span className="text-yellow-300">
+                              {(eqCondition === 'Good / Available'
+                                ? matchedExistingEquipment.available
+                                : eqCondition === 'For Repair'
+                                  ? matchedExistingEquipment.inRepair
+                                  : matchedExistingEquipment.damaged) + Math.max(0, eqQty)}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                      <p className="text-[11px] text-emerald-200/90">
+                        {eqQty > 0
+                          ? `${eqQty} new individual Equipment ID${eqQty === 1 ? '' : 's'} will be assigned and appended to "${matchedExistingEquipment.name}".`
+                          : 'Enter quantity received to generate new individual Equipment IDs.'}
+                      </p>
                     </div>
                   )}
 
                   <form onSubmit={handleAddEquipment} className="space-y-4">
                     <div>
                       <div className="flex justify-between items-center mb-1">
-                        <label className="block text-xs font-bold text-slate-300 uppercase tracking-wide">Unique Equipment ID / Code</label>
+                        <label className="block text-xs font-bold text-slate-300 uppercase tracking-wide">Sport Category</label>
                         <button
                           type="button"
-                          onClick={() => setEqCode(`EQ-${Math.floor(1000 + Math.random() * 9000)}`)}
+                          onClick={() => setShowCategoryManager(prev => !prev)}
                           className="text-[11px] font-bold text-yellow-400 hover:text-yellow-300 underline cursor-pointer"
                         >
-                          Auto-Generate Code
+                          {showCategoryManager ? 'Hide Category Manager' : 'Manage Categories'}
                         </button>
                       </div>
-                      <input 
-                        type="text" 
-                        placeholder="e.g. EQ-0001 or BB-001 (Leave blank to auto-generate)" 
-                        value={eqCode} 
-                        onChange={e => setEqCode(e.target.value)} 
-                        className="w-full bg-[#07172f] border border-blue-500/40 rounded px-4 py-2 text-slate-100 text-sm focus:outline-none focus:border-yellow-400 font-bold text-yellow-300" 
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-bold text-slate-300 uppercase tracking-wide mb-1">Equipment Name</label>
-                      <input required type="text" value={eqName} onChange={e => setEqName(e.target.value)} className="w-full bg-[#07172f] border border-blue-500/40 rounded px-4 py-2 text-slate-100 text-sm focus:outline-none focus:border-yellow-400" />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-bold text-slate-300 uppercase tracking-wide mb-1">Product Description</label>
-                      <textarea placeholder="e.g. Spherical, standard orange composite leather..." value={eqDescription} onChange={e => setEqDescription(e.target.value)} className="w-full bg-[#07172f] border border-blue-500/40 rounded px-4 py-2 text-slate-100 placeholder-slate-400 focus:outline-none focus:border-yellow-400 h-20 text-xs" />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-bold text-slate-300 uppercase tracking-wide mb-1">Sport Category</label>
                       <select 
                         value={eqCat} 
                         onChange={e => setEqCat(e.target.value)} 
                         className="w-full bg-[#07172f] border border-blue-500/40 rounded-lg px-4 py-2 text-sm text-slate-100 focus:outline-none focus:border-yellow-400"
                       >
-                        <option value="Basketball">Basketball</option>
-                        <option value="Volleyball">Volleyball</option>
-                        <option value="Football">Football</option>
-                        <option value="Badminton">Badminton</option>
-                        <option value="Table Tennis">Table Tennis</option>
-                        <option value="Sepak Takraw">Sepak Takraw</option>
-                        <option value="Chess">Chess</option>
-                        <option value="Boxing">Boxing</option>
-                        <option value="Athletics">Athletics / Track &amp; Field</option>
-                        <option value="Baseball">Baseball / Softball</option>
-                        <option value="Other">Other Equipment</option>
+                        {sportCategories.map(cat => (
+                          <option key={cat} value={cat}>
+                            {cat === 'Athletics' ? 'Athletics / Track & Field' : cat === 'Baseball' ? 'Baseball / Softball' : cat === 'Other' ? 'Other Equipment' : cat}
+                          </option>
+                        ))}
                         <option value="Custom">+ Create New Sport Category...</option>
                       </select>
 
@@ -836,11 +1140,114 @@ export default function AdminDashboard() {
                           />
                         </div>
                       )}
+
+                      {showCategoryManager && (
+                        <div className="mt-2.5 p-3 rounded-lg bg-[#07172f] border border-blue-500/40 space-y-2.5">
+                          <div className="text-[11px] font-bold text-slate-200 uppercase tracking-wide flex items-center gap-1.5">
+                            <Tag className="w-3.5 h-3.5 text-yellow-400" />
+                            <span>Dynamic Sport Categories</span>
+                          </div>
+                          <div className="flex gap-2">
+                            <input
+                              type="text"
+                              placeholder="Add new sport category (e.g. Swimming)"
+                              value={newCategoryName}
+                              onChange={e => setNewCategoryName(e.target.value)}
+                              className="flex-1 bg-[#0a1c38] border border-blue-500/40 rounded px-3 py-1.5 text-xs text-slate-100 focus:outline-none focus:border-yellow-400"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const trimmed = newCategoryName.trim();
+                                if (!trimmed) return;
+                                addCustomCategory(trimmed);
+                                setEqCat(trimmed);
+                                setCustomCat('');
+                                setNewCategoryName('');
+                              }}
+                              className="px-3 py-1.5 bg-yellow-400 hover:bg-yellow-300 text-blue-950 font-bold rounded text-xs flex items-center gap-1 cursor-pointer"
+                            >
+                              <Plus className="w-3.5 h-3.5" />
+                              <span>Add</span>
+                            </button>
+                          </div>
+                          {customCategories.length > 0 && (
+                            <div className="flex flex-wrap gap-1.5 pt-1">
+                              {customCategories.map(cat => {
+                                const inUse = equipment.some(e => e.category.toLowerCase() === cat.toLowerCase());
+                                return (
+                                  <span
+                                    key={cat}
+                                    className="inline-flex items-center gap-1 text-[11px] px-2 py-0.5 rounded-full bg-blue-900/70 text-yellow-300 border border-blue-600/50"
+                                  >
+                                    <span>{cat}</span>
+                                    {!inUse && (
+                                      <button
+                                        type="button"
+                                        onClick={() => {
+                                          removeCustomCategory(cat);
+                                          if (eqCat === cat) setEqCat(DEFAULT_SPORT_CATEGORIES[0]);
+                                        }}
+                                        className="text-red-300 hover:text-red-200 cursor-pointer"
+                                        title={`Remove custom category "${cat}"`}
+                                      >
+                                        <X className="w-3 h-3" />
+                                      </button>
+                                    )}
+                                  </span>
+                                );
+                              })}
+                            </div>
+                          )}
+                        </div>
+                      )}
                     </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-slate-300 uppercase tracking-wide mb-1">Equipment Name</label>
+                      <input
+                        required
+                        type="text"
+                        list="existing-equipment-names"
+                        placeholder="e.g. Arnis Stick, Basketball, Head Gear"
+                        value={eqName}
+                        onChange={e => setEqName(e.target.value)}
+                        className="w-full bg-[#07172f] border border-blue-500/40 rounded px-4 py-2 text-slate-100 text-sm focus:outline-none focus:border-yellow-400"
+                      />
+                      <datalist id="existing-equipment-names">
+                        {Array.from(new Set(equipment.map(e => e.name))).map(name => (
+                          <option key={name} value={name} />
+                        ))}
+                      </datalist>
+                      {!matchedExistingEquipment && sameNameOtherCategories.length > 0 && (
+                        <div className="mt-1.5 text-[11px] text-amber-300 flex flex-wrap items-center gap-1.5">
+                          <span>Note: &quot;{eqName.trim()}&quot; exists in:</span>
+                          {sameNameOtherCategories.map(item => (
+                            <button
+                              key={item.id}
+                              type="button"
+                              onClick={() => handleSelectExistingForRestock(item.id)}
+                              className="underline font-bold text-yellow-300 hover:text-yellow-200 cursor-pointer"
+                            >
+                              {item.category} (Restock?)
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+
                     <div className="grid grid-cols-2 gap-4">
                       <div>
                         <label className="block text-xs font-bold text-slate-300 uppercase tracking-wide mb-1">Quantity Received</label>
-                        <input required type="number" min="1" value={eqQty} onChange={e => setEqQty(Number(e.target.value))} className="w-full bg-[#07172f] border border-blue-500/40 rounded px-4 py-2 text-slate-100 text-sm focus:outline-none focus:border-yellow-400" />
+                        <input
+                          required
+                          type="number"
+                          min="1"
+                          max="200"
+                          value={eqQty}
+                          onChange={e => setEqQty(Math.max(1, Number(e.target.value)))}
+                          className="w-full bg-[#07172f] border border-blue-500/40 rounded px-4 py-2 text-slate-100 text-sm focus:outline-none focus:border-yellow-400"
+                        />
                       </div>
                       <div>
                         <label className="block text-xs font-bold text-slate-300 uppercase tracking-wide mb-1">Condition on Arrival</label>
@@ -850,6 +1257,78 @@ export default function AdminDashboard() {
                           <option value="Damaged">Damaged</option>
                         </select>
                       </div>
+                    </div>
+
+                    {/* Primary Equipment Code */}
+                    <div>
+                      <div className="flex justify-between items-center mb-1">
+                        <label className="block text-xs font-bold text-slate-300 uppercase tracking-wide">
+                          {matchedExistingEquipment ? 'Existing Base Equipment Code' : 'Base Equipment Code'}
+                        </label>
+                        {!matchedExistingEquipment && (
+                          <button
+                            type="button"
+                            onClick={() => setEqCode(generateNextBaseEquipmentCode(effectiveArrivalCategory || 'General', equipment))}
+                            className="text-[11px] font-bold text-yellow-400 hover:text-yellow-300 underline cursor-pointer"
+                          >
+                            Auto-Generate ({suggestedBaseCode})
+                          </button>
+                        )}
+                      </div>
+                      <input 
+                        type="text" 
+                        readOnly={Boolean(matchedExistingEquipment)}
+                        placeholder={`Auto: ${suggestedBaseCode}`} 
+                        value={matchedExistingEquipment ? (matchedExistingEquipment.equipmentCode || suggestedBaseCode) : eqCode} 
+                        onChange={e => setEqCode(e.target.value)} 
+                        className={`w-full bg-[#07172f] border border-blue-500/40 rounded px-4 py-2 text-sm focus:outline-none focus:border-yellow-400 font-mono font-bold text-yellow-300 ${
+                          matchedExistingEquipment ? 'opacity-80 cursor-not-allowed' : ''
+                        }`}
+                      />
+                    </div>
+
+                    {/* Individual Unit Equipment IDs / Codes Assignment */}
+                    <div className="p-3.5 rounded-lg bg-[#07172f] border border-blue-500/40 space-y-2.5">
+                      <div className="flex items-center justify-between gap-2">
+                        <label className="block text-[11px] font-bold text-yellow-400 uppercase tracking-wide">
+                          New Individual Equipment IDs ({unitCodes.length} Unit{unitCodes.length === 1 ? '' : 's'})
+                        </label>
+                        <button
+                          type="button"
+                          onClick={handleRegenerateUnitCodes}
+                          className="text-[11px] font-bold text-slate-300 hover:text-yellow-300 underline cursor-pointer"
+                        >
+                          Regenerate IDs
+                        </button>
+                      </div>
+                      <p className="text-[11px] text-slate-400">
+                        {matchedExistingEquipment
+                          ? 'Each incoming restock unit receives a unique Equipment ID appended to the existing item.'
+                          : 'Each incoming unit is assigned a unique Equipment ID. You may edit individual codes below.'}
+                      </p>
+                      <div className="grid grid-cols-2 gap-2 max-h-40 overflow-y-auto pr-1 scrollbar-thin">
+                        {unitCodes.map((code, idx) => (
+                          <div key={idx} className="flex items-center gap-1.5">
+                            <span className="text-[10px] font-bold text-slate-400 w-7 shrink-0">#{idx + 1}</span>
+                            <input
+                              required
+                              type="text"
+                              value={code}
+                              onChange={e => {
+                                const updated = [...unitCodes];
+                                updated[idx] = e.target.value;
+                                setUnitCodes(updated);
+                              }}
+                              className="w-full bg-[#0a1c38] border border-blue-500/40 rounded px-2.5 py-1 text-xs font-mono font-bold text-yellow-300 focus:outline-none focus:border-yellow-400"
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-slate-300 uppercase tracking-wide mb-1">Product Description</label>
+                      <textarea placeholder="e.g. Spherical, standard orange composite leather..." value={eqDescription} onChange={e => setEqDescription(e.target.value)} className="w-full bg-[#07172f] border border-blue-500/40 rounded px-4 py-2 text-slate-100 placeholder-slate-400 focus:outline-none focus:border-yellow-400 h-20 text-xs" />
                     </div>
                     <div>
                       <label className="block text-xs font-bold text-slate-300 uppercase tracking-wide mb-1">Delivery Source / Supplier</label>
@@ -863,9 +1342,20 @@ export default function AdminDashboard() {
                       <label className="block text-xs font-bold text-slate-300 uppercase tracking-wide mb-1">Remarks / Notes (Optional)</label>
                       <textarea value={eqNotes} onChange={e => setEqNotes(e.target.value)} className="w-full bg-[#07172f] border border-blue-500/40 rounded px-4 py-2 text-slate-100 focus:outline-none focus:border-yellow-400 h-20 text-xs" />
                     </div>
-                    <button type="submit" className="w-full bg-yellow-400 hover:bg-yellow-300 text-blue-950 font-bold py-3 rounded mt-4 flex justify-center items-center space-x-2 transition shadow-md cursor-pointer">
-                      <PackagePlus className="w-5 h-5" />
-                      <span>Save to Inventory</span>
+                    <button
+                      type="submit"
+                      className={`w-full font-bold py-3 rounded mt-4 flex justify-center items-center space-x-2 transition shadow-md cursor-pointer ${
+                        matchedExistingEquipment
+                          ? 'bg-emerald-400 hover:bg-emerald-300 text-blue-950'
+                          : 'bg-yellow-400 hover:bg-yellow-300 text-blue-950'
+                      }`}
+                    >
+                      {matchedExistingEquipment ? <RefreshCw className="w-5 h-5" /> : <PackagePlus className="w-5 h-5" />}
+                      <span>
+                        {matchedExistingEquipment
+                          ? `Restock & Merge (+${eqQty} Unit${eqQty === 1 ? '' : 's'})`
+                          : 'Save New Equipment to Inventory'}
+                      </span>
                     </button>
                     <button 
                       type="button" 
@@ -879,7 +1369,7 @@ export default function AdminDashboard() {
 
                 <div className="flex flex-col h-full">
                   <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-lg font-bold text-white flex items-center space-x-2 font-display uppercase tracking-wide">
+                    <h3 className={`text-lg font-bold flex items-center space-x-2 font-display uppercase tracking-wide ${isLight ? 'text-[#0a1c38]' : 'text-white'}`}>
                       <FileBarChart className="w-5 h-5 text-yellow-400"/> 
                       <span>Arrival Log Records ({arrivalRecords.length})</span>
                     </h3>
@@ -899,25 +1389,34 @@ export default function AdminDashboard() {
                     )}
                   </div>
                   
-                  <div className="space-y-3 overflow-y-auto max-h-[620px] pr-1 scrollbar-thin">
+                  <div className="space-y-3 overflow-y-auto max-h-[760px] pr-1 scrollbar-thin">
                     {arrivalRecords.length === 0 ? (
                       <div className="bg-[#0e264c] border border-blue-600/40 border-dashed p-8 rounded-xl text-center text-slate-300 shadow-md">
                         <PackagePlus className="w-8 h-8 text-yellow-400 mx-auto mb-2 opacity-70" />
                         <p className="font-medium text-sm text-white">No recent equipment arrivals logged.</p>
-                        <p className="text-xs text-slate-300 mt-1">Encoded arrivals from the form will be recorded and displayed here.</p>
+                        <p className="text-xs text-slate-300 mt-1">Encoded arrivals and stock restocks from the form will be recorded and displayed here.</p>
                       </div>
                     ) : (
                       arrivalRecords.map(log => (
                         <div key={log.id} className="bg-[#0e264c] border border-blue-600/40 rounded-xl p-4 shadow-md hover:border-yellow-400 transition relative">
                           <div className="flex items-start justify-between gap-2">
                             <div>
-                              <div className="flex items-center space-x-2 mb-1.5">
+                              <div className="flex flex-wrap items-center gap-1.5 mb-1.5">
                                 <span className="text-[11px] font-mono font-bold px-2 py-0.5 rounded bg-yellow-400/20 text-yellow-300 border border-yellow-400/40">
                                   {log.equipmentCode || 'EQ-0000'}
                                 </span>
-                                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-yellow-400/20 text-yellow-300 border border-yellow-400/40">
+                                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-950/80 text-yellow-300 border border-blue-500/40">
                                   {log.category}
                                 </span>
+                                {log.arrivalType === 'restock' ? (
+                                  <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
+                                    Restock / Merge
+                                  </span>
+                                ) : (
+                                  <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded-full bg-yellow-400/20 text-yellow-300 border border-yellow-400/40">
+                                    New Item
+                                  </span>
+                                )}
                               </div>
                               <span className="font-bold text-white text-base">{log.equipmentName}</span>
                               <div className="text-xs text-slate-300 mt-1">
@@ -938,8 +1437,20 @@ export default function AdminDashboard() {
                           </div>
 
                           <div className="grid grid-cols-2 gap-2 mt-3 text-xs text-slate-300 bg-[#07172f] p-3 rounded-lg border border-blue-700/40">
-                            <div><strong className="text-slate-200">Qty Received:</strong> {log.quantity} units</div>
+                            <div><strong className="text-slate-200">Qty Received:</strong> +{log.quantity} units</div>
                             <div><strong className="text-slate-200">Condition:</strong> {log.condition}</div>
+                            {log.equipmentCodes && log.equipmentCodes.length > 0 && (
+                              <div className="col-span-2">
+                                <strong className="text-slate-200 block mb-1">Assigned Equipment IDs:</strong>
+                                <div className="flex flex-wrap gap-1">
+                                  {log.equipmentCodes.map((code, idx) => (
+                                    <span key={idx} className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-yellow-400/15 text-yellow-300 border border-yellow-400/30">
+                                      {code}
+                                    </span>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
                             {log.supplier && <div className="col-span-2"><strong className="text-slate-200">Supplier:</strong> {log.supplier}</div>}
                             <div className="col-span-2"><strong className="text-slate-200">Location:</strong> {log.location}</div>
                             {log.description && <div className="col-span-2 text-slate-300"><strong>Desc:</strong> {log.description}</div>}
@@ -1091,48 +1602,262 @@ export default function AdminDashboard() {
                    <div className="text-sm text-slate-300 print:text-slate-600">Report Generated: {new Date().toLocaleString()}</div>
                  </div>
 
-                 <div className="overflow-x-auto">
-                   <table className="w-full text-left text-sm">
-                    <thead className="bg-[#07152b] print:bg-slate-100 text-slate-300 print:text-black text-xs uppercase tracking-wider border-b border-blue-600/40">
-                      <tr>
-                        <th className="px-4 py-3 font-semibold">Equipment</th>
-                        <th className="px-4 py-3 font-semibold">Sports Category</th>
-                        <th className="px-4 py-3 font-semibold text-center">Available</th>
-                        <th className="px-4 py-3 font-semibold text-center">Borrowed</th>
-                        <th className="px-4 py-3 font-semibold text-center">In Repair</th>
-                        <th className="px-4 py-3 font-semibold text-center">Damaged</th>
-                        <th className="px-4 py-3 font-semibold text-center">Status Badge</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-blue-800/40 print:divide-slate-200">
-                      {equipment.map((eq) => (
-                        <tr key={eq.id} className="hover:bg-blue-800/20 print:hover:bg-transparent">
-                          <td className="px-4 py-3 font-medium text-white print:text-black">{eq.name}</td>
-                          <td className="px-4 py-3 text-slate-300 print:text-slate-700">{eq.category}</td>
-                          <td className="px-4 py-3 text-center text-yellow-400 print:text-blue-900 font-bold font-display text-base">{eq.available}</td>
-                          <td className="px-4 py-3 text-center text-slate-300 print:text-slate-700">{eq.borrowed}</td>
-                          <td className="px-4 py-3 text-center text-amber-400 font-bold">{eq.inRepair}</td>
-                          <td className="px-4 py-3 text-center text-red-400 font-bold">{eq.damaged}</td>
-                          <td className="px-4 py-3 text-center">
-                            {eq.available > 0 ? (
-                              <span className="text-xs text-yellow-300 font-bold bg-yellow-400/20 border border-yellow-400/50 px-2 py-0.5 rounded-full">Available</span>
-                            ) : eq.inRepair > 0 ? (
-                               <span className="text-xs text-amber-300 font-bold bg-amber-500/20 border border-amber-500/50 px-2 py-0.5 rounded-full">For Repair</span>
-                            ) : (
-                               <span className="text-xs text-red-300 font-bold bg-red-500/20 border border-red-500/50 px-2 py-0.5 rounded-full">Damaged</span>
-                            )}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                 </div>
-                 <div className="mt-8 text-xs text-slate-400">Printed for: CapSu Administration</div>
-              </div>
-            </div>
-          )}
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left text-sm">
+                     <thead className="bg-[#07152b] print:bg-slate-100 text-slate-300 print:text-black text-xs uppercase tracking-wider border-b border-blue-600/40">
+                       <tr>
+                         <th className="px-4 py-3 font-semibold">Equipment</th>
+                         <th className="px-4 py-3 font-semibold">Sports Category</th>
+                         <th className="px-4 py-3 font-semibold text-center">Total</th>
+                         <th className="px-4 py-3 font-semibold text-center">Available</th>
+                         <th className="px-4 py-3 font-semibold text-center">Borrowed</th>
+                         <th className="px-4 py-3 font-semibold text-center">In Repair</th>
+                         <th className="px-4 py-3 font-semibold text-center">Damaged</th>
+                         <th className="px-4 py-3 font-semibold text-center">Status Badge</th>
+                       </tr>
+                     </thead>
+                     <tbody className="divide-y divide-blue-800/40 print:divide-slate-200">
+                       {equipment.map((eq) => (
+                         <tr key={eq.id} className="hover:bg-blue-800/20 print:hover:bg-transparent">
+                           <td className="px-4 py-3 font-medium text-white print:text-black">{eq.name}</td>
+                           <td className="px-4 py-3 text-slate-300 print:text-slate-700">{eq.category}</td>
+                           <td className="px-4 py-3 text-center text-white print:text-black font-bold">{eq.total}</td>
+                           <td className="px-4 py-3 text-center text-yellow-400 print:text-blue-900 font-bold font-display text-base">{eq.available}</td>
+                           <td className="px-4 py-3 text-center text-slate-300 print:text-slate-700">{eq.borrowed}</td>
+                           <td className="px-4 py-3 text-center text-amber-400 font-bold">{eq.inRepair}</td>
+                           <td className="px-4 py-3 text-center text-red-400 font-bold">{eq.damaged}</td>
+                           <td className="px-4 py-3 text-center">
+                             {eq.available > 0 ? (
+                               <span className="text-xs text-yellow-300 font-bold bg-yellow-400/20 border border-yellow-400/50 px-2 py-0.5 rounded-full">Available</span>
+                             ) : eq.inRepair > 0 ? (
+                                <span className="text-xs text-amber-300 font-bold bg-amber-500/20 border border-amber-500/50 px-2 py-0.5 rounded-full">For Repair</span>
+                             ) : eq.damaged > 0 ? (
+                                <span className="text-xs text-red-300 font-bold bg-red-500/20 border border-red-500/50 px-2 py-0.5 rounded-full">Damaged</span>
+                             ) : eq.borrowed > 0 ? (
+                                <span className="text-xs text-blue-300 font-bold bg-blue-500/20 border border-blue-500/50 px-2 py-0.5 rounded-full">Borrowed</span>
+                             ) : (
+                                <span className="text-xs text-slate-300 font-bold bg-slate-800/80 border border-slate-700 px-2 py-0.5 rounded-full">Out of Stock</span>
+                             )}
+                           </td>
+                         </tr>
+                       ))}
+                     </tbody>
+                   </table>
+                  </div>
+                  <div className="mt-8 text-xs text-slate-400">Printed for: CapSu Administration</div>
+               </div>
+             </div>
+           )}
         </main>
       </div>
+
+      {/* Stock Condition Management Modal (Mark Damaged / Under Repair / Restore) */}
+      {conditionModal && (() => {
+        const targetEq = equipment.find(e => e.id === conditionModal.equipmentId);
+        if (!targetEq) return null;
+
+        const maxForAction = (act: EquipmentConditionAction): number => {
+          if (act === 'mark_damaged' || act === 'mark_repair') return targetEq.available;
+          if (act === 'move_damaged_to_repair' || act === 'restore_from_damaged') return targetEq.damaged;
+          if (act === 'restore_from_repair') return targetEq.inRepair;
+          return 0;
+        };
+
+        const maxQty = maxForAction(conditionModal.action);
+        const clampedQty = maxQty > 0 ? Math.min(Math.max(1, conditionModal.quantity), maxQty) : 0;
+
+        let nextAvail = targetEq.available;
+        let nextRepair = targetEq.inRepair;
+        let nextDamaged = targetEq.damaged;
+
+        if (conditionModal.action === 'mark_damaged') {
+          nextAvail -= clampedQty;
+          nextDamaged += clampedQty;
+        } else if (conditionModal.action === 'mark_repair') {
+          nextAvail -= clampedQty;
+          nextRepair += clampedQty;
+        } else if (conditionModal.action === 'move_damaged_to_repair') {
+          nextDamaged -= clampedQty;
+          nextRepair += clampedQty;
+        } else if (conditionModal.action === 'restore_from_repair') {
+          nextRepair -= clampedQty;
+          nextAvail += clampedQty;
+        } else if (conditionModal.action === 'restore_from_damaged') {
+          nextDamaged -= clampedQty;
+          nextAvail += clampedQty;
+        }
+
+        const actionOptions: { action: EquipmentConditionAction; label: string; sub: string; max: number; tone: string }[] = [
+          { action: 'mark_damaged', label: 'Mark Damaged', sub: 'Available → Damaged', max: targetEq.available, tone: 'red' },
+          { action: 'mark_repair', label: 'Under Repair', sub: 'Available → In Repair', max: targetEq.available, tone: 'amber' },
+          { action: 'move_damaged_to_repair', label: 'Send Damaged to Repair', sub: 'Damaged → In Repair', max: targetEq.damaged, tone: 'amber' },
+          { action: 'restore_from_repair', label: 'Mark Repaired', sub: 'In Repair → Available', max: targetEq.inRepair, tone: 'emerald' },
+          { action: 'restore_from_damaged', label: 'Restore Damaged', sub: 'Damaged → Available', max: targetEq.damaged, tone: 'emerald' }
+        ];
+
+        return (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/75 backdrop-blur-xs">
+            <div className="bg-[#0e264c] border-2 border-yellow-400 rounded-2xl w-full max-w-lg shadow-2xl overflow-hidden text-slate-200">
+              <div className="bg-[#07152b] px-6 py-4 border-b-2 border-yellow-400 flex justify-between items-center">
+                <div>
+                  <span className="text-[11px] font-bold text-yellow-400 uppercase tracking-wider">Stock Accounting &amp; Condition Control</span>
+                  <h3 className="text-lg font-bold text-white leading-tight mt-0.5">{targetEq.name}</h3>
+                  <div className="flex items-center gap-2 mt-1">
+                    <span className="text-[11px] font-mono font-bold px-2 py-0.5 rounded bg-yellow-400/20 text-yellow-300 border border-yellow-400/40">
+                      {targetEq.equipmentCode || 'EQ'}
+                    </span>
+                    <span className="text-xs text-slate-300">{targetEq.category}</span>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setConditionModal(null)}
+                  className="text-slate-300 hover:text-white p-1.5 rounded-lg hover:bg-blue-800/40 transition cursor-pointer"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              <div className="p-6 space-y-5">
+                {/* Action Picker */}
+                <div>
+                  <label className="block text-xs font-bold text-slate-300 uppercase tracking-wide mb-2">Select Condition Transition</label>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    {actionOptions.map(opt => {
+                      const isSelected = conditionModal.action === opt.action;
+                      const isDisabled = opt.max === 0;
+                      return (
+                        <button
+                          key={opt.action}
+                          type="button"
+                          disabled={isDisabled}
+                          onClick={() => setConditionModal({ ...conditionModal, action: opt.action, quantity: 1 })}
+                          className={`p-2.5 rounded-xl border text-left transition ${
+                            isDisabled
+                              ? 'opacity-35 cursor-not-allowed bg-[#07172f]/50 border-blue-900/40 text-slate-500'
+                              : isSelected
+                                ? opt.tone === 'red'
+                                  ? 'bg-red-950/70 border-red-400 text-white shadow-md cursor-pointer'
+                                  : opt.tone === 'amber'
+                                    ? 'bg-amber-950/70 border-amber-400 text-white shadow-md cursor-pointer'
+                                    : 'bg-emerald-950/70 border-emerald-400 text-white shadow-md cursor-pointer'
+                                : 'bg-[#07172f] border-blue-500/40 text-slate-300 hover:border-yellow-400 cursor-pointer'
+                          }`}
+                        >
+                          <div className="text-xs font-bold flex items-center justify-between">
+                            <span>{opt.label}</span>
+                            <span className="text-[10px] font-mono opacity-80">Max: {opt.max}</span>
+                          </div>
+                          <div className="text-[11px] text-slate-400 mt-0.5">{opt.sub}</div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Quantity Selector */}
+                <div>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <label className="block text-xs font-bold text-slate-300 uppercase tracking-wide">Number of Units</label>
+                    {maxQty > 1 && (
+                      <button
+                        type="button"
+                        onClick={() => setConditionModal({ ...conditionModal, quantity: maxQty })}
+                        className="text-[11px] font-bold text-yellow-400 hover:text-yellow-300 underline cursor-pointer"
+                      >
+                        Select All ({maxQty})
+                      </button>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      disabled={clampedQty <= 1}
+                      onClick={() => setConditionModal({ ...conditionModal, quantity: Math.max(1, clampedQty - 1) })}
+                      className="px-3.5 py-2 rounded-lg bg-[#07172f] border border-blue-500/40 text-white font-bold hover:border-yellow-400 disabled:opacity-40 cursor-pointer"
+                    >
+                      −
+                    </button>
+                    <input
+                      type="number"
+                      min={1}
+                      max={Math.max(1, maxQty)}
+                      value={clampedQty}
+                      disabled={maxQty === 0}
+                      onChange={e => setConditionModal({ ...conditionModal, quantity: Math.max(1, Math.min(maxQty, Number(e.target.value) || 1)) })}
+                      className="flex-1 text-center bg-[#07172f] border border-blue-500/40 rounded-lg px-3 py-2 text-base font-bold text-yellow-300 focus:outline-none focus:border-yellow-400"
+                    />
+                    <button
+                      type="button"
+                      disabled={clampedQty >= maxQty}
+                      onClick={() => setConditionModal({ ...conditionModal, quantity: Math.min(maxQty, clampedQty + 1) })}
+                      className="px-3.5 py-2 rounded-lg bg-[#07172f] border border-blue-500/40 text-white font-bold hover:border-yellow-400 disabled:opacity-40 cursor-pointer"
+                    >
+                      +
+                    </button>
+                  </div>
+                </div>
+
+                {/* Live Stock Accounting Preview */}
+                <div className="p-3.5 rounded-xl bg-[#07172f] border border-blue-500/40 space-y-2">
+                  <div className="flex items-center justify-between text-[11px] font-bold uppercase tracking-wide text-slate-300">
+                    <span>Stock Accounting Preview</span>
+                    <span className="text-emerald-300">Total Units Unchanged</span>
+                  </div>
+                  <div className="grid grid-cols-4 gap-2 text-center pt-1">
+                    <div className="p-2 rounded-lg bg-[#0a1c38] border border-blue-700/40">
+                      <div className="text-[10px] text-slate-400 font-bold uppercase">Total</div>
+                      <div className="text-sm font-extrabold text-white mt-0.5">{targetEq.total}</div>
+                      <div className="text-[9px] text-emerald-400 font-semibold">Unchanged</div>
+                    </div>
+                    <div className="p-2 rounded-lg bg-[#0a1c38] border border-blue-700/40">
+                      <div className="text-[10px] text-slate-400 font-bold uppercase">Available</div>
+                      <div className="text-sm font-extrabold text-yellow-400 mt-0.5">
+                        {targetEq.available} → {nextAvail}
+                      </div>
+                    </div>
+                    <div className="p-2 rounded-lg bg-[#0a1c38] border border-blue-700/40">
+                      <div className="text-[10px] text-slate-400 font-bold uppercase">In Repair</div>
+                      <div className="text-sm font-extrabold text-amber-400 mt-0.5">
+                        {targetEq.inRepair} → {nextRepair}
+                      </div>
+                    </div>
+                    <div className="p-2 rounded-lg bg-[#0a1c38] border border-blue-700/40">
+                      <div className="text-[10px] text-slate-400 font-bold uppercase">Damaged</div>
+                      <div className="text-sm font-extrabold text-red-400 mt-0.5">
+                        {targetEq.damaged} → {nextDamaged}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Modal Actions */}
+                <div className="flex items-center justify-end gap-3 pt-2 border-t border-blue-700/40">
+                  <button
+                    type="button"
+                    onClick={() => setConditionModal(null)}
+                    className="px-4 py-2 rounded-lg text-xs font-bold text-slate-300 hover:bg-blue-800/40 border border-blue-500/40 transition cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    disabled={clampedQty <= 0}
+                    onClick={async () => {
+                      await updateEquipmentCondition(targetEq.id, conditionModal.action, clampedQty);
+                      setConditionModal(null);
+                    }}
+                    className="px-5 py-2 rounded-lg text-xs font-bold bg-yellow-400 hover:bg-yellow-300 text-blue-950 shadow-md transition disabled:opacity-40 cursor-pointer flex items-center gap-1.5"
+                  >
+                    <Check className="w-4 h-4" />
+                    <span>Apply Stock Update</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
     </div>
   );
 }
@@ -1219,10 +1944,14 @@ function ActiveLogsOverlay({ type, onClose, equipment, requests, users }: any) {
     columns = ['BORROWER NAME', 'EQUIPMENT LOGGED OUT', 'REQUESTED TERM FRAME', 'STATUS STATE'];
     data = requests.filter((r: any) => r.status === 'approved' || r.status === 'overdue').map((r: any) => {
       const u = users.find((u: any) => u.id === r.userId);
-      const e = equipment.find((e: any) => e.id === r.equipmentId);
+      const reqItems = r.items && r.items.length > 0 ? r.items : [{ equipmentId: r.equipmentId, quantity: r.quantity }];
+      const itemsLabel = reqItems.map((it: any) => {
+        const eq = equipment.find((e: any) => e.id === it.equipmentId);
+        return `${it.quantity}× ${eq?.name || 'Item'}`;
+      }).join(', ');
       return {
-        col1: `${u?.name} (${u?.role})`,
-        col2: `${r.quantity}× ${e?.name}`,
+        col1: `${u?.name || r.userId} (${u?.role || 'borrower'})`,
+        col2: itemsLabel,
         col3: `Pickup: ${new Date(r.pickupDate).toLocaleString()} | Return: ${new Date(r.returnDate).toLocaleString()}`,
         col4: r.status === 'approved' ? 'Approved' : 'Overdue Returns',
         isAvailable: r.status === 'approved'

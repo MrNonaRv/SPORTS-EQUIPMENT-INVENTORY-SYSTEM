@@ -21,11 +21,14 @@ export default function PublicDashboard() {
   }, [equipment]);
 
   const filteredEquipment = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase();
     return equipment.filter(eq => {
       const matchCat = selectedCategory === 'All' || eq.category.toLowerCase() === selectedCategory.toLowerCase();
-      const matchSearch = searchQuery.trim() === '' || 
-        eq.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-        eq.category.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchSearch = q === '' || 
+        eq.name.toLowerCase().includes(q) || 
+        eq.category.toLowerCase().includes(q) ||
+        (eq.equipmentCode && eq.equipmentCode.toLowerCase().includes(q)) ||
+        (eq.equipmentCodes && eq.equipmentCodes.some(c => c.toLowerCase().includes(q)));
       return matchCat && matchSearch;
     });
   }, [equipment, selectedCategory, searchQuery]);
@@ -315,10 +318,14 @@ function ActiveLogsOverlay({ type, onClose, equipment, requests, users, isLight 
     columns = ['BORROWER NAME', 'EQUIPMENT LOGGED OUT', 'REQUESTED TERM FRAME', 'STATUS STATE'];
     data = requests.filter((r: any) => r.status === 'approved' || r.status === 'overdue').map((r: any) => {
       const u = users.find((u: any) => u.id === r.userId);
-      const e = equipment.find((e: any) => e.id === r.equipmentId);
+      const reqItems = r.items && r.items.length > 0 ? r.items : [{ equipmentId: r.equipmentId, quantity: r.quantity }];
+      const itemsLabel = reqItems.map((it: any) => {
+        const eq = equipment.find((e: any) => e.id === it.equipmentId);
+        return `${it.quantity}× ${eq?.name || 'Item'}`;
+      }).join(', ');
       return {
-        col1: `${u?.name} (${u?.role})`,
-        col2: `${r.quantity}× ${e?.name}`,
+        col1: `${u?.name || r.userId} (${u?.role || 'borrower'})`,
+        col2: itemsLabel,
         col3: `Pickup: ${new Date(r.pickupDate).toLocaleString()} | Return: ${new Date(r.returnDate).toLocaleString()}`,
         col4: r.status === 'approved' ? 'Approved' : 'Overdue Returns',
         isAvailable: r.status === 'approved'

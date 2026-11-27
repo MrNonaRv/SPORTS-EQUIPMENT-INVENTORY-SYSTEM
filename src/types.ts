@@ -13,7 +13,8 @@ export interface User {
 
 export interface Equipment {
   id: string;
-  equipmentCode?: string; // Unique Equipment ID / Code (e.g. EQ-0001, BB-001)
+  equipmentCode?: string; // Primary Equipment ID / Code (e.g. EQ-0001, BB-001, ARN-003)
+  equipmentCodes?: string[]; // Individual unit Equipment IDs / Codes assigned to units
   name: string;
   description?: string;
   category: string;
@@ -25,6 +26,13 @@ export interface Equipment {
   location?: string;
   lastChecked?: string;
 }
+
+export type EquipmentConditionAction =
+  | 'mark_damaged'
+  | 'mark_repair'
+  | 'move_damaged_to_repair'
+  | 'restore_from_repair'
+  | 'restore_from_damaged';
 
 export type RequestStatus = 'pending' | 'approved' | 'declined' | 'returned' | 'return_pending' | 'overdue';
 
@@ -52,6 +60,8 @@ export interface BorrowRequest {
 export interface ArrivalRecord {
   id: string;
   equipmentCode?: string;
+  equipmentCodes?: string[];
+  arrivalType?: 'new' | 'restock';
   equipmentName: string;
   category: string;
   quantity: number;
